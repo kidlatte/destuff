@@ -12,6 +12,11 @@ RUN dotnet restore "Client/Destuff.Client.csproj"
 COPY ["Server/Destuff.Server.csproj", "Server/"]
 RUN dotnet restore "Server/Destuff.Server.csproj"
 
+RUN dotnet tool install -g Microsoft.Web.LibraryManager.Cli
+ENV PATH="${PATH}:/root/.dotnet/tools"
+COPY ["libman.json", "./"]
+RUN libman restore
+
 COPY . .
 RUN dotnet build "Server/Destuff.Server.csproj" -c Release -o /app/build
 
