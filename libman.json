@@ -1,0 +1,16 @@
+{
+  "version": "1.0",
+  "defaultProvider": "jsdelivr",
+  "defaultDestination": "Client/wwwroot/lib",
+  "libraries": [
+    {
+      "library": "bootstrap@5.1.3",
+      "destination": "Client/wwwroot/lib/bootstrap",
+      "files": [
+        "dist/css/bootstrap.min.css",
+        "dist/js/bootstrap.bundle.min.js",
+        "scss/*"
+      ]
+    }
+  ]
+}
