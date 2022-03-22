@@ -1,31 +1,58 @@
-using System.IO;
-using System.Runtime.InteropServices;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Destuff.Server.Data;
 using Destuff.Server.Data.Entities;
+using Destuff.Server.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
-// Add services to the container.
-
+// Generate connection string
 var path = configuration["DOTNET_RUNNING_IN_CONTAINER"] == "true" ?
     "/config" :
     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
 var folder = Path.Join(path, "Destuff");
-Console.WriteLine($"folder: {folder}");
 Directory.CreateDirectory(folder);
 
 var dbPath = Path.Join(folder, "destuff.db");
 var connString = $"Data Source={dbPath}";
-Console.WriteLine($"connString: {connString}");
 
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connString));
+// Add services to the container.
+builder.Services
+    .AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connString));
 
 builder.Services
-    .AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedEmail = false)
+    .AddIdentityCore<ApplicationUser>(options => options.User.RequireUniqueEmail = false)
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+// Configure strongly typed settings objects
+var appSettingsSection = configuration.GetSection(nameof(AppSettings));
+builder.Services.Configure<AppSettings>(appSettingsSection);
+var settings = appSettingsSection.Get<AppSettings>();
+
+// Configure JWT authentication
+var key = Encoding.ASCII.GetBytes(settings.Secret);
+builder.Services.AddAuthentication(x =>
+{
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(x =>
+{
+    x.RequireHttpsMetadata = false;
+    x.SaveToken = true;
+    x.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = false,
+        ValidateAudience = false
+    };
+});
+
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
