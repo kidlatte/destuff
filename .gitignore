@@ -1,3 +1,5 @@
+.vscode/
 bin/
 obj/
-Client/wwwroot/
+Client/wwwroot/lib/
+notes.txt
