@@ -1,0 +1,50 @@
+@page "/login"
+@layout BaseLayout
+
+@inject Destuff.Client.Services.CustomAuthenticationStateProvider authState
+@inject NavigationManager navigationManager
+
+<div class="bg-light d-flex text-center h-100 ">
+    <EditForm class="bg-white rounded-3 m-auto p-4" OnValidSubmit="OnSubmit" Model="login">
+        <DataAnnotationsValidator />
+
+        <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+
+        <div class="form-floating mb-1">
+            <InputText @bind-Value="login.UserName" id="inputUsername" class="form-control" autofocus placeholder="Username" />
+            <label for="floatingInput">Username</label>
+            <ValidationMessage For="@(() => login.UserName)" />
+        </div>
+        <div class="form-floating mb-1">
+            <InputText @bind-Value="login.Password" type="password" id="inputPassword" class="form-control" placeholder="Password" />
+            <label for="floatingPassword">Password</label>
+            <ValidationMessage For="@(() => login.Password)" />
+        </div>
+
+        <div class="checkbox mb-3">
+            <label>
+                <input type="checkbox" @bind="login.Remember"> Remember me
+            </label>
+        </div>
+        <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
+    </EditForm>
+</div>
+
+@code {
+    LoginModel login { get; set; } = new LoginModel();
+    string error { get; set; } = "";
+
+    async Task OnSubmit()
+    {
+        error = "";
+        try
+        {
+            await authState.LoginAsync(login);
+            navigationManager.NavigateTo("");
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+}

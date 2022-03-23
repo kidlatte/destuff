@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Destuff</title>
     <base href="/" />
-    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="css/app.css" rel="stylesheet" />
     <link href="Destuff.Client.styles.css" rel="stylesheet" />
     <link href="manifest.json" rel="manifest" />
@@ -15,7 +15,11 @@
 </head>
 
 <body>
-    <div id="app">Loading...</div>
+    <div id="app" class="">
+        <div class="d-flex align-items-center h-100">
+            <div class="loader">Loading...</div>
+        </div>
+    </div>
 
     <div id="blazor-error-ui">
         An unhandled error has occurred.

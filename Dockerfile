@@ -5,6 +5,12 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
+
+RUN dotnet tool install -g Microsoft.Web.LibraryManager.Cli
+ENV PATH="${PATH}:/root/.dotnet/tools"
+COPY ["libman.json", "./"]
+RUN libman restore
+
 COPY ["Shared/Destuff.Shared.csproj", "Shared/"]
 RUN dotnet restore "Shared/Destuff.Shared.csproj"
 COPY ["Client/Destuff.Client.csproj", "Client/"]
