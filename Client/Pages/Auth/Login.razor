@@ -1,9 +1,8 @@
 @page "/login"
 @layout BaseLayout
 
-@inject HttpClient http
+@inject Destuff.Client.Services.CustomAuthenticationStateProvider authState
 @inject NavigationManager navigationManager
-@inject ILocalStorageService localStorage
 
 <div class="bg-light d-flex text-center h-100 ">
     <EditForm class="bg-white rounded-3 m-auto p-4" OnValidSubmit="OnSubmit" Model="login">
@@ -40,12 +39,7 @@
         error = "";
         try
         {
-            var result = await http.PostAsJsonAsync(ApiRoutes.AuthLogin, login);
-            if (result.StatusCode == System.Net.HttpStatusCode.BadRequest) throw new Exception(await result.Content.ReadAsStringAsync());
-            result.EnsureSuccessStatusCode();
-
-            var model = await result.Content.ReadFromJsonAsync<AuthTokenModel>();
-            await localStorage.SetItemAsync("current-user", model);
+            await authState.LoginAsync(login);
             navigationManager.NavigateTo("");
         }
         catch (Exception ex)
