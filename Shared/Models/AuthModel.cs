@@ -15,6 +15,7 @@ namespace Destuff.Shared.Models;
 
     public class AuthTokenModel
     {
+        public string? UserName { get; set; }
         public string? AuthToken { get; set; }
         public DateTime? Expires { get; set; }
     }

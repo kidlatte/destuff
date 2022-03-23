@@ -59,6 +59,7 @@ public class AuthController : ControllerBase
 
         return Ok(new AuthTokenModel
         {
+            UserName = user.UserName,
             AuthToken = tokenString,
             Expires = tokenDescriptor.Expires
         });
