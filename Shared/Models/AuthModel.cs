@@ -2,7 +2,24 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Destuff.Shared.Models;
 
-    public class AuthModel
+    public class LoginModel
+    {
+        [Required]
+        public string? UserName { get; set; }
+
+        [Required]
+        public string? Password { get; set; }
+
+        public bool Remember { get; set; }
+    }
+
+    public class AuthTokenModel
+    {
+        public string? AuthToken { get; set; }
+        public DateTime? Expires { get; set; }
+    }
+
+    public class RegisterModel
     {
         [Required]
         public string? UserName { get; set; }
@@ -11,10 +28,6 @@ namespace Destuff.Shared.Models;
         public string? Password { get; set; }
     }
 
-    public class AuthTokenModel
-    {
-        public string? AuthToken { get; set; }
-    }
 
     public class RegisterResultModel
     {

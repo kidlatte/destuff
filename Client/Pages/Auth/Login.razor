@@ -1,0 +1,54 @@
+@page "/login"
+@layout BaseLayout
+@using Destuff.Shared
+@using Destuff.Shared.Models
+
+@inject HttpClient http
+@inject NavigationManager navigationManager
+
+<div class="bg-light d-flex text-center h-100 ">
+    <EditForm class="bg-white rounded-3 m-auto p-4" OnValidSubmit="OnSubmit" Model="authModel">
+        <DataAnnotationsValidator />
+
+        <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+
+        <div class="form-floating mb-1">
+            <InputText @bind-Value="authModel.UserName" id="inputUsername" class="form-control" autofocus placeholder="Username" />
+            <label for="floatingInput">Username</label>
+            <ValidationMessage For="@(() => authModel.UserName)" />
+        </div>
+        <div class="form-floating mb-1">
+            <InputText @bind-Value="authModel.Password" type="password" id="inputPassword" class="form-control" placeholder="Password" />
+            <label for="floatingPassword">Password</label>
+            <ValidationMessage For="@(() => authModel.Password)" />
+        </div>
+
+        <div class="checkbox mb-3">
+            <label>
+                <input type="checkbox" @bind="authModel.Remember"> Remember me
+            </label>
+        </div>
+        <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
+    </EditForm>
+</div>
+
+@code {
+    LoginModel authModel { get; set; } = new LoginModel();
+    string error { get; set; } = "";
+
+    async Task OnSubmit()
+    {
+        error = "";
+        try
+        {
+            var result = await http.PostAsJsonAsync(ApiRoutes.AuthLogin, authModel);
+            if (result.StatusCode == System.Net.HttpStatusCode.BadRequest) throw new Exception(await result.Content.ReadAsStringAsync());
+            result.EnsureSuccessStatusCode();
+            navigationManager.NavigateTo("");
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+}

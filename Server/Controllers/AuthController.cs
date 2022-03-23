@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Destuff.Server.Data.Entities;
 using Destuff.Server.Models;
+using Destuff.Shared;
 using Destuff.Shared.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -26,8 +27,9 @@ public class AuthController : ControllerBase
         _logger = logger;
     }
 
-    [HttpPost("login")]
-    public async Task<ActionResult<AuthTokenModel>> Login([FromBody] AuthModel model)
+    [HttpPost]
+    [Route(ApiRoutes.AuthLogin)]
+    public async Task<ActionResult<AuthTokenModel>> Login([FromBody] LoginModel model)
     {
         _logger.LogInformation("Login: {User}", model.UserName);
 
@@ -49,7 +51,7 @@ public class AuthController : ControllerBase
                     new Claim(ClaimTypes.Name, user.UserName),
                 }
             ),
-            Expires = DateTime.MaxValue,
+            Expires = model.Remember ? DateTime.MaxValue : DateTime.UtcNow.AddDays(1),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
         var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -58,11 +60,12 @@ public class AuthController : ControllerBase
         return Ok(new AuthTokenModel
         {
             AuthToken = tokenString,
+            Expires = tokenDescriptor.Expires
         });
     }
 
     [HttpPost("register")]
-    public async Task<ActionResult<RegisterResultModel>> Register([FromBody] AuthModel model)
+    public async Task<ActionResult<RegisterResultModel>> Register([FromBody] LoginModel model)
     {
         if (!ModelState.IsValid)
             return BadRequest();
@@ -82,5 +85,13 @@ public class AuthController : ControllerBase
             // return error message if there was an exception
             return BadRequest(new { message = ex.Message });
         }
+    }
+
+    [HttpGet]
+    [Route(ApiRoutes.AuthOnline)]
+    public async Task<IActionResult> CheckOnline()
+    {
+        await Task.CompletedTask;
+        return Ok(new { Online = true });
     }
 }
