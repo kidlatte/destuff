@@ -12,13 +12,11 @@ var configuration = builder.Configuration;
 // Generate connection string
 var path = configuration["DOTNET_RUNNING_IN_CONTAINER"] == "true" ?
     "/config" :
-    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+    Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Destuff");
+Directory.CreateDirectory(path);
 
-var folder = Path.Join(path, "Destuff");
-Directory.CreateDirectory(folder);
-
-var dbPath = Path.Join(folder, "destuff.db");
-var connString = $"Data Source={dbPath}";
+var dbfile = Path.Join(path, "destuff.db");
+var connString = $"Data Source={dbfile}";
 
 // Add services to the container.
 builder.Services
