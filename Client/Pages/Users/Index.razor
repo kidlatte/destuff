@@ -1,5 +1,6 @@
 @page "/users"
 
+@using BlazorGrid.Interfaces
 @using BlazorGrid.Abstractions
 @using BlazorGrid.Components
 @using System.Threading
@@ -8,37 +9,55 @@
 
 <h1>Users</h1>
 
-<p>This component demonstrates fetching data from the server. @edit!.UserName</p>
+<div class="text-end">
+    <button  @onclick="() => Create()" type="button" class="btn btn-sm btn-primary">Register</button>
+</div>
 
 <div style="height: 400px;">
-    <BlazorGrid TRow="UserModel" Provider="LoadData">
+    <BlazorGrid @ref="grid" TRow="UserModel" Provider="LoadData">
         <GridCol For="() => context.UserName" Caption="UserName" />
         <StaticGridCol FitToContent="true">
             <button @onclick="() => Edit(context)" class="btn btn-link py-0">Edit</button>
-            @* <button @onclick="() => Delete(context)" class="btn btn-sm btn-danger">Delete</button> *@
+            <button @onclick="() => Delete(context)" class="btn btn-link py-0">Delete</button>
         </StaticGridCol>            
     </BlazorGrid>
 </div>
 
 <EditModal @ref="edit" />
+<CreateModal @ref="create" OnUserCreated="HandleUserCreated" />
 
 @code
 {
-    EditModal? edit { get; set; } = new EditModal();
+    IBlazorGrid? grid;
+    EditModal? edit;
+    CreateModal? create;
 
-    private async ValueTask<BlazorGridResult<UserModel>?> LoadData(BlazorGridRequest request, CancellationToken _)
+    async ValueTask<BlazorGridResult<UserModel>?> LoadData(BlazorGridRequest request, CancellationToken _)
     {
         return await http.PostAsync<BlazorGridResult<UserModel>>(ApiRoutes.AuthUsers, request);
     }
 
-    private async Task Edit(UserModel model)
+    void Create()
     {
-        edit!.UserName = model.UserName;
-        edit!.Open();
-        await Task.CompletedTask;
+        create?.Open();
     }
 
-    private async Task Delete(UserModel model)
+    async Task HandleUserCreated()
+    {
+        if (grid != null)
+            await grid.ReloadAsync();
+    }
+
+    void Edit(UserModel model)
+    {
+        if (edit != null)
+        {
+            edit.UserName = model.UserName;
+            edit.Open();
+        }
+    }
+
+    async Task Delete(UserModel model)
     {
         await Task.CompletedTask;
     }

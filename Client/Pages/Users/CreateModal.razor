@@ -1,0 +1,96 @@
+@inject NavigationManager navigationManager
+@inject IHttpService http
+
+@if (showModal)
+{
+    <div class="modal fade show" tabindex="-1" role="dialog" style="display: block; overflow-y: auto;">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Register User</h5>
+                    <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
+                </div>
+                <EditForm OnValidSubmit="OnSubmit" Model="model">
+                    <div class="modal-body">
+                        <DataAnnotationsValidator />
+
+                        <p class="mb-3 fw-normal">Register a new user.</p>
+
+                        <div class="px-5">
+                            <div class="form-floating mb-1">
+                                <InputText @bind-Value="model.UserName" class="form-control"
+                                    placeholder="Username" />
+                                <label for="floatingPassword">Username</label>
+                            </div>
+
+                            <div class="form-floating mb-1">
+                                <InputText @bind-Value="model.Password" type="password" class="form-control"
+                                    placeholder="Password" />
+                                <label for="floatingPassword">Password</label>
+                                <ValidationMessage For="@(() => model.Password)" />
+                            </div>
+                        </div>
+
+                        <label class="text-danger">@error</label>
+                    </div>
+                    <div class="modal-footer">
+                        <button @onclick="Close" type="button" class="btn btn-secondary">Cancel</button>
+                        <button type="submit" class="btn btn-primary" disabled="@loading">
+                            @(loading ? "Submitting..." : "Confirm")
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    [Parameter]
+    public EventCallback OnUserCreated { get; set; }
+
+    RegisterModel model { get; set; } = new RegisterModel();
+    string error { get; set; } = "";
+    bool loading { get; set; } = false;
+    bool showModal { get; set; } = false;
+
+    async Task OnSubmit()
+    {
+        error = "";
+        try
+        {
+            loading = true;
+            var result = await http.PostAsync<RegisterResultModel>(ApiRoutes.AuthRegister, model);
+            loading = false;
+
+            if (result?.Succeeded == true)
+            {
+                Close();
+                await OnUserCreated.InvokeAsync();
+            }
+            else if (result?.Succeeded == false)
+            {
+                error = string.Join(",", result.Errors);
+            }
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+
+    public void Open()
+    {
+        showModal = true;
+        StateHasChanged();
+    }
+
+    public void Close()
+    {
+        Console.WriteLine("close");
+        showModal = false;
+        StateHasChanged();
+    }
+}
