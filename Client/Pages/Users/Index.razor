@@ -5,7 +5,7 @@
 @using BlazorGrid.Components
 @using System.Text.Json
 @using System.Threading
-@inject HttpClient Http
+@inject IHttpService Http
 
 <h1>Users</h1>
 
@@ -14,14 +14,33 @@
 <div style="height: 400px;">
     <BlazorGrid TRow="UserModel" Provider="LoadData">
         <GridCol For="() => context.UserName" Caption="UserName" />
+        <StaticGridCol FitToContent="true">
+            <button @onclick="() => Edit(context)" class="btn btn-sm btn-primary mr-1">Edit</button>
+            @* <button @onclick="() => Delete(context)" class="btn btn-sm btn-danger">Delete</button> *@
+        </StaticGridCol>            
     </BlazorGrid>
 </div>
 
+<EditModal @ref="edit" />
+
 @code
 {
-    private async ValueTask<BlazorGridResult<UserModel>?> LoadData(BlazorGridRequest request, CancellationToken cancellationToken)
+    EditModal? edit { get; set; }
+
+    private async ValueTask<BlazorGridResult<UserModel>?> LoadData(BlazorGridRequest request, CancellationToken _)
     {
-        var response = await Http.PostAsJsonAsync(ApiRoutes.Users, request, cancellationToken);
-        return await response.Content.ReadFromJsonAsync<BlazorGridResult<UserModel>>();
+        return await Http.PostAsync<BlazorGridResult<UserModel>>(ApiRoutes.AuthUsers, request);
+    }
+
+    private async Task Edit(UserModel model)
+    {
+        edit = new EditModal();
+        edit.UserName = model.UserName;
+        await Task.CompletedTask;
+    }
+
+    private async Task Delete(UserModel model)
+    {
+        await Task.CompletedTask;
     }
 }

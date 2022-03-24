@@ -1,14 +1,18 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using BlazorGrid.Abstractions;
+using BlazorGrid.Abstractions.Extensions;
 using Destuff.Server.Data.Entities;
 using Destuff.Server.Models;
 using Destuff.Shared;
 using Destuff.Shared.Models;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Destuff.Server.Controllers;
 
@@ -27,8 +31,7 @@ public class AuthController : ControllerBase
         _logger = logger;
     }
 
-    [HttpPost]
-    [Route(ApiRoutes.AuthLogin)]
+    [HttpPost, Route(ApiRoutes.AuthLogin)]
     public async Task<ActionResult<AuthTokenModel>> Login([FromBody] LoginModel model)
     {
         _logger.LogInformation("Login: {User}", model.UserName);
@@ -51,7 +54,7 @@ public class AuthController : ControllerBase
                     new Claim(ClaimTypes.Name, user.UserName),
                 }
             ),
-            Expires = model.Remember ? DateTime.MaxValue : DateTime.UtcNow.AddDays(1),
+            Expires = model.Remember ? DateTime.UtcNow.AddMonths(1) : DateTime.UtcNow.AddDays(1),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
         var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -86,6 +89,54 @@ public class AuthController : ControllerBase
             // return error message if there was an exception
             return BadRequest(new { message = ex.Message });
         }
+    }
+
+    [Authorize]
+    [HttpPost, Route(ApiRoutes.AuthUsers)]
+    public async Task<IActionResult> FetchUsers(BlazorGridRequest request)
+    {
+        var query = _userManager.Users.AsQueryable();
+
+        if (!string.IsNullOrEmpty(request.Query))
+            query = query.Where(x => x.UserName.StartsWith(request.Query));
+
+        var count = await query.CountAsync();
+        if (count == 0)
+        {
+            return Ok(new BlazorGridResult<UserModel> 
+            {
+                Data = new List<UserModel>(),
+                TotalCount = 0
+            });
+        }
+
+        // Apply ordering
+        if (request.OrderBy == null)
+            query = query.OrderBy(x => x.UserName);
+        else if (request.OrderByDescending)
+            query = query.OrderByDescending(request.OrderBy);
+        else
+            query = query.OrderBy(request.OrderBy);
+
+        // Apply paging
+        var rows = query.Skip(request.Offset).Take(request.Length)
+            .Select(x => new UserModel { UserName = x.UserName }).ToList();
+
+        return Ok(new BlazorGridResult<UserModel>
+        {
+            Data = rows,
+            TotalCount = count
+        });
+    }
+
+    [Authorize]
+    [HttpPost, Route(ApiRoutes.AuthChangePassword)]
+    public async Task<IActionResult> ChangePassword(PasswordChangeModel model)
+    {
+        var user = await _userManager.FindByNameAsync(model.UserName);
+        await _userManager.RemovePasswordAsync(user);
+        await _userManager.AddPasswordAsync(user, model.Password);
+        return Ok();
     }
 
     [HttpGet]
