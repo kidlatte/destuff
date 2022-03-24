@@ -1,21 +1,20 @@
 @page "/users"
 
-
 @using BlazorGrid.Abstractions
 @using BlazorGrid.Components
-@using System.Text.Json
 @using System.Threading
-@inject IHttpService Http
+
+@inject IHttpService http
 
 <h1>Users</h1>
 
-<p>This component demonstrates fetching data from the server.</p>
+<p>This component demonstrates fetching data from the server. @edit!.UserName</p>
 
 <div style="height: 400px;">
     <BlazorGrid TRow="UserModel" Provider="LoadData">
         <GridCol For="() => context.UserName" Caption="UserName" />
         <StaticGridCol FitToContent="true">
-            <button @onclick="() => Edit(context)" class="btn btn-sm btn-primary mr-1">Edit</button>
+            <button @onclick="() => Edit(context)" class="btn btn-link py-0">Edit</button>
             @* <button @onclick="() => Delete(context)" class="btn btn-sm btn-danger">Delete</button> *@
         </StaticGridCol>            
     </BlazorGrid>
@@ -25,17 +24,17 @@
 
 @code
 {
-    EditModal? edit { get; set; }
+    EditModal? edit { get; set; } = new EditModal();
 
     private async ValueTask<BlazorGridResult<UserModel>?> LoadData(BlazorGridRequest request, CancellationToken _)
     {
-        return await Http.PostAsync<BlazorGridResult<UserModel>>(ApiRoutes.AuthUsers, request);
+        return await http.PostAsync<BlazorGridResult<UserModel>>(ApiRoutes.AuthUsers, request);
     }
 
     private async Task Edit(UserModel model)
     {
-        edit = new EditModal();
-        edit.UserName = model.UserName;
+        edit!.UserName = model.UserName;
+        edit!.Open();
         await Task.CompletedTask;
     }
 

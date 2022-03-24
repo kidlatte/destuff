@@ -12,8 +12,6 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     IHttpService _http { get; }
     IStorageService _storage { get; }
 
-    private readonly string currentUserKey = "current-user";
-
     public CustomAuthenticationStateProvider(IHttpService http, IStorageService storage)
     {
         _http = http;
@@ -23,8 +21,6 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         var currentUser = await _storage.GetUserAsync();
-        Console.WriteLine($">>> AuthenticationState: {currentUser?.UserName}");
-
         if (currentUser?.UserName == null)
             return new AuthenticationState(new ClaimsPrincipal());
 

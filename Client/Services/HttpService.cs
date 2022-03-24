@@ -13,6 +13,7 @@ public interface IHttpService
 {
     Task<T?> GetAsync<T>(string uri) where T : class;
     Task<T?> PostAsync<T>(string uri, object value) where T : class;
+    Task PostAsync(string uri, object value);
 }
 
 public class HttpService : IHttpService
@@ -45,12 +46,36 @@ public class HttpService : IHttpService
         return await sendRequest<T>(request);
     }
 
+    public async Task PostAsync(string uri, object value)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Post, uri);
+        request.Content = new StringContent(JsonSerializer.Serialize(value), Encoding.UTF8, "application/json");
+
+        // add jwt auth header if user is logged in and request is to the api url
+        var user = await _storage.GetUserAsync();
+        var isApiUrl = request.RequestUri?.OriginalString.StartsWith("/api") ?? default;
+        if (user != null && isApiUrl)
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", user.AuthToken);
+
+        using var response = await _http.SendAsync(request);
+
+        // auto logout on 401 response
+        if (response.StatusCode == HttpStatusCode.Unauthorized)
+            _navigation.NavigateTo("/login");
+
+        // throw exception on error response
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+            throw new Exception(error != null ? error["message"] : default);
+        }
+    }
+
     private async Task<T?> sendRequest<T>(HttpRequestMessage request) where T : class
     {
         // add jwt auth header if user is logged in and request is to the api url
         var user = await _storage.GetUserAsync();
         var isApiUrl = request.RequestUri?.OriginalString.StartsWith("/api") ?? default;
-        Console.WriteLine($"request: {isApiUrl} {request.RequestUri?.OriginalString} {request.RequestUri?.OriginalString.StartsWith("/api")}");
         if (user != null && isApiUrl)
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", user.AuthToken);
 
