@@ -9,29 +9,16 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Change Password</h5>
+                    <h5 class="modal-title">Delete User</h5>
                     <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
                 </div>
                 <EditForm OnValidSubmit="OnSubmit" Model="model">
                     <div class="modal-body">
                         <DataAnnotationsValidator />
 
-                        <p class="mb-3 fw-normal">Change password for user @UserName</p>
-
-                        <div class="px-5">
-                            <div class="form-floating mb-1">
-                                <InputText @bind-Value="model.UserName" class="form-control"
-                                    readonly="readonly" />
-                                <label for="floatingPassword">Username</label>
-                            </div>
-
-                            <div class="form-floating mb-1">
-                                <InputText @bind-Value="model.Password" type="password" class="form-control"
-                                    placeholder="New Password" disable="@loading" />
-                                <label for="floatingPassword">New Password</label>
-                                <ValidationMessage For="@(() => model.Password)" />
-                            </div>
-                        </div>
+                        <p class="mb-3 fw-normal">
+                            Do you really want to remove <code>@UserName</code> from the database?
+                        </p>
 
                         <label class="text-danger">@error</label>
                     </div>
@@ -48,9 +35,12 @@
 }
 
 @code {
+    [Parameter]
+    public EventCallback OnUserDeleted { get; set; }
+
     public string? UserName { get; set; }
 
-    PasswordChangeModel model { get; set; } = new PasswordChangeModel();
+    UserModel model { get; set; } = new UserModel();
     string error { get; set; } = "";
     bool loading { get; set; } = false;
     bool showModal { get; set; } = false;
@@ -61,17 +51,9 @@
 
         try
         {
-
-            var result = await http.PutAsync<RegisterResultModel>(ApiRoutes.AuthChangePassword, model);
-
-            if (result?.Succeeded == true)
-            {
-                Close();
-            }
-            else if (result?.Succeeded == false)
-            {
-                error = string.Join("\n", result.Errors);
-            }
+            await http.DeleteAsync($"{ApiRoutes.Auth}/{UserName}");
+            Close();
+            await OnUserDeleted.InvokeAsync();
         }
         catch (Exception ex)
         {

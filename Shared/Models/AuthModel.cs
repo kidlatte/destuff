@@ -45,3 +45,7 @@ public class PasswordChangeModel
     public string? Password { get; set; }
 }
 
+public class UserModel
+{
+    public string? UserName { get; set; }
+}

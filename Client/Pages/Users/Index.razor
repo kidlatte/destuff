@@ -24,17 +24,19 @@
 </div>
 
 <EditModal @ref="edit" />
-<CreateModal @ref="create" OnUserCreated="HandleUserCreated" />
+<CreateModal @ref="create" OnUserCreated="ReloadGrid" />
+<DeleteModal @ref="delete" OnUserDeleted="ReloadGrid" />
 
 @code
 {
     IBlazorGrid? grid;
-    EditModal? edit;
     CreateModal? create;
+    EditModal? edit;
+    DeleteModal? delete;
 
     async ValueTask<BlazorGridResult<UserModel>?> LoadData(BlazorGridRequest request, CancellationToken _)
     {
-        return await http.PostAsync<BlazorGridResult<UserModel>>(ApiRoutes.AuthUsers, request);
+        return await http.PostAsync<BlazorGridResult<UserModel>>(ApiRoutes.Users, request);
     }
 
     void Create()
@@ -42,7 +44,7 @@
         create?.Open();
     }
 
-    async Task HandleUserCreated()
+    async Task ReloadGrid()
     {
         if (grid != null)
             await grid.ReloadAsync();
@@ -57,8 +59,12 @@
         }
     }
 
-    async Task Delete(UserModel model)
+    void Delete(UserModel model)
     {
-        await Task.CompletedTask;
+        if (delete != null)
+        {
+            delete.UserName = model.UserName;
+            delete.Open();
+        }
     }
 }

@@ -14,6 +14,9 @@ public interface IHttpService
     Task<T?> GetAsync<T>(string uri) where T : class;
     Task<T?> PostAsync<T>(string uri, object value) where T : class;
     Task PostAsync(string uri, object value);
+    Task PutAsync(string uri, object value);
+    Task<T?> PutAsync<T>(string uri, object value) where T : class;
+    Task DeleteAsync(string uri);
 }
 
 public class HttpService : IHttpService
@@ -46,29 +49,21 @@ public class HttpService : IHttpService
         return await sendRequest<T>(request);
     }
 
-    public async Task PostAsync(string uri, object value)
+    public Task PostAsync(string uri, object value) => PostAsync<object>(uri, value);
+
+    public async Task<T?> PutAsync<T>(string uri, object value) where T : class
     {
-        var request = new HttpRequestMessage(HttpMethod.Post, uri);
+        var request = new HttpRequestMessage(HttpMethod.Put, uri);
         request.Content = new StringContent(JsonSerializer.Serialize(value), Encoding.UTF8, "application/json");
+        return await sendRequest<T>(request);
+    }
 
-        // add jwt auth header if user is logged in and request is to the api url
-        var user = await _storage.GetUserAsync();
-        var isApiUrl = request.RequestUri?.OriginalString.StartsWith("/api") ?? default;
-        if (user != null && isApiUrl)
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", user.AuthToken);
+    public Task PutAsync(string uri, object value) => PutAsync<object>(uri, value);
 
-        using var response = await _http.SendAsync(request);
-
-        // auto logout on 401 response
-        if (response.StatusCode == HttpStatusCode.Unauthorized)
-            _navigation.NavigateTo("/login");
-
-        // throw exception on error response
-        if (!response.IsSuccessStatusCode)
-        {
-            var error = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
-            throw new Exception(error != null ? error["message"] : default);
-        }
+    public async Task DeleteAsync(string uri)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Delete, uri);
+        await sendRequest<object>(request);
     }
 
     private async Task<T?> sendRequest<T>(HttpRequestMessage request) where T : class
@@ -94,6 +89,9 @@ public class HttpService : IHttpService
             var error = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
             throw new Exception(error != null ? error["message"] : default);
         }
+
+        if (response.StatusCode == HttpStatusCode.NoContent)
+            return null;
 
         return await response.Content.ReadFromJsonAsync<T>();
     }

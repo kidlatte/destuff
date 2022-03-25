@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Destuff.Server.Controllers;
 
-[Route("api/[controller]")]
+[Route(ApiRoutes.Auth)]
 [ApiController]
 public class AuthController : ControllerBase
 {
@@ -29,6 +29,44 @@ public class AuthController : ControllerBase
         _userManager = userManager;
         _appSettings = appSettings.Value;
         _logger = logger;
+    }
+
+    [Authorize]
+    [HttpPost, Route(ApiRoutes.Users)]
+    public async Task<IActionResult> FetchUsers(BlazorGridRequest request)
+    {
+        var query = _userManager.Users.AsQueryable();
+
+        if (!string.IsNullOrEmpty(request.Query))
+            query = query.Where(x => x.UserName.StartsWith(request.Query));
+
+        var count = await query.CountAsync();
+        if (count == 0)
+        {
+            return Ok(new BlazorGridResult<UserModel> 
+            {
+                Data = new List<UserModel>(),
+                TotalCount = 0
+            });
+        }
+
+        // Apply ordering
+        if (request.OrderBy == null)
+            query = query.OrderBy(x => x.UserName);
+        else if (request.OrderByDescending)
+            query = query.OrderByDescending(request.OrderBy);
+        else
+            query = query.OrderBy(request.OrderBy);
+
+        // Apply paging
+        var rows = query.Skip(request.Offset).Take(request.Length)
+            .Select(x => new UserModel { UserName = x.UserName }).ToList();
+
+        return Ok(new BlazorGridResult<UserModel>
+        {
+            Data = rows,
+            TotalCount = count
+        });
     }
 
     [HttpPost, Route(ApiRoutes.AuthLogin)]
@@ -92,58 +130,41 @@ public class AuthController : ControllerBase
     }
 
     [Authorize]
-    [HttpPost, Route(ApiRoutes.AuthUsers)]
-    public async Task<IActionResult> FetchUsers(BlazorGridRequest request)
+    [HttpPut, Route(ApiRoutes.AuthChangePassword)]
+    public async Task<IActionResult> ChangePassword([FromBody] PasswordChangeModel model)
     {
-        var query = _userManager.Users.AsQueryable();
 
-        if (!string.IsNullOrEmpty(request.Query))
-            query = query.Where(x => x.UserName.StartsWith(request.Query));
+        if (!ModelState.IsValid)
+            return BadRequest();
 
-        var count = await query.CountAsync();
-        if (count == 0)
+        try
         {
-            return Ok(new BlazorGridResult<UserModel> 
+            var user = await _userManager.FindByNameAsync(model.UserName);
+            await _userManager.RemovePasswordAsync(user);
+            var result = await _userManager.AddPasswordAsync(user, model.Password);
+            return Ok(new RegisterResultModel
             {
-                Data = new List<UserModel>(),
-                TotalCount = 0
+                Succeeded = result.Succeeded,
+                Errors = result.Errors.Select(x => x.Description).ToList()
             });
         }
-
-        // Apply ordering
-        if (request.OrderBy == null)
-            query = query.OrderBy(x => x.UserName);
-        else if (request.OrderByDescending)
-            query = query.OrderByDescending(request.OrderBy);
-        else
-            query = query.OrderBy(request.OrderBy);
-
-        // Apply paging
-        var rows = query.Skip(request.Offset).Take(request.Length)
-            .Select(x => new UserModel { UserName = x.UserName }).ToList();
-
-        return Ok(new BlazorGridResult<UserModel>
+        catch (Exception ex)
         {
-            Data = rows,
-            TotalCount = count
-        });
+            // return error message if there was an exception
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [Authorize]
-    [HttpPost, Route(ApiRoutes.AuthChangePassword)]
-    public async Task<IActionResult> ChangePassword(PasswordChangeModel model)
+    [HttpDelete("{userName}")]
+    public async Task<IActionResult> DeleteUser(string userName)
     {
-        var user = await _userManager.FindByNameAsync(model.UserName);
-        await _userManager.RemovePasswordAsync(user);
-        await _userManager.AddPasswordAsync(user, model.Password);
-        return Ok();
-    }
-
-    [HttpGet]
-    [Route(ApiRoutes.AuthOnline)]
-    public async Task<IActionResult> CheckOnline()
-    {
-        await Task.CompletedTask;
-        return Ok(new { Online = true });
+        var user = await _userManager.FindByNameAsync(userName);
+        var result = await _userManager.DeleteAsync(user);
+        return Ok(new RegisterResultModel
+        {
+            Succeeded = result.Succeeded,
+            Errors = result.Errors.Select(x => x.Description).ToList()
+        });
     }
 }

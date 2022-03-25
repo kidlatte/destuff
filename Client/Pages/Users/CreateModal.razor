@@ -3,14 +3,16 @@
 
 @if (showModal)
 {
+    <div class="modal-backdrop fade show"></div>
+
     <div class="modal fade show" tabindex="-1" role="dialog" style="display: block; overflow-y: auto;">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Register User</h5>
                     <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
                 </div>
-                <EditForm OnValidSubmit="OnSubmit" Model="model">
+                <EditForm OnValidSubmit="OnSubmit" Model="model" autocomplete="off">
                     <div class="modal-body">
                         <DataAnnotationsValidator />
 
@@ -19,13 +21,13 @@
                         <div class="px-5">
                             <div class="form-floating mb-1">
                                 <InputText @bind-Value="model.UserName" class="form-control"
-                                    placeholder="Username" />
+                                    placeholder="Username" disable="@loading" autocomplete="off" />
                                 <label for="floatingPassword">Username</label>
                             </div>
 
                             <div class="form-floating mb-1">
                                 <InputText @bind-Value="model.Password" type="password" class="form-control"
-                                    placeholder="Password" />
+                                    placeholder="Password" disable="@loading" autocomplete="new-password" />
                                 <label for="floatingPassword">Password</label>
                                 <ValidationMessage For="@(() => model.Password)" />
                             </div>
@@ -43,8 +45,6 @@
             </div>
         </div>
     </div>
-
-    <div class="modal-backdrop fade show"></div>
 }
 
 @code {
@@ -58,12 +58,11 @@
 
     async Task OnSubmit()
     {
-        error = "";
+        loading = true;
+
         try
         {
-            loading = true;
             var result = await http.PostAsync<RegisterResultModel>(ApiRoutes.AuthRegister, model);
-            loading = false;
 
             if (result?.Succeeded == true)
             {
@@ -79,17 +78,20 @@
         {
             error = ex.Message;
         }
+
+        loading = false;
     }
 
     public void Open()
     {
+        error = "";
+
         showModal = true;
         StateHasChanged();
     }
 
     public void Close()
     {
-        Console.WriteLine("close");
         showModal = false;
         StateHasChanged();
     }
