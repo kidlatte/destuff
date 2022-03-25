@@ -1,0 +1,70 @@
+@page "/users"
+
+@using BlazorGrid.Interfaces
+@using BlazorGrid.Abstractions
+@using BlazorGrid.Components
+@using System.Threading
+
+@inject IHttpService http
+
+<h1>Users</h1>
+
+<div class="text-end">
+    <button  @onclick="() => Create()" type="button" class="btn btn-sm btn-primary">Register</button>
+</div>
+
+<div style="height: 400px;">
+    <BlazorGrid @ref="grid" TRow="UserModel" Provider="LoadData">
+        <GridCol For="() => context.UserName" Caption="UserName" />
+        <StaticGridCol FitToContent="true">
+            <button @onclick="() => Edit(context)" class="btn btn-link py-0">Edit</button>
+            <button @onclick="() => Delete(context)" class="btn btn-link py-0">Delete</button>
+        </StaticGridCol>            
+    </BlazorGrid>
+</div>
+
+<EditModal @ref="edit" />
+<CreateModal @ref="create" OnUserCreated="ReloadGrid" />
+<DeleteModal @ref="delete" OnUserDeleted="ReloadGrid" />
+
+@code
+{
+    IBlazorGrid? grid;
+    CreateModal? create;
+    EditModal? edit;
+    DeleteModal? delete;
+
+    async ValueTask<BlazorGridResult<UserModel>?> LoadData(BlazorGridRequest request, CancellationToken _)
+    {
+        return await http.PostAsync<BlazorGridResult<UserModel>>(ApiRoutes.Users, request);
+    }
+
+    void Create()
+    {
+        create?.Open();
+    }
+
+    async Task ReloadGrid()
+    {
+        if (grid != null)
+            await grid.ReloadAsync();
+    }
+
+    void Edit(UserModel model)
+    {
+        if (edit != null)
+        {
+            edit.UserName = model.UserName;
+            edit.Open();
+        }
+    }
+
+    void Delete(UserModel model)
+    {
+        if (delete != null)
+        {
+            delete.UserName = model.UserName;
+            delete.Open();
+        }
+    }
+}

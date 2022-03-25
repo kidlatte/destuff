@@ -1,0 +1,98 @@
+@inject NavigationManager navigationManager
+@inject IHttpService http
+
+@if (showModal)
+{
+    <div class="modal-backdrop fade show"></div>
+
+    <div class="modal fade show" tabindex="-1" role="dialog" style="display: block; overflow-y: auto;">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Register User</h5>
+                    <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
+                </div>
+                <EditForm OnValidSubmit="OnSubmit" Model="model" autocomplete="off">
+                    <div class="modal-body">
+                        <DataAnnotationsValidator />
+
+                        <p class="mb-3 fw-normal">Register a new user.</p>
+
+                        <div class="px-5">
+                            <div class="form-floating mb-1">
+                                <InputText @bind-Value="model.UserName" class="form-control"
+                                    placeholder="Username" disable="@loading" autocomplete="off" />
+                                <label for="floatingPassword">Username</label>
+                            </div>
+
+                            <div class="form-floating mb-1">
+                                <InputText @bind-Value="model.Password" type="password" class="form-control"
+                                    placeholder="Password" disable="@loading" autocomplete="new-password" />
+                                <label for="floatingPassword">Password</label>
+                                <ValidationMessage For="@(() => model.Password)" />
+                            </div>
+                        </div>
+
+                        <label class="text-danger">@error</label>
+                    </div>
+                    <div class="modal-footer">
+                        <button @onclick="Close" type="button" class="btn btn-secondary">Cancel</button>
+                        <button type="submit" class="btn btn-primary" disabled="@loading">
+                            @(loading ? "Submitting..." : "Confirm")
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public EventCallback OnUserCreated { get; set; }
+
+    RegisterModel model { get; set; } = new RegisterModel();
+    string error { get; set; } = "";
+    bool loading { get; set; } = false;
+    bool showModal { get; set; } = false;
+
+    async Task OnSubmit()
+    {
+        loading = true;
+
+        try
+        {
+            var result = await http.PostAsync<RegisterResultModel>(ApiRoutes.AuthRegister, model);
+
+            if (result?.Succeeded == true)
+            {
+                Close();
+                await OnUserCreated.InvokeAsync();
+            }
+            else if (result?.Succeeded == false)
+            {
+                error = string.Join(",", result.Errors);
+            }
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+
+        loading = false;
+    }
+
+    public void Open()
+    {
+        error = "";
+
+        showModal = true;
+        StateHasChanged();
+    }
+
+    public void Close()
+    {
+        showModal = false;
+        StateHasChanged();
+    }
+}

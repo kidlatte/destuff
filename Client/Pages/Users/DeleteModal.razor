@@ -1,0 +1,80 @@
+@inject NavigationManager navigationManager
+@inject IHttpService http
+
+@if (showModal)
+{
+    <div class="modal-backdrop fade show"></div>
+
+    <div class="modal fade show" tabindex="-1" role="dialog" style="display: block; overflow-y: auto;">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete User</h5>
+                    <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
+                </div>
+                <EditForm OnValidSubmit="OnSubmit" Model="model">
+                    <div class="modal-body">
+                        <DataAnnotationsValidator />
+
+                        <p class="mb-3 fw-normal">
+                            Do you really want to remove <code>@UserName</code> from the database?
+                        </p>
+
+                        <label class="text-danger">@error</label>
+                    </div>
+                    <div class="modal-footer">
+                        <button @onclick="Close" type="button" class="btn btn-secondary">Cancel</button>
+                        <button type="submit" class="btn btn-primary" disabled="@loading">
+                            @(loading ? "Submitting..." : "Confirm")
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public EventCallback OnUserDeleted { get; set; }
+
+    public string? UserName { get; set; }
+
+    UserModel model { get; set; } = new UserModel();
+    string error { get; set; } = "";
+    bool loading { get; set; } = false;
+    bool showModal { get; set; } = false;
+
+    async Task OnSubmit()
+    {
+        loading = true;
+
+        try
+        {
+            await http.DeleteAsync($"{ApiRoutes.Auth}/{UserName}");
+            Close();
+            await OnUserDeleted.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+
+        loading = false;
+    }
+
+    public void Open()
+    {
+        error = "";
+        model.UserName = UserName;
+
+        showModal = true;
+        StateHasChanged();
+    }
+
+    public void Close()
+    {
+        showModal = false;
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,98 @@
+@inject NavigationManager navigationManager
+@inject IHttpService http
+
+@if (showModal)
+{
+    <div class="modal-backdrop fade show"></div>
+
+    <div class="modal fade show" tabindex="-1" role="dialog" style="display: block; overflow-y: auto;">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Change Password</h5>
+                    <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
+                </div>
+                <EditForm OnValidSubmit="OnSubmit" Model="model">
+                    <div class="modal-body">
+                        <DataAnnotationsValidator />
+
+                        <p class="mb-3 fw-normal">Change password for user @UserName</p>
+
+                        <div class="px-5">
+                            <div class="form-floating mb-1">
+                                <InputText @bind-Value="model.UserName" class="form-control"
+                                    readonly="readonly" />
+                                <label for="floatingPassword">Username</label>
+                            </div>
+
+                            <div class="form-floating mb-1">
+                                <InputText @bind-Value="model.Password" type="password" class="form-control"
+                                    placeholder="New Password" disable="@loading" />
+                                <label for="floatingPassword">New Password</label>
+                                <ValidationMessage For="@(() => model.Password)" />
+                            </div>
+                        </div>
+
+                        <label class="text-danger">@error</label>
+                    </div>
+                    <div class="modal-footer">
+                        <button @onclick="Close" type="button" class="btn btn-secondary">Cancel</button>
+                        <button type="submit" class="btn btn-primary" disabled="@loading">
+                            @(loading ? "Submitting..." : "Confirm")
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    public string? UserName { get; set; }
+
+    PasswordChangeModel model { get; set; } = new PasswordChangeModel();
+    string error { get; set; } = "";
+    bool loading { get; set; } = false;
+    bool showModal { get; set; } = false;
+
+    async Task OnSubmit()
+    {
+        loading = true;
+
+        try
+        {
+
+            var result = await http.PutAsync<RegisterResultModel>(ApiRoutes.AuthChangePassword, model);
+
+            if (result?.Succeeded == true)
+            {
+                Close();
+            }
+            else if (result?.Succeeded == false)
+            {
+                error = string.Join("\n", result.Errors);
+            }
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+
+        loading = false;
+    }
+
+    public void Open()
+    {
+        error = "";
+        model.UserName = UserName;
+
+        showModal = true;
+        StateHasChanged();
+    }
+
+    public void Close()
+    {
+        showModal = false;
+        StateHasChanged();
+    }
+}

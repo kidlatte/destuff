@@ -9,22 +9,18 @@ namespace Destuff.Client.Services;
 
 public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 {
-    public HttpClient _http { get; }
-    public ILocalStorageService _localStorage { get; }
+    IHttpService _http { get; }
+    IStorageService _storage { get; }
 
-    private readonly string currentUserKey = "current-user";
-
-    public CustomAuthenticationStateProvider(HttpClient http, ILocalStorageService localStorage)
+    public CustomAuthenticationStateProvider(IHttpService http, IStorageService storage)
     {
         _http = http;
-        _localStorage = localStorage;
+        _storage = storage;
     }
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        var currentUser = await _localStorage.GetItemAsync<AuthTokenModel>(currentUserKey);
-        Console.WriteLine($">>> AuthenticationState: {currentUser?.UserName}");
-
+        var currentUser = await _storage.GetUserAsync();
         if (currentUser?.UserName == null)
             return new AuthenticationState(new ClaimsPrincipal());
 
@@ -35,22 +31,18 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 
     public async Task LoginAsync(LoginModel login)
     {
-        var result = await _http.PostAsJsonAsync(ApiRoutes.AuthLogin, login);
-        if (result.StatusCode == System.Net.HttpStatusCode.BadRequest)
-            throw new Exception(await result.Content.ReadAsStringAsync());
-
-        result.EnsureSuccessStatusCode();
-
-        var model = await result.Content.ReadFromJsonAsync<AuthTokenModel>();
-        await _localStorage.SetItemAsync(currentUserKey, model);
+        var model = await _http.PostAsync<AuthTokenModel>(ApiRoutes.AuthLogin, login);
+        if (model == null)
+            throw new Exception("No auth token.");
+        
+        await _storage.SetUserAsync(model);
 
         NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }
 
     public async Task LogoutAsync()
     {
-        await _localStorage.RemoveItemAsync(currentUserKey);
-
+        await _storage.ClearUserAsync();
         NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }
 }
