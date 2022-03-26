@@ -78,7 +78,7 @@ public class AuthController : ControllerBase
         var isvalid = await _userManager.CheckPasswordAsync(user, model.Password);
 
         if (!isvalid)
-            return BadRequest(new { message = "Username or password is incorrect" });
+            return BadRequest(new ErrorModel { Message = "Username or password is incorrect" });
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
