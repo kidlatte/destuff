@@ -12,7 +12,7 @@ public class RegisterModel
 }
 
 
-public class RegisterResultModel
+public class IdentityResultModel
 {
     public bool Succeeded { get; set; } = false;
     public IList<string> Errors { get; set; } = new List<string>();

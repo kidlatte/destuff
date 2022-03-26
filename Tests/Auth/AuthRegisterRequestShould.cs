@@ -16,7 +16,7 @@ using Destuff.Shared.Models;
 
 namespace Destuff.Tests.Auth;
 
-public class AuthRegisterRequestShould : BaseIntegrationTest
+public class AuthRegisterRequestShould : IntegrationTestBase
 {
     public AuthRegisterRequestShould() : base(HttpMethod.Post, ApiRoutes.AuthRegister)
     {
@@ -29,7 +29,7 @@ public class AuthRegisterRequestShould : BaseIntegrationTest
         var model = new RegisterModel { UserName = "user01", Password = "Qwer1234!" };
 
         // Act
-        var result = await SendAsync<RegisterResultModel>(model);
+        var result = await SendAsync<IdentityResultModel>(model);
 
         // Assert
         Assert.True(result?.Succeeded);
@@ -46,7 +46,7 @@ public class AuthRegisterRequestShould : BaseIntegrationTest
         var model = new RegisterModel { UserName = "user01", Password = password };
 
         // Act
-        var result = await SendAsync<RegisterResultModel>(model);
+        var result = await SendAsync<IdentityResultModel>(model);
 
         // Assert
         Assert.False(result?.Succeeded);
@@ -60,7 +60,7 @@ public class AuthRegisterRequestShould : BaseIntegrationTest
         await SendAsync(model); // register once
 
         // Act
-        var result = await SendAsync<RegisterResultModel>(model); // register twice
+        var result = await SendAsync<IdentityResultModel>(model); // register twice
 
         // Assert
         Assert.False(result?.Succeeded);

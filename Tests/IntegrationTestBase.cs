@@ -10,18 +10,21 @@ using System.Text.Json;
 using System.Text;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using Destuff.Shared.Models;
+using Destuff.Shared;
+using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Destuff.Tests;
 
-public abstract class BaseIntegrationTest: IDisposable
+public abstract class IntegrationTestBase: IDisposable
 {
-    protected readonly HttpClient Http;
-    protected readonly HttpRequestMessage Request;
-    readonly WebApplicationFactory<Program> app;
     readonly HttpMethod _method;
     readonly string _route;
+    readonly HttpClient Http;
+    readonly WebApplicationFactory<Program> app;
 
-    public BaseIntegrationTest(HttpMethod method, string route)
+    public IntegrationTestBase(HttpMethod method, string route)
     {
         _method = method;
         _route = route;
@@ -29,6 +32,7 @@ public abstract class BaseIntegrationTest: IDisposable
         // Arrange
         var path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Destuff");
         Directory.CreateDirectory(path);
+
         var dbpath = Path.Join(path, $"{route.Replace("/", "-")}.db");
         File.Delete(dbpath);
 
@@ -48,8 +52,14 @@ public abstract class BaseIntegrationTest: IDisposable
             });
 
         Http = app.CreateClient();
+    }
 
-        Request = new HttpRequestMessage(method, route);
+
+    protected async Task<HttpResponseMessage> SendAsync(object model, HttpMethod? method = null, string? route = null)
+    {
+        var request = new HttpRequestMessage(method ?? _method, route ?? _route);
+        request.Content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
+        return await Http.SendAsync(request);
     }
 
     protected async Task<T?> SendAsync<T>(object model, HttpMethod? method = null, string? route = null) where T : class
@@ -58,11 +68,23 @@ public abstract class BaseIntegrationTest: IDisposable
         return await response.Content.ReadFromJsonAsync<T>();
     }
 
-    protected async Task<HttpResponseMessage> SendAsync(object model, HttpMethod? method = null, string? route = null)
+    protected async Task<HttpResponseMessage> AuthorizedSendAsync(object model, HttpMethod? method = null, string? route = null)
     {
+        var user = new RegisterModel { UserName = Guid.NewGuid().ToString(), Password = "Qwer1234!" };
+        await SendAsync(user, HttpMethod.Post, ApiRoutes.AuthRegister);
+        var token = await SendAsync<AuthTokenModel>(user, HttpMethod.Post, ApiRoutes.AuthLogin);
+
         var request = new HttpRequestMessage(method ?? _method, route ?? _route);
         request.Content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token?.AuthToken);
+
         return await Http.SendAsync(request);
+    }
+
+    protected async Task<T?> AuthorizedSendAsync<T>(object model, HttpMethod? method = null, string? route = null) where T : class
+    {
+        var response = await AuthorizedSendAsync(model, method, route);
+        return await response.Content.ReadFromJsonAsync<T>();
     }
 
     public void Dispose()
