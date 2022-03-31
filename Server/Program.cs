@@ -5,15 +5,13 @@ using Microsoft.IdentityModel.Tokens;
 using Destuff.Server.Data;
 using Destuff.Server.Data.Entities;
 using Destuff.Server.Models;
+using Destuff.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
 // Generate connection string
-var path = configuration["DOTNET_RUNNING_IN_CONTAINER"] == "true" ?
-    "/config" :
-    Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Destuff");
-Directory.CreateDirectory(path);
+var path = configuration.GetStoragePath();
 
 var dbfile = Path.Join(path, "destuff.db");
 var connString = $"Data Source={dbfile}";
