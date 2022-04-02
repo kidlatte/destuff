@@ -22,7 +22,6 @@ public class LocationsCreateRequestShould : IntegrationTestBase
 
         // Act
         var result = await AuthorizedSendAsync<LocationModel>(model);
-        Console.WriteLine($">>>>> id: {result?.Id}");
 
         // Assert
         Assert.NotNull(result?.Id);

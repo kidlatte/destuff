@@ -1,0 +1,31 @@
+@page "/locations"
+
+@using System.Threading
+
+@inject IHttpService http
+
+<h1>Users</h1>
+
+<div class="text-end">
+    <button  @onclick="() => Create()" type="button" class="btn btn-sm btn-primary">Add</button>
+</div>
+
+<CreateModal @ref="create" OnCreated="ReloadGrid" />
+
+@code
+{
+    CreateModal? create;
+
+    async Task ReloadGrid()
+    {
+        @* if (grid != null)
+            await grid.ReloadAsync(); *@
+
+        await Task.CompletedTask;
+    }
+
+    void Create()
+    {
+        create?.Open();
+    }
+}

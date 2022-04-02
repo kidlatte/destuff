@@ -9,28 +9,28 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Register User</h5>
+                    <h5 class="modal-title">Add Location</h5>
                     <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
                 </div>
                 <EditForm OnValidSubmit="OnSubmit" Model="model" autocomplete="off">
                     <div class="modal-body">
                         <DataAnnotationsValidator />
 
-                        <p class="mb-3 fw-normal">Register a new user.</p>
+                        <p class="mb-3 fw-normal">Add a new location.</p>
 
-                        <div class="px-5">
+                        <div>
                             <div class="form-floating mb-1">
-                                <InputText @bind-Value="model.UserName" class="form-control"
-                                    placeholder="Username" disable="@loading" autocomplete="off" />
-                                <label for="floatingPassword">Username</label>
-                                <ValidationMessage For="@(() => model.UserName)" />
+                                <InputText @bind-Value="model.Name" class="form-control"
+                                    placeholder="Name" disable="@loading" autocomplete="off" />
+                                <label for="floatingPassword">Name</label>
+                                <ValidationMessage For="@(() => model.Name)" />
                             </div>
 
                             <div class="form-floating mb-1">
-                                <InputText @bind-Value="model.Password" type="password" class="form-control"
-                                    placeholder="Password" disable="@loading" autocomplete="new-password" />
-                                <label for="floatingPassword">Password</label>
-                                <ValidationMessage For="@(() => model.Password)" />
+                                <InputTextArea @bind-Value="model.Notes" class="form-control" style="height: 100px"
+                                    placeholder="Notes" disable="@loading" />
+                                <label for="floatingPassword">Notes</label>
+                                <ValidationMessage For="@(() => model.Notes)" />
                             </div>
                         </div>
 
@@ -50,9 +50,9 @@
 
 @code {
     [Parameter]
-    public EventCallback OnUserCreated { get; set; }
+    public EventCallback<LocationModel> OnCreated { get; set; }
 
-    RegisterModel model { get; set; } = new RegisterModel();
+    LocationCreateModel model { get; set; } = new LocationCreateModel();
     string error { get; set; } = "";
     bool loading { get; set; } = false;
     bool showModal { get; set; } = false;
@@ -63,17 +63,10 @@
 
         try
         {
-            var result = await http.PostAsync<IdentityResultModel>(ApiRoutes.AuthRegister, model);
+            var result = await http.PostAsync<LocationModel>(ApiRoutes.Locations, model);
 
-            if (result?.Succeeded == true)
-            {
-                Close();
-                await OnUserCreated.InvokeAsync();
-            }
-            else if (result?.Succeeded == false)
-            {
-                error = string.Join(",", result.Errors);
-            }
+            Close();
+            await OnCreated.InvokeAsync(result);
         }
         catch (Exception ex)
         {
