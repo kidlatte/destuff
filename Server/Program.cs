@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using AutoMapper;
 using Destuff.Server.Data;
 using Destuff.Server.Data.Entities;
 using Destuff.Server.Models;
@@ -24,31 +25,16 @@ builder.Services
     .AddIdentityCore<ApplicationUser>(options => options.User.RequireUniqueEmail = false)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-// Configure strongly typed settings objects
-var appSettingsSection = configuration.GetSection(nameof(AppSettings));
-builder.Services.Configure<AppSettings>(appSettingsSection);
-var settings = appSettingsSection.Get<AppSettings>();
+var settings = builder.GetAppSettings();
+builder.Services.AddJwtAuthentication(settings.Secret);
 
-// Configure JWT authentication
-var key = Encoding.ASCII.GetBytes(settings.Secret);
-builder.Services.AddAuthentication(x =>
+builder.Services.AddSingleton<ILocationIdService, LocationIdService>();
+builder.Services.AddSingleton(provider => new MapperConfiguration(cfg =>
 {
-    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(x =>
-{
-    x.RequireHttpsMetadata = false;
-    x.SaveToken = true;
-    x.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = false,
-        ValidateAudience = false
-    };
-});
-
+    var locationId = provider.GetService<ILocationIdService>();
+    if (locationId != null)
+        cfg.AddProfile(new MapperProfile(locationId));
+}).CreateMapper());
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

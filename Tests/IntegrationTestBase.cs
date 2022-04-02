@@ -33,7 +33,7 @@ public abstract class IntegrationTestBase: IDisposable
         var path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Destuff");
         Directory.CreateDirectory(path);
 
-        var dbpath = Path.Join(path, $"{route.Replace("/", "-")}.db");
+        var dbpath = Path.Join(path, $"{route.Trim('/').Replace("/", "-")}-{method.ToString().ToLower()}.db");
         File.Delete(dbpath);
 
         var connString = $"Data Source={dbpath}";
@@ -68,15 +68,21 @@ public abstract class IntegrationTestBase: IDisposable
         return await response.Content.ReadFromJsonAsync<T>();
     }
 
+    private string? AuthToken { get; set; }
+
     protected async Task<HttpResponseMessage> AuthorizedSendAsync(object model, HttpMethod? method = null, string? route = null)
     {
-        var user = new RegisterModel { UserName = Guid.NewGuid().ToString(), Password = "Qwer1234!" };
-        await SendAsync(user, HttpMethod.Post, ApiRoutes.AuthRegister);
-        var token = await SendAsync<AuthTokenModel>(user, HttpMethod.Post, ApiRoutes.AuthLogin);
+        if (AuthToken == null)
+        {
+            var user = new RegisterModel { UserName = "TokenUser", Password = "Qwer1234!" };
+            await SendAsync(user, HttpMethod.Post, ApiRoutes.AuthRegister);
+            var token = await SendAsync<AuthTokenModel>(user, HttpMethod.Post, ApiRoutes.AuthLogin);
+            AuthToken = token?.AuthToken;
+        }
 
         var request = new HttpRequestMessage(method ?? _method, route ?? _route);
         request.Content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token?.AuthToken);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AuthToken);
 
         return await Http.SendAsync(request);
     }

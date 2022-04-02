@@ -1,16 +1,6 @@
 using Xunit;
-using System;
-using System.IO;
-using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Json;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Destuff.Server.Data;
 using Destuff.Shared;
 using Destuff.Shared.Models;
 using System.Net;

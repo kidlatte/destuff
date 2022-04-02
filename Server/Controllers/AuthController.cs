@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +13,6 @@ using Destuff.Server.Data.Entities;
 using Destuff.Server.Models;
 using Destuff.Shared;
 using Destuff.Shared.Models;
-using Microsoft.AspNetCore.Authorization;
 
 namespace Destuff.Server.Controllers;
 
