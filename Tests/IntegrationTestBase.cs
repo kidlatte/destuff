@@ -70,7 +70,7 @@ public abstract class IntegrationTestBase: IDisposable
 
     private string? AuthToken { get; set; }
 
-    protected async Task<HttpResponseMessage> AuthorizedSendAsync(object model, HttpMethod? method = null, string? route = null)
+    protected async Task<HttpResponseMessage> AuthorizedSendAsync(object? model = null, HttpMethod? method = null, string? route = null)
     {
         if (AuthToken == null)
         {
@@ -81,13 +81,14 @@ public abstract class IntegrationTestBase: IDisposable
         }
 
         var request = new HttpRequestMessage(method ?? _method, route ?? _route);
-        request.Content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
+        if (model != null)
+            request.Content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AuthToken);
 
         return await Http.SendAsync(request);
     }
 
-    protected async Task<T?> AuthorizedSendAsync<T>(object model, HttpMethod? method = null, string? route = null) where T : class
+    protected async Task<T?> AuthorizedSendAsync<T>(object? model = null, HttpMethod? method = null, string? route = null) where T : class
     {
         var response = await AuthorizedSendAsync(model, method, route);
         return await response.Content.ReadFromJsonAsync<T>();

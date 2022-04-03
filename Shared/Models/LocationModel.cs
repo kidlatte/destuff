@@ -10,7 +10,7 @@ public class LocationCreateModel
 
     public string? Notes { get; set; }
 
-    public int? ParentId { internal get; set; }
+    public string? ParentId { internal get; set; }
 }
 
 public class LocationModel: LocationCreateModel

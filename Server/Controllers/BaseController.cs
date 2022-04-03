@@ -30,6 +30,8 @@ public abstract class BaseController : ControllerBase
 
 public abstract class BaseController<T> : BaseController where T : Entity
 {
+    internal IQueryable<T> Query => Context.Set<T>();
+    
     public BaseController(ApplicationDbContext context, IMapper mapper): base(context, mapper)
     {
     }

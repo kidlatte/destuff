@@ -18,20 +18,18 @@
 
                         <p class="mb-3 fw-normal">Add a new location.</p>
 
-                        <div>
-                            <div class="form-floating mb-1">
-                                <InputText @bind-Value="model.Name" class="form-control"
-                                    placeholder="Name" disable="@loading" autocomplete="off" />
-                                <label for="floatingPassword">Name</label>
-                                <ValidationMessage For="@(() => model.Name)" />
-                            </div>
+                        <div class="form-floating mb-1">
+                            <InputText @bind-Value="model.Name" class="form-control"
+                                placeholder="Name" disable="@loading" autocomplete="off" />
+                            <label for="floatingPassword">Name</label>
+                            <ValidationMessage For="@(() => model.Name)" />
+                        </div>
 
-                            <div class="form-floating mb-1">
-                                <InputTextArea @bind-Value="model.Notes" class="form-control" style="height: 100px"
-                                    placeholder="Notes" disable="@loading" />
-                                <label for="floatingPassword">Notes</label>
-                                <ValidationMessage For="@(() => model.Notes)" />
-                            </div>
+                        <div class="form-floating mb-1">
+                            <InputTextArea @bind-Value="model.Notes" class="form-control" style="height: 100px"
+                                placeholder="Notes" disable="@loading" />
+                            <label for="floatingPassword">Notes</label>
+                            <ValidationMessage For="@(() => model.Notes)" />
                         </div>
 
                         <label class="text-danger">@error</label>
