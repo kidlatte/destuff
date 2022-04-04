@@ -56,6 +56,8 @@ h1:focus {
   content: "An error has occurred.";
 }
 
+
+/* https://github.com/lukehaas/css-loaders */
 .loader, .loader:before, .loader:after {
   background: #62a0ea;
   -webkit-animation: load1 1s infinite ease-in-out;

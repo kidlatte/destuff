@@ -1,31 +1,73 @@
 @page "/locations"
 
-@using System.Threading
+@using Excubo.Blazor.TreeViews
+@using Destuff.Shared.Models
 
 @inject IHttpService http
+
+<PageTitle>Locations</PageTitle>
 
 <h1>Locations</h1>
 
 <div class="text-end">
-    <button  @onclick="() => Create()" type="button" class="btn btn-sm btn-primary">Add</button>
+    <button @onclick="() => create?.Open()" type="button" class="btn btn-sm btn-primary">Add</button>
 </div>
 
-<CreateModal @ref="create" OnCreated="ReloadGrid" />
+<div class="d-flex">
+    <div class="flex-grow-1">
+        <TreeView Items="items" GetChildren="(item) => item.Children">
+            <ItemTemplate>
+                <button
+                    @onclick="() => { selected = (selected != context.Item) ? context.Item : null; }"
+                    class="btn btn-sm text-start my-1 @(selected == context.Item ? "btn-primary" : "btn-light")"
+                    style="min-width: 150px;"
+                >
+                    @context.Item.Name
+                </button>
+            </ItemTemplate>
+        </TreeView>
+    </div>
+    <div>
+        <DetailsCard 
+            Model="selected"
+            OnChildAdd="() => {}"
+            OnEdit="model => {}"
+            OnDelete="model => {}"
+            OnClose="() => selected = null"
+        />
+    </div>
+</div>
+
+<CreateModal @ref="create" OnCreated="LoadData" />
 
 @code
 {
     CreateModal? create;
 
-    async Task ReloadGrid()
-    {
-        @* if (grid != null)
-            await grid.ReloadAsync(); *@
+    List<LocationModel> items { get; set; } = new List<LocationModel>();
+    LocationModel? selected { get; set; }
 
-        await Task.CompletedTask;
+    protected override Task OnInitializedAsync()
+    {
+        return LoadData();
     }
 
-    void Create()
+    async Task LoadData()
     {
-        create?.Open();
+        var result = await http.GetAsync<List<LocationModel>>(ApiRoutes.Locations);
+        if(result != null)
+            items = result;
+    }
+
+    // HACK: help component infer type
+    async Task<List<LocationModel>?> GetChildrenAsync(LocationModel? i)
+    {
+        var result = await http.GetAsync<List<LocationModel>>(ApiRoutes.Locations);
+        return result;
+    }
+
+    async Task<bool> HasChildrenAsync(LocationModel? i)
+    {
+        return await Task.FromResult(false);
     }
 }

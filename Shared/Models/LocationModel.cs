@@ -15,5 +15,6 @@ public class LocationCreateModel
 
 public class LocationModel: LocationCreateModel
 {
-    public string? Id { get; set; }   
+    public string? Id { get; set; }
+    public List<LocationModel>? Children { get; set; }
 }
