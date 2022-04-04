@@ -9,14 +9,29 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Location</h5>
+                    <h5 class="modal-title">
+                        Add Location
+                        @(Parent == null ? "" : $"in {Parent.Name}")
+                    </h5>
                     <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
                 </div>
                 <EditForm OnValidSubmit="OnSubmit" Model="model" autocomplete="off">
                     <div class="modal-body">
                         <DataAnnotationsValidator />
 
-                        <p class="mb-3 fw-normal">Add a new location.</p>
+                        <p class="mb-3 fw-normal">
+                            @if (Parent == null)
+                            {
+                                <text>Add a new location.</text>
+                            }
+                            else
+                            {
+                                <text>
+                                    Add a new location under
+                                    <strong>@Parent.Name</strong>
+                                .</text>
+                            }
+                        </p>
 
                         <div class="form-floating mb-1">
                             <InputText @bind-Value="model.Name" class="form-control"
@@ -47,6 +62,9 @@
 }
 
 @code {
+    [Parameter]
+    public LocationModel? Parent { get; set; }
+
     [Parameter]
     public EventCallback<LocationModel> OnCreated { get; set; }
 

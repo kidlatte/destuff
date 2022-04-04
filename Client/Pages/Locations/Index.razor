@@ -27,7 +27,7 @@
             </ItemTemplate>
         </TreeView>
     </div>
-    <div>
+    <div class="pt-2">
         <DetailsCard 
             Model="selected"
             OnChildAdd="() => {}"
@@ -38,7 +38,7 @@
     </div>
 </div>
 
-<CreateModal @ref="create" OnCreated="LoadData" />
+<CreateModal @ref="create" Parent="selected" OnCreated="LoadData" />
 
 @code
 {

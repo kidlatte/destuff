@@ -33,7 +33,8 @@ public abstract class IntegrationTestBase: IDisposable
         var path = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Destuff");
         Directory.CreateDirectory(path);
 
-        var dbpath = Path.Join(path, $"{route.Trim('/').Replace("/", "-")}-{method.ToString().ToLower()}.db");
+        var guid = Guid.NewGuid().ToString().Substring(0, 5);
+        var dbpath = Path.Join(path, $"{route.Trim('/').Replace("/", "-")}-{method.ToString().ToLower()}-{guid}.db");
         File.Delete(dbpath);
 
         var connString = $"Data Source={dbpath}";
@@ -69,6 +70,8 @@ public abstract class IntegrationTestBase: IDisposable
     }
 
     private string? AuthToken { get; set; }
+
+    protected Task<T?> AuthorizedGetAsync<T>(string? route = null) where T : class => AuthorizedSendAsync<T>(null, HttpMethod.Get, route);
 
     protected async Task<HttpResponseMessage> AuthorizedSendAsync(object? model = null, HttpMethod? method = null, string? route = null)
     {

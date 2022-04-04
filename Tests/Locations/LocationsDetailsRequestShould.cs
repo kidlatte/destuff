@@ -1,0 +1,33 @@
+using Xunit;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Destuff.Shared;
+using Destuff.Shared.Models;
+
+namespace Destuff.Tests.Auth;
+
+public class LocationsDetailsRequestShould : IntegrationTestBase
+{
+    public LocationsDetailsRequestShould() : base(HttpMethod.Get, ApiRoutes.Locations)
+    {
+    }
+
+    [Fact]
+    public async Task Get_Location_Details()
+    {
+        // Arrange
+        var create = new LocationCreateModel { Name = "Location01" };
+        var model = await AuthorizedSendAsync<LocationModel>(create, HttpMethod.Post);
+
+        // Act
+        var result = await AuthorizedGetAsync<LocationModel>($"{ApiRoutes.Locations}/{model?.Id}");
+
+        // Assert
+        Assert.NotNull(result?.Id);
+        Assert.Equal(model?.Id, result?.Id);
+    }
+}

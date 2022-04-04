@@ -10,11 +10,13 @@ public class LocationCreateModel
 
     public string? Notes { get; set; }
 
-    public string? ParentId { internal get; set; }
+    public string? ParentId { get; set; }
 }
 
 public class LocationModel: LocationCreateModel
 {
     public string? Id { get; set; }
+
+    // public LocationModel? Parent { get; set; }
     public List<LocationModel>? Children { get; set; }
 }

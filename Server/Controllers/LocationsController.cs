@@ -23,17 +23,6 @@ public class LocationsController : BaseController<Location>
         _locationId = locationId;
     }
 
-    // [HttpGet("{parentHash}")]
-    // public async Task<ActionResult<List<LocationModel>>> GetLocations(string? parentHash)
-    // {
-    //     int? parentId = parentHash != null ? _locationId.Decode(parentHash) : default;
-    //     var query = Query.Where(x => x.ParentId == parentId);
-
-    //     return await query
-    //         .ProjectTo<LocationModel>(Mapper.ConfigurationProvider)
-    //         .ToListAsync();
-    // }
-
     [HttpGet]
     public async Task<ActionResult<List<LocationModel>>> GetLocations()
     {
@@ -42,6 +31,17 @@ public class LocationsController : BaseController<Location>
         return await query
             .ProjectTo<LocationModel>(Mapper.ConfigurationProvider)
             .ToListAsync();
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<LocationModel?>> GetLocation(string id)
+    {
+        int actualId = _locationId.Decode(id);
+        var query = Query.Where(x => x.Id == actualId);
+
+        return await query
+            .ProjectTo<LocationModel>(Mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync();
     }
 
     [HttpPost]

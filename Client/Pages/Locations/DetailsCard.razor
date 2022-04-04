@@ -2,25 +2,25 @@
 
 @if (Model != null)
 {
-    <div class="card mt-4" style="width: 24rem; max-width: 100%">
-    <div class="card-body">
-        <h5 class="card-title">@Model.Name</h5>
-        <p class="card-text">@Model.Notes</p>
-        <div class="text-end">
-            <button
-                @onclick="() => OnChildAdd.InvokeAsync(Model)"
-                type="button" class="btn btn-primary btn-sm"
-            >
-                Add Child
-            </button>
-            <button
-                @onclick="() => OnClose.InvokeAsync()"
-                type="button" class="btn btn-secondary btn-sm"
-            >
-                Close
-            </button>
+    <div class="card" style="width: 24rem; max-width: 100%">
+        <div class="card-body">
+            <h5 class="card-title">@Model.Name</h5>
+            <p class="card-text">@Model.Notes</p>
+            <div class="text-end">
+                <button
+                    @onclick="() => OnChildAdd.InvokeAsync(Model)"
+                    type="button" class="btn btn-primary btn-sm"
+                >
+                    Add Child
+                </button>
+                <button
+                    @onclick="() => OnClose.InvokeAsync()"
+                    type="button" class="btn btn-secondary btn-sm"
+                >
+                    Close
+                </button>
+            </div>
         </div>
-    </div>
     </div>
 }
 

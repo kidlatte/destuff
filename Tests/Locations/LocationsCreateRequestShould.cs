@@ -15,7 +15,7 @@ public class LocationsCreateRequestShould : IntegrationTestBase
     }
 
     [Fact]
-    public async Task Create_New_Location()
+    public async Task Create_Root_Location()
     {
         // Arrange
         var model = new LocationCreateModel { Name = "Location01" };
@@ -25,6 +25,22 @@ public class LocationsCreateRequestShould : IntegrationTestBase
 
         // Assert
         Assert.NotNull(result?.Id);
+    }
+
+    [Fact]
+    public async Task Create_Child_Location()
+    {
+        // Arrange
+        var parentCreate = new LocationCreateModel { Name = "Parent01" };
+        var parent = await AuthorizedSendAsync<LocationModel>(parentCreate);
+
+        // Act
+        var model = new LocationCreateModel { Name = "Child01", ParentId = parent?.Id };
+        var result = await AuthorizedSendAsync<LocationModel>(model);
+
+        // Assert
+        Assert.NotNull(result?.ParentId);
+        Assert.Equal(parent?.Id, result?.ParentId);
     }
 
     [Fact]
