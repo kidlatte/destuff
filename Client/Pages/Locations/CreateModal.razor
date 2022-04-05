@@ -76,6 +76,7 @@
     async Task OnSubmit()
     {
         loading = true;
+        model.ParentId = Parent?.Id;
 
         try
         {

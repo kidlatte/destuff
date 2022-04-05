@@ -26,11 +26,28 @@ public class LocationsController : BaseController<Location>
     [HttpGet]
     public async Task<ActionResult<List<LocationModel>>> GetLocations()
     {
-        var query = Query.Where(x => x.ParentId == null);
+        // var query = Query.Where(x => x.ParentId == null);
+        var query = Query;
 
-        return await query
+        var list = await query
             .ProjectTo<LocationModel>(Mapper.ConfigurationProvider)
             .ToListAsync();
+
+        var result = list.Select(x => x).ToList();
+        list.ForEach(item => 
+        {
+            if (item.ParentId != null)
+            {
+                var parent = list.First(x => x.Id == item.ParentId);
+                if (parent != null)
+                {
+                    parent.Children = (parent.Children ?? new List<LocationModel>()).Append(item).ToList();
+                    result.Remove(item);
+                }
+            }
+        });
+
+        return result;
     }
 
     [HttpGet("{id}")]
