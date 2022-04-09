@@ -1,0 +1,45 @@
+@using Destuff.Shared.Models
+
+@if(Items != null && Items.Count > 0)
+{
+    <ul>
+        @foreach(var item in Items)
+        {
+            if (item != null) 
+            {
+                <li>
+                    <button
+                        @onclick="() => Select(item)"
+                        class="btn btn-sm text-start my-1 @(Selected == item ? "btn-primary" : "btn-light")"
+                        style="min-width: 160px"
+                    >
+                        @item.Name
+                    </button>
+                    <TreeView
+                        Items="item.Children"
+                        Selected="Selected"
+                        OnSelected="x => Select(x)"
+                    />
+                </li>
+            }
+        }
+    </ul>
+}
+
+@code {
+    [Parameter]
+    public LocationModel? Selected { get; set; }
+
+    [Parameter]
+    public List<LocationModel> Items { get; set; } = new List<LocationModel>();
+
+    [Parameter]
+    public EventCallback<LocationModel?> OnSelected { get; set; }
+
+    async Task Select(LocationModel? item) 
+    {
+        Selected = item;
+        await OnSelected.InvokeAsync(item);
+    }
+}
+

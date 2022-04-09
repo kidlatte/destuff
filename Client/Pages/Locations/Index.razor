@@ -1,6 +1,6 @@
 @page "/locations"
 
-@using Excubo.Blazor.TreeViews
+@* @using Excubo.Blazor.TreeViews *@
 @using Destuff.Shared.Models
 
 @inject IHttpService http
@@ -15,17 +15,11 @@
 
 <div class="d-flex">
     <div class="flex-grow-1">
-        <TreeView Items="items" GetChildren="(item) => item.Children">
-            <ItemTemplate>
-                <button
-                    @onclick="() => { selected = (selected != context.Item) ? context.Item : null; }"
-                    class="btn btn-sm text-start my-1 @(selected == context.Item ? "btn-primary" : "btn-light")"
-                    style="min-width: 150px;"
-                >
-                    @context.Item.Name
-                </button>
-            </ItemTemplate>
-        </TreeView>
+        <TreeView
+            Items="items"
+            Selected="selected"
+            OnSelected="item => selected = item"
+        />
     </div>
     <div class="pt-2">
         <DetailsCard 
