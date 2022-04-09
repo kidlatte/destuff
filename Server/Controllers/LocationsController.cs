@@ -26,13 +26,13 @@ public class LocationsController : BaseController<Location>
     [HttpGet]
     public async Task<ActionResult<List<LocationModel>>> GetLocations()
     {
-        // var query = Query.Where(x => x.ParentId == null);
         var query = Query;
 
         var list = await query
             .ProjectTo<LocationModel>(Mapper.ConfigurationProvider)
             .ToListAsync();
 
+        // assemble tree
         var result = list.Select(x => x).ToList();
         list.ForEach(item => 
         {
@@ -56,9 +56,14 @@ public class LocationsController : BaseController<Location>
         int actualId = _locationId.Decode(id);
         var query = Query.Where(x => x.Id == actualId);
 
-        return await query
+        var model = await query
             .ProjectTo<LocationModel>(Mapper.ConfigurationProvider)
             .FirstOrDefaultAsync();
+
+        if (model == null)
+            return NotFound();
+
+        return model;
     }
 
     [HttpPost]
@@ -69,9 +74,43 @@ public class LocationsController : BaseController<Location>
 
         var entity = Mapper.Map<Location>(model);
         Audit(entity);
-        Context.Add(entity);
 
+        Context.Add(entity);
         await Context.SaveChangesAsync();
+
+        
+        return Mapper.Map<LocationModel>(entity);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult<LocationModel>> UpdateLocation(string id, [FromBody] LocationCreateModel model)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(model);
+
+        int actualId = _locationId.Decode(id);
+        var entity = await Query.Where(x => x.Id == actualId).FirstOrDefaultAsync();
+        if (entity == null)
+            return NotFound();
+
+        Mapper.Map(model, entity);
+        Audit(entity);
+        await Context.SaveChangesAsync();
+
+        return Mapper.Map<LocationModel>(entity);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<LocationModel>> DeleteLocation(string id)
+    {
+        int actualId = _locationId.Decode(id);
+        var entity = await Query.Where(x => x.Id == actualId).FirstOrDefaultAsync();
+        if (entity == null)
+            return NotFound();
+
+        Context.Remove(entity);
+        await Context.SaveChangesAsync();
+
         return Mapper.Map<LocationModel>(entity);
     }
 

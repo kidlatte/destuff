@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Destuff.Shared;
 using Destuff.Shared.Models;
 
-namespace Destuff.Tests.Auth;
+namespace Destuff.Tests.Locations;
 
 public class LocationsIndexRequestShould : IntegrationTestBase
 {

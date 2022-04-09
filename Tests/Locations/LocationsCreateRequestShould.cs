@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Destuff.Shared;
 using Destuff.Shared.Models;
 
-namespace Destuff.Tests.Auth;
+namespace Destuff.Tests.Locations;
 
 public class LocationsCreateRequestShould : IntegrationTestBase
 {
@@ -44,20 +44,7 @@ public class LocationsCreateRequestShould : IntegrationTestBase
     }
 
     [Fact]
-    public async Task Fail_Unauthorized_Request()
-    {
-        // Arrange
-        var model = new LocationCreateModel { Name = "Location01" };
-
-        // Act
-        var result = await SendAsync(model);
-
-        // Assert
-        Assert.Equal(HttpStatusCode.Unauthorized, result?.StatusCode);
-    }
-
-    [Fact]
-    public async Task Fail_Null_Name()
+    public async Task Fail_Null_Name_Create_Location()
     {
         // Arrange
         var model = new LocationCreateModel();
@@ -67,6 +54,19 @@ public class LocationsCreateRequestShould : IntegrationTestBase
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, result?.StatusCode);
+    }
+
+    [Fact]
+    public async Task Fail_Unauthorized_Create_Location()
+    {
+        // Arrange
+        var model = new LocationCreateModel { Name = "Location01" };
+
+        // Act
+        var result = await SendAsync(model);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Unauthorized, result?.StatusCode);
     }
 
 }

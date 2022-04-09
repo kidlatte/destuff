@@ -19,6 +19,8 @@ namespace Destuff.Tests;
 
 public abstract class IntegrationTestBase: IDisposable
 {
+    protected string? AuthToken { get; set; }
+
     readonly HttpMethod _method;
     readonly string _route;
     readonly HttpClient Http;
@@ -56,10 +58,11 @@ public abstract class IntegrationTestBase: IDisposable
     }
 
 
-    protected async Task<HttpResponseMessage> SendAsync(object model, HttpMethod? method = null, string? route = null)
+    protected async Task<HttpResponseMessage> SendAsync(object? model, HttpMethod? method = null, string? route = null)
     {
         var request = new HttpRequestMessage(method ?? _method, route ?? _route);
-        request.Content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
+        if (model != null)
+            request.Content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
         return await Http.SendAsync(request);
     }
 
@@ -68,10 +71,6 @@ public abstract class IntegrationTestBase: IDisposable
         var response = await SendAsync(model, method, route);
         return await response.Content.ReadFromJsonAsync<T>();
     }
-
-    private string? AuthToken { get; set; }
-
-    protected Task<T?> AuthorizedGetAsync<T>(string? route = null) where T : class => AuthorizedSendAsync<T>(null, HttpMethod.Get, route);
 
     protected async Task<HttpResponseMessage> AuthorizedSendAsync(object? model = null, HttpMethod? method = null, string? route = null)
     {
@@ -96,6 +95,16 @@ public abstract class IntegrationTestBase: IDisposable
         var response = await AuthorizedSendAsync(model, method, route);
         return await response.Content.ReadFromJsonAsync<T>();
     }
+
+    protected Task<T?> AuthorizedGetAsync<T>(string? route = null) where T : class => AuthorizedSendAsync<T>(null, HttpMethod.Get, route);
+
+    protected Task<HttpResponseMessage> AuthorizedGetAsync(string? route = null) => AuthorizedSendAsync(null, HttpMethod.Get, route);
+    
+    protected Task<T?> AuthorizedPutAsync<T>(string id, object model) where T : class => AuthorizedSendAsync<T>(model, HttpMethod.Put, $"{_route}/{id}");
+
+    protected Task<HttpResponseMessage> AuthorizedPutAsync(string id, object model) => AuthorizedSendAsync(model, HttpMethod.Put, $"{_route}/{id}");
+
+    protected Task<HttpResponseMessage> AuthorizedDeleteAsync(string id) => AuthorizedSendAsync(null, HttpMethod.Delete, $"{_route}/{id}");
 
     public void Dispose()
     {
