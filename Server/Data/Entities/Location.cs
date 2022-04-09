@@ -1,12 +1,18 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace Destuff.Server.Data.Entities;
 
+[Index(nameof(Slug), IsUnique = true)]
 public class Location: Entity
 {
     [Required]
     [MaxLength(255)]
-    public string? Name { get; set; }
+    public string Name { get; set; } = null!;
+
+    [Required]
+    [MaxLength(255)]
+    public string Slug { get; set; } = null!;
 
     public string? Notes { get; set; }
 

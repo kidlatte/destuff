@@ -33,6 +33,26 @@ public class LocationsUpdateRequestShould : IntegrationTestBase
     }
 
     [Fact]
+    public async Task Fail_Existing_Slug_Create_Location()
+    {
+        // Arrange
+        var create = new LocationCreateModel { Name = "Existing Slug" };
+        var created = await AuthorizedSendAsync(create, HttpMethod.Post);
+        Assert.True(created?.IsSuccessStatusCode);
+
+        var newSlug = new LocationCreateModel { Name = "New Slug" };
+        var model = await AuthorizedSendAsync<LocationModel>(newSlug, HttpMethod.Post);
+        Assert.NotNull(model?.Id);
+
+        // Act
+        var sameSlug = new LocationCreateModel { Name = "existing - slug" };
+        var result = await AuthorizedPutAsync(model?.Id!, sameSlug);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, result.StatusCode);
+    }
+
+    [Fact]
     public async Task Fail_Null_Name_Update_Location()
     {
        // Arrange

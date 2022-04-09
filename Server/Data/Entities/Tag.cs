@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace Destuff.Server.Data.Entities;
 
+[Index(nameof(Slug), IsUnique = true)]
 public class Tag: Entity
 {
     [Required]

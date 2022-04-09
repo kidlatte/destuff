@@ -66,19 +66,39 @@ public class LocationsController : BaseController<Location>
         return model;
     }
 
+    [HttpGet("s/{slug}")]
+    public async Task<ActionResult<LocationModel?>> GetLocationBySlug(string slug)
+    {
+        var query = Query.Where(x => x.Slug == slug);
+
+        var model = await query
+            .ProjectTo<LocationModel>(Mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync();
+
+        if (model == null)
+            return NotFound();
+
+        return model;
+    }
+
     [HttpPost]
     public async Task<ActionResult<LocationModel>> CreateLocation([FromBody] LocationCreateModel model)
     {
         if (!ModelState.IsValid)
             return BadRequest(model);
 
+        var slug = model.Name!.ToSlug();
+        var exists = await Query.AnyAsync(x => x.Slug == slug);
+        if (exists)
+            return BadRequest("Name already exists.");
+
         var entity = Mapper.Map<Location>(model);
+        entity.Slug = slug;
         Audit(entity);
 
         Context.Add(entity);
         await Context.SaveChangesAsync();
 
-        
         return Mapper.Map<LocationModel>(entity);
     }
 
@@ -89,11 +109,18 @@ public class LocationsController : BaseController<Location>
             return BadRequest(model);
 
         int actualId = _locationId.Decode(id);
+        var slug = model.Name!.ToSlug();
+
+        var exists = await Query.AnyAsync(x => x.Id != actualId && x.Slug == slug);
+        if (exists)
+            return BadRequest("Account name already exists.");
+
         var entity = await Query.Where(x => x.Id == actualId).FirstOrDefaultAsync();
         if (entity == null)
             return NotFound();
 
         Mapper.Map(model, entity);
+        entity.Slug = slug;
         Audit(entity);
         await Context.SaveChangesAsync();
 
