@@ -14,7 +14,7 @@ public interface IHttpService
     Task<T?> GetAsync<T>(string uri) where T : class;
     Task<T?> PostAsync<T>(string uri, object value) where T : class;
     Task<T?> PutAsync<T>(string uri, object value) where T : class;
-    Task DeleteAsync(string uri);
+    Task<HttpResponseMessage> DeleteAsync(string uri);
 }
 
 public class HttpService : IHttpService
@@ -40,7 +40,7 @@ public class HttpService : IHttpService
 
     public Task<T?> PutAsync<T>(string uri, object value) where T : class => sendRequest<T>(HttpMethod.Put, uri, value);
 
-    public async Task DeleteAsync(string uri) => await sendRequest(HttpMethod.Delete, uri);
+    public Task<HttpResponseMessage> DeleteAsync(string uri) => sendRequest(HttpMethod.Delete, uri);
 
     private async Task<HttpResponseMessage> sendRequest(HttpMethod method, string uri, object? value = null)
     {

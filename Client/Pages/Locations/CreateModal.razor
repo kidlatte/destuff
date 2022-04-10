@@ -50,10 +50,10 @@
                         <label class="text-danger">@error</label>
                     </div>
                     <div class="modal-footer">
-                        <button @onclick="Close" type="button" class="btn btn-secondary">Cancel</button>
                         <button type="submit" class="btn btn-primary" disabled="@loading">
                             @(loading ? "Submitting..." : "Confirm")
                         </button>
+                        <button @onclick="Close" type="button" class="btn btn-secondary">Cancel</button>
                     </div>
                 </EditForm>
             </div>

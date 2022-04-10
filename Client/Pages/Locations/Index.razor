@@ -13,32 +13,26 @@
     <button @onclick="() => create?.Open()" type="button" class="btn btn-sm btn-primary">Add</button>
 </div>
 
-<div class="d-flex">
-    <div class="flex-grow-1">
-        <TreeView
-            Items="items"
-            Selected="selected"
-            OnSelected="item => selected = item"
-        />
-    </div>
-    <div class="pt-2">
-        <DetailsCard 
-            Model="selected"
-            OnChildAdd="model => create?.Open(model)"
-            OnEdit="model => update?.Open(model)"
-            OnDelete="model => {}"
-            OnClose="() => selected = null"
-        />
-    </div>
+<div>
+    <TreeView
+        Items="items"
+        Selected="selected"
+        OnSelected="item => selected = item"
+        OnAdd="model => create?.Open(model)"
+        OnEdit="model => update?.Open(model)"
+        OnDelete="model => delete?.Open(model)"
+    />
 </div>
 
 <CreateModal @ref="create" OnCreated="LoadData" />
 <UpdateModal @ref="update" OnUpdated="LoadData" />
+<DeleteModal @ref="delete" OnDeleted="LoadData" />
 
 @code
 {
     CreateModal? create;
     UpdateModal? update;
+    DeleteModal? delete;
 
     List<LocationModel>? items { get; set; }
     LocationModel? selected { get; set; }

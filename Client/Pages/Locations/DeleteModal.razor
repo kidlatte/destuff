@@ -10,31 +10,15 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        Edit Location @name
+                        Delete Location @model.Name
                     </h5>
                     <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
                 </div>
                 <EditForm OnValidSubmit="OnSubmit" Model="model" autocomplete="off">
                     <div class="modal-body">
-                        <DataAnnotationsValidator />
-
                         <p class="mb-3 fw-normal">
-                            Edit location <strong>@name</strong>
+                            Are you sure you want to delete location <strong>@model.Name</strong>
                         </p>
-
-                        <div class="form-floating mb-1">
-                            <InputText @bind-Value="model.Name" class="form-control"
-                                placeholder="Name" disable="@loading" autocomplete="off" />
-                            <label for="floatingPassword">Name</label>
-                            <ValidationMessage For="@(() => model.Name)" />
-                        </div>
-
-                        <div class="form-floating mb-1">
-                            <InputTextArea @bind-Value="model.Notes" class="form-control" style="height: 100px"
-                                placeholder="Notes" disable="@loading" />
-                            <label for="floatingPassword">Notes</label>
-                            <ValidationMessage For="@(() => model.Notes)" />
-                        </div>
 
                         <label class="text-danger">@error</label>
                     </div>
@@ -53,13 +37,10 @@
 @code {
 
     [Parameter]
-    public EventCallback<LocationModel> OnUpdated { get; set; }
+    public EventCallback<LocationModel> OnDeleted { get; set; }
 
 
-    LocationCreateModel? model { get; set; }
-    
-    string? id { get; set; }
-    string? name { get; set; }
+    LocationModel? model { get; set; }
     string error { get; set; } = "";
     bool loading { get; set; } = false;
 
@@ -72,9 +53,10 @@
 
         try
         {
-            var result = await http.PutAsync<LocationModel>($"{ApiRoutes.Locations}/{id}", model);
+            var result = await http.DeleteAsync($"{ApiRoutes.Locations}/{model.Id}");
+            result.EnsureSuccessStatusCode();
 
-            await OnUpdated.InvokeAsync(result);
+            await OnDeleted.InvokeAsync();
         }
         catch (Exception ex)
         {
@@ -89,15 +71,7 @@
 
     public void Open(LocationModel location)
     {
-        id = location.Id;
-        name = location.Name;
-
-        model = new LocationCreateModel 
-        {
-            ParentId = location.ParentId,
-            Name = location.Name,
-            Notes = location.Notes,
-        };
+        model = location;
 
         StateHasChanged();
     }
