@@ -1,0 +1,49 @@
+@page "/l/{Slug}"
+
+@using Destuff.Shared.Models
+
+@inject IHttpService http
+
+@if (model != null)
+{
+    <div class="text-end">
+        <a
+            href="/locations"
+            class="btn btn-outline-secondary btn-sm"
+        >
+            Locations
+        </a>
+        <button
+            @onclick="() => {}"
+            type="button" class="btn btn-outline-primary btn-sm"
+        >
+            Edit
+        </button>
+        <button
+            @onclick="() => {}"
+            type="button" class="btn btn-outline-danger btn-sm"
+            disabled="@model.Children?.Any()"
+        >
+            Delete
+        </button>
+    </div>
+
+    <h1>@model.Name</h1>
+
+    <div>@model.Notes</div>
+}
+
+@code {
+    [Parameter]
+    public string? Slug { get; set; }
+    
+    LocationModel? model { get; set; }
+    
+    LocationTreeItemModel? tree { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        model = await http.GetAsync<LocationModel>($"{ApiRoutes.Locations}/s/{Slug}");
+    }
+
+}

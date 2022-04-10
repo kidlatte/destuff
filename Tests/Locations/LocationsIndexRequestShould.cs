@@ -57,7 +57,7 @@ public class LocationsIndexRequestShould : IntegrationTestBase
         var create02 = new LocationCreateModel { Name = "Layer02", ParentId = layer01?.Id };
         var layer02 = await AuthorizedSendAsync<LocationModel>(create02, HttpMethod.Post);
         var create03 = new LocationCreateModel { Name = "Layer03", ParentId = layer02?.Id };
-        await AuthorizedSendAsync<LocationModel>(create03, HttpMethod.Post);
+        await AuthorizedSendAsync(create03, HttpMethod.Post);
 
         // Act
         var result = await AuthorizedSendAsync<List<LocationModel>>();

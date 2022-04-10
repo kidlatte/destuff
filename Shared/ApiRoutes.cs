@@ -9,4 +9,6 @@ public class ApiRoutes
     public const string AuthChangePassword = $"{Auth}/change-password";
 
     public const string Locations = $"/api/locations";
+    public const string LocationSlug = $"{Locations}/s";
+    public const string LocationTree = $"{Locations}/t";
 }
