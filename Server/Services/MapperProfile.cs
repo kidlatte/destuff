@@ -15,7 +15,7 @@ public class MapperProfile : Profile
             .ForMember(m => m.Id, o => o.MapFrom(e => locationId.Encode(e.Id)))
             .ForMember(m => m.ParentId, o => o.MapFrom(e => e.ParentId != null ? locationId.Encode(e.ParentId.Value) : null))
             .ForMember(m => m.Children, o => o.Ignore());
-        CreateMap<Location, LocationTreeItemModel>()
+        CreateMap<Location, LocationTreeModel>()
             .ForMember(m => m.Id, o => o.MapFrom(e => locationId.Encode(e.Id)));
     }
 }

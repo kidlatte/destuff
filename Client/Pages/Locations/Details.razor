@@ -31,6 +31,8 @@
     <h1>@model.Name</h1>
 
     <div>@model.Notes</div>
+
+    <TreeLinks Items="tree" />
 }
 
 @code {
@@ -39,11 +41,13 @@
     
     LocationModel? model { get; set; }
     
-    LocationTreeItemModel? tree { get; set; }
+    List<LocationTreeModel>? tree { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
-        model = await http.GetAsync<LocationModel>($"{ApiRoutes.Locations}/s/{Slug}");
+        model = await http.GetAsync<LocationModel>($"{ApiRoutes.LocationSlug}/{Slug}");
+        var item = await http.GetAsync<LocationTreeModel>($"{ApiRoutes.LocationTree}/{model?.Id}");
+        tree = new List<LocationTreeModel> { item! };
     }
 
 }

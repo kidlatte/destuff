@@ -66,7 +66,7 @@ public class LocationsController : BaseController<Location>
         return model;
     }
 
-    [HttpGet("s/{slug}")]
+    [HttpGet(ApiRoutes.LocationSlug + "/{slug}")]
     public async Task<ActionResult<LocationModel?>> GetLocationBySlug(string slug)
     {
         var query = Query.Where(x => x.Slug == slug);
@@ -77,6 +77,30 @@ public class LocationsController : BaseController<Location>
 
         if (model == null)
             return NotFound();
+
+        return model;
+    }
+
+    [HttpGet(ApiRoutes.LocationTree + "/{id}")]
+    public async Task<ActionResult<LocationTreeModel?>> GetLocationTree(string id)
+    {
+        int actualId = _locationId.Decode(id);
+        var query = Query.Include(x => x.Children).Where(x => x.Id == actualId);
+
+        var model = await query
+            .ProjectTo<LocationTreeModel?>(Mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync();
+
+        if (model == null)
+            return NotFound();
+
+        // TODO: use supporting hierarchy table
+        if (model.Children != null)
+        foreach (var item in model.Children)
+        {
+            var _item = (await GetLocationTree(item.Id!)).Value;
+            item.Children = _item?.Children;
+        }
 
         return model;
     }

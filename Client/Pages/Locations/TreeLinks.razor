@@ -1,0 +1,27 @@
+@using Destuff.Shared.Models
+
+@if(Items != null && Items.Any())
+{
+    <ul>
+        @foreach (var item in Items)
+        {
+            <li>
+                <a
+                    href="/l/@item.Slug"
+                    class="btn btn-light btn-sm text-start my-1"
+                    style="min-width: 160px"
+                >
+                    @item.Name
+                </a>
+
+                <TreeLinks Items="item.Children" />
+            </li>    
+        }
+    </ul>
+}
+
+@code {
+    [Parameter]
+    public List<LocationTreeModel>? Items { get; set; }
+}
+
