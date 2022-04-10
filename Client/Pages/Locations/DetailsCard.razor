@@ -14,6 +14,12 @@
                     Add Child
                 </button>
                 <button
+                    @onclick="() => OnEdit.InvokeAsync(Model)"
+                    type="button" class="btn btn-info btn-sm"
+                >
+                    Edit
+                </button>
+                <button
                     @onclick="() => OnClose.InvokeAsync()"
                     type="button" class="btn btn-secondary btn-sm"
                 >

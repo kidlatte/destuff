@@ -24,21 +24,23 @@
     <div class="pt-2">
         <DetailsCard 
             Model="selected"
-            OnChildAdd="() => create?.Open()"
-            OnEdit="model => {}"
+            OnChildAdd="model => create?.Open(model)"
+            OnEdit="model => update?.Open(model)"
             OnDelete="model => {}"
             OnClose="() => selected = null"
         />
     </div>
 </div>
 
-<CreateModal @ref="create" Parent="selected" OnCreated="LoadData" />
+<CreateModal @ref="create" OnCreated="LoadData" />
+<UpdateModal @ref="update" OnUpdated="LoadData" />
 
 @code
 {
     CreateModal? create;
+    UpdateModal? update;
 
-    List<LocationModel> items { get; set; } = new List<LocationModel>();
+    List<LocationModel>? items { get; set; }
     LocationModel? selected { get; set; }
 
     protected override Task OnInitializedAsync()
@@ -46,22 +48,10 @@
         return LoadData();
     }
 
-    async Task LoadData()
+    async Task LoadData(LocationModel? model = null)
     {
         var result = await http.GetAsync<List<LocationModel>>(ApiRoutes.Locations);
-        if(result != null)
-            items = result;
-    }
-
-    // HACK: help component infer type
-    async Task<List<LocationModel>?> GetChildrenAsync(LocationModel? i)
-    {
-        var result = await http.GetAsync<List<LocationModel>>(ApiRoutes.Locations);
-        return result;
-    }
-
-    async Task<bool> HasChildrenAsync(LocationModel? i)
-    {
-        return await Task.FromResult(false);
+        items = result;
+        selected = model;
     }
 }

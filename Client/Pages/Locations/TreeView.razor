@@ -10,7 +10,7 @@
                 <li>
                     <button
                         @onclick="() => Select(item)"
-                        class="btn btn-sm text-start my-1 @(Selected == item ? "btn-primary" : "btn-light")"
+                        class="btn btn-sm text-start my-1 @(Selected?.Id == item.Id ? "btn-primary" : "btn-light")"
                         style="min-width: 160px"
                     >
                         @item.Name
@@ -31,7 +31,7 @@
     public LocationModel? Selected { get; set; }
 
     [Parameter]
-    public List<LocationModel> Items { get; set; } = new List<LocationModel>();
+    public List<LocationModel>? Items { get; set; }
 
     [Parameter]
     public EventCallback<LocationModel?> OnSelected { get; set; }
