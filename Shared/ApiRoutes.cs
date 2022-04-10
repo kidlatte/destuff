@@ -8,4 +8,5 @@ public class ApiRoutes
     public const string AuthRegister = $"{Auth}/register";
     public const string AuthChangePassword = $"{Auth}/change-password";
 
+    public const string Locations = $"/api/locations";
 }

@@ -1,0 +1,51 @@
+@page "/locations"
+
+@* @using Excubo.Blazor.TreeViews *@
+@using Destuff.Shared.Models
+
+@inject IHttpService http
+
+<PageTitle>Locations</PageTitle>
+
+<h1>Locations</h1>
+
+<div class="text-end">
+    <button @onclick="() => create?.Open()" type="button" class="btn btn-sm btn-primary">Add</button>
+</div>
+
+<div>
+    <TreeView
+        Items="items"
+        Selected="selected"
+        OnSelected="item => selected = item"
+        OnAdd="model => create?.Open(model)"
+        OnEdit="model => update?.Open(model)"
+        OnDelete="model => delete?.Open(model)"
+    />
+</div>
+
+<CreateModal @ref="create" OnCreated="LoadData" />
+<UpdateModal @ref="update" OnUpdated="LoadData" />
+<DeleteModal @ref="delete" OnDeleted="LoadData" />
+
+@code
+{
+    CreateModal? create;
+    UpdateModal? update;
+    DeleteModal? delete;
+
+    List<LocationModel>? items { get; set; }
+    LocationModel? selected { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        return LoadData();
+    }
+
+    async Task LoadData(LocationModel? model = null)
+    {
+        var result = await http.GetAsync<List<LocationModel>>(ApiRoutes.Locations);
+        items = result;
+        selected = model;
+    }
+}

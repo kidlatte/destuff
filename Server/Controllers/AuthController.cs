@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +13,6 @@ using Destuff.Server.Data.Entities;
 using Destuff.Server.Models;
 using Destuff.Shared;
 using Destuff.Shared.Models;
-using Microsoft.AspNetCore.Authorization;
 
 namespace Destuff.Server.Controllers;
 
@@ -78,7 +78,7 @@ public class AuthController : ControllerBase
         var isvalid = await _userManager.CheckPasswordAsync(user, model.Password);
 
         if (!isvalid)
-            return BadRequest(new { message = "Username or password is incorrect" });
+            return BadRequest(new ErrorModel { Message = "Username or password is incorrect" });
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
@@ -107,7 +107,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<ActionResult<RegisterResultModel>> Register([FromBody] LoginModel model)
+    public async Task<ActionResult<IdentityResultModel>> Register([FromBody] LoginModel model)
     {
         if (!ModelState.IsValid)
             return BadRequest();
@@ -116,7 +116,7 @@ public class AuthController : ControllerBase
         {
             var user = new ApplicationUser { UserName = model.UserName };
             var result = await _userManager.CreateAsync(user, model.Password);
-            return Ok(new RegisterResultModel
+            return Ok(new IdentityResultModel
             {
                 Succeeded = result.Succeeded,
                 Errors = result.Errors.Select(x => x.Description).ToList()
@@ -125,7 +125,7 @@ public class AuthController : ControllerBase
         catch (Exception ex)
         {
             // return error message if there was an exception
-            return BadRequest(new { message = ex.Message });
+            return BadRequest(new ErrorModel { Message = ex.Message });
         }
     }
 
@@ -142,7 +142,7 @@ public class AuthController : ControllerBase
             var user = await _userManager.FindByNameAsync(model.UserName);
             await _userManager.RemovePasswordAsync(user);
             var result = await _userManager.AddPasswordAsync(user, model.Password);
-            return Ok(new RegisterResultModel
+            return Ok(new IdentityResultModel
             {
                 Succeeded = result.Succeeded,
                 Errors = result.Errors.Select(x => x.Description).ToList()
@@ -161,7 +161,7 @@ public class AuthController : ControllerBase
     {
         var user = await _userManager.FindByNameAsync(userName);
         var result = await _userManager.DeleteAsync(user);
-        return Ok(new RegisterResultModel
+        return Ok(new IdentityResultModel
         {
             Succeeded = result.Succeeded,
             Errors = result.Errors.Select(x => x.Description).ToList()

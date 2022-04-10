@@ -7,6 +7,8 @@
 
 @inject IHttpService http
 
+<PageTitle>Users</PageTitle>
+
 <h1>Users</h1>
 
 <div class="text-end">
@@ -24,8 +26,8 @@
 </div>
 
 <EditModal @ref="edit" />
-<CreateModal @ref="create" OnUserCreated="ReloadGrid" />
-<DeleteModal @ref="delete" OnUserDeleted="ReloadGrid" />
+<CreateModal @ref="create" OnUserCreated="Reload" />
+<DeleteModal @ref="delete" OnUserDeleted="Reload" />
 
 @code
 {
@@ -44,7 +46,7 @@
         create?.Open();
     }
 
-    async Task ReloadGrid()
+    async Task Reload()
     {
         if (grid != null)
             await grid.ReloadAsync();

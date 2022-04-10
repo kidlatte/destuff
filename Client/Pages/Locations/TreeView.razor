@@ -1,0 +1,96 @@
+@using Destuff.Shared.Models
+
+@if(Items != null && Items.Count > 0)
+{
+    <ul>
+        @foreach(var item in Items)
+        {
+            if (item != null) 
+            {
+                <li>
+                    @if(Selected?.Id == item.Id)
+                    {
+                        <div class="card my-1" style="width: 32rem; max-width: 100%">
+                            <div class="card-body">
+                                <h5 class="card-title">@item.Name</h5>
+                                <p class="card-text">@item.Notes</p>
+                                <div class="text-end">
+                                    <button
+                                        @onclick="() => OnAdd.InvokeAsync(item)"
+                                        type="button" class="btn btn-primary btn-sm"
+                                    >
+                                        Add
+                                    </button>
+                                    <button
+                                        @onclick="() => OnEdit.InvokeAsync(item)"
+                                        type="button" class="btn btn-outline-primary btn-sm"
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        @onclick="() => OnDelete.InvokeAsync(item)"
+                                        type="button" class="btn btn-outline-danger btn-sm"
+                                        disabled="@item.Children?.Any()"
+                                    >
+                                        Delete
+                                    </button>
+                                    <button
+                                        @onclick="() => Select(null)"
+                                        type="button" class="btn btn-outline-secondary btn-sm"
+                                    >
+                                        Close
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <button
+                            @onclick="() => Select(item)"
+                            class="btn btn-sm text-start my-1 btn-light"
+                            style="min-width: 160px"
+                        >
+                            @item.Name
+                        </button>
+                    }
+                    <TreeView
+                        Items="item.Children"
+                        Selected="Selected"
+                        OnSelected="x => Select(x)"
+                        OnAdd="model => OnAdd.InvokeAsync(model)"
+                        OnEdit="model => OnEdit.InvokeAsync(model)"
+                        OnDelete="model => OnDelete.InvokeAsync(model)"
+                    />
+                </li>
+            }
+        }
+    </ul>
+}
+
+@code {
+    [Parameter]
+    public LocationModel? Selected { get; set; }
+
+    [Parameter]
+    public List<LocationModel>? Items { get; set; }
+
+    [Parameter]
+    public EventCallback<LocationModel?> OnSelected { get; set; }
+
+    [Parameter]
+    public EventCallback<LocationModel> OnAdd { get; set; }
+
+    [Parameter]
+    public EventCallback<LocationModel> OnEdit { get; set; }
+
+    [Parameter]
+    public EventCallback<LocationModel> OnDelete { get; set; }
+
+    async Task Select(LocationModel? item) 
+    {
+        Selected = item;
+        await OnSelected.InvokeAsync(item);
+    }
+}
+

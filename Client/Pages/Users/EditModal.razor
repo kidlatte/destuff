@@ -62,7 +62,7 @@
         try
         {
 
-            var result = await http.PutAsync<RegisterResultModel>(ApiRoutes.AuthChangePassword, model);
+            var result = await http.PutAsync<IdentityResultModel>(ApiRoutes.AuthChangePassword, model);
 
             if (result?.Succeeded == true)
             {

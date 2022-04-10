@@ -23,6 +23,7 @@
                                 <InputText @bind-Value="model.UserName" class="form-control"
                                     placeholder="Username" disable="@loading" autocomplete="off" />
                                 <label for="floatingPassword">Username</label>
+                                <ValidationMessage For="@(() => model.UserName)" />
                             </div>
 
                             <div class="form-floating mb-1">
@@ -62,7 +63,7 @@
 
         try
         {
-            var result = await http.PostAsync<RegisterResultModel>(ApiRoutes.AuthRegister, model);
+            var result = await http.PostAsync<IdentityResultModel>(ApiRoutes.AuthRegister, model);
 
             if (result?.Succeeded == true)
             {
