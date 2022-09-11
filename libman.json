@@ -4,7 +4,7 @@
   "defaultDestination": "Client/wwwroot/lib",
   "libraries": [
     {
-      "library": "bootstrap@5.1.3",
+      "library": "bootstrap@5.2.1",
       "destination": "Client/wwwroot/lib/bootstrap",
       "files": [
         "dist/css/bootstrap.min.css",

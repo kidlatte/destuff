@@ -7,7 +7,7 @@
 * restore libman packages
 
 
-## restore
+## Restore
 dotnet restore
 libman restore
 
@@ -16,6 +16,9 @@ dotnet watch --project Server
 
 ## Run
 dotnet run --project Server
+
+## Build
+dotnet build
 
 [location]
 Name
