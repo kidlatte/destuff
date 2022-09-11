@@ -68,15 +68,10 @@ public class HttpService : IHttpService
             return default;
         }
 
-        // throw exception on error response
-        if (!response.IsSuccessStatusCode)
-        {
-            var error = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
-            throw new Exception(error != null ? error["message"] : default);
-        }
-
         if (response.StatusCode == HttpStatusCode.NoContent)
             return null;
+
+        response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadFromJsonAsync<T>();
     }

@@ -38,4 +38,18 @@ internal static class DataSeeder
         };
         builder.Entity<ApplicationUser>().HasData(adminUser);
     }
+
+    internal static void SeedLocations(this ModelBuilder builder)
+    {
+        var entity = new Location
+        {
+            Id = 1,
+            Name = "Office",
+            Slug = "office",
+            CreatedBy = "admin",
+            Created = DateTime.UtcNow,
+            Updated = DateTime.UtcNow,
+        };
+        builder.Entity<Location>().HasData(entity);
+    }
 }

@@ -3,6 +3,7 @@
 @using Destuff.Shared.Models
 
 @inject IHttpService http
+@inject NavigationManager nav
 
 @if (model != null)
 {
@@ -14,15 +15,15 @@
             Locations
         </a>
         <button
-            @onclick="() => {}"
+            @onclick="() => update?.Open(model)"
             type="button" class="btn btn-outline-primary btn-sm"
         >
             Edit
         </button>
         <button
-            @onclick="() => {}"
+            @onclick="() => delete?.Open(model)"
             type="button" class="btn btn-outline-danger btn-sm"
-            disabled="@model.Children?.Any()"
+            disabled="@tree?.First().Children?.Any()"
         >
             Delete
         </button>
@@ -35,6 +36,9 @@
     <TreeLinks Items="tree" />
 }
 
+<UpdateModal @ref="update" OnUpdated="Updated" />
+<DeleteModal @ref="delete" OnDeleted="LoadData" />
+
 @code {
     [Parameter]
     public string? Slug { get; set; }
@@ -43,11 +47,35 @@
     
     List<LocationTreeModel>? tree { get; set; }
 
-    protected override async Task OnParametersSetAsync()
+    CreateModal? create;
+    UpdateModal? update;
+    DeleteModal? delete;
+
+
+    protected override Task OnParametersSetAsync()
     {
-        model = await http.GetAsync<LocationModel>($"{ApiRoutes.LocationSlug}/{Slug}");
+        return LoadData();
+    }
+
+    async Task LoadData()
+    {
+        try
+        {
+            model = await http.GetAsync<LocationModel>($"{ApiRoutes.LocationSlug}/{Slug}");
+        }
+        catch (System.Net.Http.HttpRequestException ex)
+        {
+            if (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+                nav.NavigateTo($"/locations");
+            
+            else
+                throw;
+        }
         var item = await http.GetAsync<LocationTreeModel>($"{ApiRoutes.LocationTree}/{model?.Id}");
         tree = new List<LocationTreeModel> { item! };
     }
 
+    void Updated (LocationModel item) {
+        nav.NavigateTo($"/l/{item.Slug}");
+    }
 }
