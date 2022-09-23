@@ -16,9 +16,9 @@ namespace Destuff.Server.Controllers;
 [Authorize]
 public class LocationsController : BaseController<Location>
 {
-    private ILocationIdService _locationId { get; }
+    private ILocationIdentifier _locationId { get; }
 
-    public LocationsController(ApplicationDbContext context, IMapper mapper, ILocationIdService locationId): base(context, mapper)
+    public LocationsController(ApplicationDbContext context, IMapper mapper, ILocationIdentifier locationId): base(context, mapper)
     {
         _locationId = locationId;
     }

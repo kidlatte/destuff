@@ -7,7 +7,7 @@ namespace Destuff.Server.Services;
 
 public class MapperProfile : Profile
 {
-    public MapperProfile(ILocationIdService locationId)
+    public MapperProfile(ILocationIdentifier locationId, IStuffIdentifier stuffId)
     {
         CreateMap<LocationCreateModel, Location>()
             .ForMember(e => e.ParentId, o => o.MapFrom(m => m.ParentId != null ? locationId.Decode(m.ParentId) :  default(int?)));

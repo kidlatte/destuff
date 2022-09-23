@@ -28,13 +28,11 @@ builder.Services
 var settings = builder.GetAppSettings();
 builder.Services.AddJwtAuthentication(settings.Secret);
 
-builder.Services.AddSingleton<ILocationIdService, LocationIdService>();
-builder.Services.AddSingleton(provider => new MapperConfiguration(cfg =>
-{
-    var locationId = provider.GetService<ILocationIdService>();
-    if (locationId != null)
-        cfg.AddProfile(new MapperProfile(locationId));
-}).CreateMapper());
+builder.Services.AddHashIdentifiers();
+builder.Services.AddSingleton<Profile, MapperProfile>();
+builder.Services.AddSingleton(provider => 
+        new MapperConfiguration(cfg => cfg.AddProfile(provider.GetRequiredService<Profile>()))
+    .CreateMapper());
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
