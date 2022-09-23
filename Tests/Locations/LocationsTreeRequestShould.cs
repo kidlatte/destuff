@@ -32,10 +32,15 @@ public class LocationsTreeRequestShould : IntegrationTestBase
         var result = await AuthorizedGetAsync<LocationModel>($"{ApiRoutes.LocationTree}/{layer01?.Id}");
 
         // Assert
-        Assert.NotNull(result?.Id);
-        Assert.NotEmpty(result?.Children);
-        Assert.NotEmpty(result?.Children?.First().Children);
-        Assert.Equal(layer03?.Id, result?.Children?.First().Children?.First().Id);
+        Assert.NotNull(result);
+        Assert.NotNull(result.Id);
+        Assert.NotNull(result.Children);
+        Assert.NotEmpty(result.Children);
+
+        var children = result.Children.First().Children;
+        Assert.NotNull(children);
+        Assert.NotEmpty(children);
+        Assert.Equal(layer03.Id, children.First().Id);
     }
 
     [Fact]

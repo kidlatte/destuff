@@ -27,8 +27,9 @@ public class LocationsIndexRequestShould : IntegrationTestBase
         var result = await AuthorizedSendAsync<List<LocationModel>>();
 
         // Assert
+        Assert.NotNull(result);
         Assert.NotEmpty(result);
-        Assert.Equal(model.Name, result?.First().Name);
+        Assert.Equal(model.Name, result.First().Name);
     }
 
     [Fact]
@@ -44,8 +45,12 @@ public class LocationsIndexRequestShould : IntegrationTestBase
         var result = await AuthorizedSendAsync<List<LocationModel>>();
 
         // Assert
+        Assert.NotNull(result);
         Assert.NotEmpty(result);
-        Assert.NotEmpty(result?.First().Children);
+        
+        var children = result.First().Children;
+        Assert.NotNull(children);
+        Assert.NotEmpty(children);
     }
 
     [Fact]
@@ -63,8 +68,15 @@ public class LocationsIndexRequestShould : IntegrationTestBase
         var result = await AuthorizedSendAsync<List<LocationModel>>();
 
         // Assert
+        Assert.NotNull(result);
         Assert.NotEmpty(result);
-        Assert.NotEmpty(result?.First().Children);
-        Assert.NotEmpty(result?.First().Children?.First().Children);
+
+        var children = result.First().Children;
+        Assert.NotNull(children);
+        Assert.NotEmpty(children);
+
+        var grandchildren = result?.First().Children?.First().Children;
+        Assert.NotNull(grandchildren);
+        Assert.NotEmpty(grandchildren);
     }
 }
