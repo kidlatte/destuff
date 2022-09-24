@@ -8,7 +8,7 @@ public class Stuff: Entity
 {
     [Required]
     [MaxLength(255)]
-    public string? Name { get; set; }
+    public string Name { get; set; } = null!;
 
     [Required]
     [MaxLength(255)]

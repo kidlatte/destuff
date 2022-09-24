@@ -24,7 +24,7 @@ public class LocationsController : BaseController<Location>
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<LocationModel>>> GetLocations()
+    public async Task<ActionResult<List<LocationModel>>> Get()
     {
         var query = Query;
 
@@ -108,10 +108,10 @@ public class LocationsController : BaseController<Location>
     [HttpPost]
     public async Task<ActionResult<LocationModel>> Create([FromBody] LocationCreateModel model)
     {
-        if (!ModelState.IsValid)
+        if (!ModelState.IsValid || model.Name == null)
             return BadRequest(model);
 
-        var slug = model.Name!.ToSlug();
+        var slug = model.Name.ToSlug();
         var exists = await Query.AnyAsync(x => x.Slug == slug);
         if (exists)
             return BadRequest("Name already exists.");
@@ -129,11 +129,11 @@ public class LocationsController : BaseController<Location>
     [HttpPut("{id}")]
     public async Task<ActionResult<LocationModel>> UpdateLocation(string id, [FromBody] LocationCreateModel model)
     {
-        if (!ModelState.IsValid)
+        if (!ModelState.IsValid || model.Name == null)
             return BadRequest(model);
 
         int actualId = LocationId.Decode(id);
-        var slug = model.Name!.ToSlug();
+        var slug = model.Name.ToSlug();
 
         var exists = await Query.AnyAsync(x => x.Id != actualId && x.Slug == slug);
         if (exists)
