@@ -16,11 +16,11 @@ namespace Destuff.Server.Controllers;
 [Authorize]
 public class LocationsController : BaseController<Location>
 {
-    private ILocationIdentifier _locationId { get; }
+    private ILocationIdentifier LocationId { get; }
 
     public LocationsController(ApplicationDbContext context, IMapper mapper, ILocationIdentifier locationId): base(context, mapper)
     {
-        _locationId = locationId;
+        LocationId = locationId;
     }
 
     [HttpGet]
@@ -53,7 +53,7 @@ public class LocationsController : BaseController<Location>
     [HttpGet("{id}")]
     public async Task<ActionResult<LocationModel?>> GetLocation(string id)
     {
-        int actualId = _locationId.Decode(id);
+        int actualId = LocationId.Decode(id);
         var query = Query.Where(x => x.Id == actualId);
 
         var model = await query
@@ -84,7 +84,7 @@ public class LocationsController : BaseController<Location>
     [HttpGet(ApiRoutes.LocationTree + "/{id}")]
     public async Task<ActionResult<LocationTreeModel?>> GetLocationTree(string id)
     {
-        int actualId = _locationId.Decode(id);
+        int actualId = LocationId.Decode(id);
         var query = Query.Include(x => x.Children).Where(x => x.Id == actualId);
 
         var model = await query
@@ -106,7 +106,7 @@ public class LocationsController : BaseController<Location>
     }
 
     [HttpPost]
-    public async Task<ActionResult<LocationModel>> CreateLocation([FromBody] LocationCreateModel model)
+    public async Task<ActionResult<LocationModel>> Create([FromBody] LocationCreateModel model)
     {
         if (!ModelState.IsValid)
             return BadRequest(model);
@@ -132,7 +132,7 @@ public class LocationsController : BaseController<Location>
         if (!ModelState.IsValid)
             return BadRequest(model);
 
-        int actualId = _locationId.Decode(id);
+        int actualId = LocationId.Decode(id);
         var slug = model.Name!.ToSlug();
 
         var exists = await Query.AnyAsync(x => x.Id != actualId && x.Slug == slug);
@@ -154,7 +154,7 @@ public class LocationsController : BaseController<Location>
     [HttpDelete("{id}")]
     public async Task<ActionResult<LocationModel>> DeleteLocation(string id)
     {
-        int actualId = _locationId.Decode(id);
+        int actualId = LocationId.Decode(id);
         var entity = await Query.Where(x => x.Id == actualId).FirstOrDefaultAsync();
         if (entity == null)
             return NotFound();

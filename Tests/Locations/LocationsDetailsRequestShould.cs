@@ -38,6 +38,6 @@ public class LocationsDetailsRequestShould : IntegrationTestBase
         var result = await AuthorizedGetAsync($"{ApiRoutes.Locations}/xxx");
 
         // Assert
-        Assert.Equal(HttpStatusCode.InternalServerError, result.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, result.StatusCode);
     }
 }
