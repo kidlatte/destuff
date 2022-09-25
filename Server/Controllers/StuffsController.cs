@@ -55,6 +55,22 @@ public class StuffsController : BaseController<Stuff>
         return new PagedList<StuffModel>(count, list);
     }
 
+    [HttpGet("{id}")]
+    public async Task<ActionResult<StuffModel?>> Get(string id)
+    {
+        int actualId = StuffId.Decode(id);
+        var query = Query.Where(x => x.Id == actualId);
+
+        var model = await query
+            .ProjectTo<StuffModel>(Mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync();
+
+        if (model == null)
+            return NotFound();
+
+        return model;
+    }
+
     [HttpPost]
     public async Task<ActionResult<StuffModel>> Create([FromBody] StuffCreateModel model)
     {
@@ -75,4 +91,43 @@ public class StuffsController : BaseController<Stuff>
 
         return Mapper.Map<StuffModel>(entity);
     }
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult<StuffModel>> Update(string id, [FromBody] StuffCreateModel model)
+    {
+        if (!ModelState.IsValid || model.Name == null)
+            return BadRequest(model);
+
+        int actualId = StuffId.Decode(id);
+        var slug = model.Name.ToSlug();
+
+        var exists = await Query.AnyAsync(x => x.Id != actualId && x.Slug == slug);
+        if (exists)
+            return BadRequest("Account name already exists.");
+
+        var entity = await Query.Where(x => x.Id == actualId).FirstOrDefaultAsync();
+        if (entity == null)
+            return NotFound();
+
+        Mapper.Map(model, entity);
+        entity.Slug = slug;
+        Audit(entity);
+        await Context.SaveChangesAsync();
+
+        return Mapper.Map<StuffModel>(entity);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<StuffModel>> Delete(string id)
+    {
+        int actualId = StuffId.Decode(id);
+        var entity = await Query.Where(x => x.Id == actualId).FirstOrDefaultAsync();
+        if (entity == null)
+            return NotFound();
+
+        Context.Remove(entity);
+        await Context.SaveChangesAsync();
+
+        return Mapper.Map<StuffModel>(entity);
+    }    
 }

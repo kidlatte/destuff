@@ -51,7 +51,7 @@ public class LocationsController : BaseController<Location>
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<LocationModel?>> GetLocation(string id)
+    public async Task<ActionResult<LocationModel?>> Get(string id)
     {
         int actualId = LocationId.Decode(id);
         var query = Query.Where(x => x.Id == actualId);
@@ -127,7 +127,7 @@ public class LocationsController : BaseController<Location>
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<LocationModel>> UpdateLocation(string id, [FromBody] LocationCreateModel model)
+    public async Task<ActionResult<LocationModel>> Update(string id, [FromBody] LocationCreateModel model)
     {
         if (!ModelState.IsValid || model.Name == null)
             return BadRequest(model);
@@ -152,7 +152,7 @@ public class LocationsController : BaseController<Location>
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult<LocationModel>> DeleteLocation(string id)
+    public async Task<ActionResult<LocationModel>> Delete(string id)
     {
         int actualId = LocationId.Decode(id);
         var entity = await Query.Where(x => x.Id == actualId).FirstOrDefaultAsync();
