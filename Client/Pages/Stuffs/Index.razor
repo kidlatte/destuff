@@ -1,5 +1,29 @@
 @page "/"
+@using Destuff.Shared.Models
+@inject IHttpService http
 
 <PageTitle>Stuffs | Destuff</PageTitle>
 
 <h1>Destuff!</h1>
+
+<div class="text-end">
+    <button @onclick="() => create?.Open()" type="button" class="btn btn-primary">Add</button>
+</div>
+
+<CreateModal @ref="create" OnCreated="LoadData" />
+
+@code
+{
+    List<StuffModel>? items { get; set; }
+
+    CreateModal? create;
+
+    protected override Task OnInitializedAsync() => LoadData();
+
+    async Task LoadData(StuffModel? model = null)
+    {
+        var result = await http.GetAsync<PagedList<StuffModel>>(ApiRoutes.Stuffs);
+        if (result != null)
+            items = result.List.ToList();
+    }
+}

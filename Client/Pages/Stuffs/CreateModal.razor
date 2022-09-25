@@ -10,8 +10,8 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        Add Location
-                        @(parentName == null ? "" : $"in {parentName}")
+                        Add Stuff
+                        @(locationName == null ? "" : $"in {locationName}")
                     </h5>
                     <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
                 </div>
@@ -20,15 +20,15 @@
                         <DataAnnotationsValidator />
 
                         <p class="mb-3 fw-normal">
-                            @if (parentName == null)
+                            @if (locationName == null)
                             {
-                                <text>Add a new location.</text>
+                                <text>Add a new stuff.</text>
                             }
                             else
                             {
                                 <text>
-                                    Add a new location under
-                                    <strong>@parentName</strong>
+                                    Add a new stuff in
+                                    <strong>@locationName</strong>
                                 .</text>
                             }
                         </p>
@@ -63,11 +63,11 @@
 
 @code {
     [Parameter]
-    public EventCallback<LocationModel> OnCreated { get; set; }
+    public EventCallback<StuffModel> OnCreated { get; set; }
 
-    LocationCreateModel? model { get; set; }
+    StuffCreateModel? model { get; set; }
 
-    string? parentName { get; set; }
+    string? locationName { get; set; }
     string error { get; set; } = "";
     bool loading { get; set; } = false;
 
@@ -80,7 +80,7 @@
 
         try
         {
-            var result = await http.PostAsync<LocationModel>(ApiRoutes.Locations, model);
+            var result = await http.PostAsync<StuffModel>(ApiRoutes.Stuffs, model);
 
             Close();
             await OnCreated.InvokeAsync(result);
@@ -93,13 +93,13 @@
         loading = false;
     }
 
-    public void Open(LocationModel? parent = null)
+    public void Open(LocationModel? location = null)
     {
-        parentName = parent?.Name;
+        locationName = location?.Name;
 
-        model = new LocationCreateModel 
+        model = new StuffCreateModel 
         {
-            ParentId = parent?.Id
+            LocationId = location?.Id
         };
 
         StateHasChanged();

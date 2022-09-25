@@ -1,7 +1,5 @@
 @page "/locations"
-
 @using Destuff.Shared.Models
-
 @inject IHttpService http
 
 <PageTitle>Locations</PageTitle>
@@ -9,7 +7,7 @@
 <h1>Locations</h1>
 
 <div class="text-end">
-    <button @onclick="() => create?.Open()" type="button" class="btn btn-sm btn-primary">Add</button>
+    <button @onclick="() => create?.Open()" type="button" class="btn btn-primary">Add</button>
 </div>
 
 <div>
