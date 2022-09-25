@@ -9,14 +9,14 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        Delete Location @model.Name
+                        Delete Stuff @model.Name
                     </h5>
                     <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
                 </div>
                 <EditForm OnValidSubmit="OnSubmit" Model="model" autocomplete="off">
                     <div class="modal-body">
                         <p class="mb-3 fw-normal">
-                            Are you sure you want to delete location <strong>@model.Name</strong>
+                            Are you sure you want to delete stuff <strong>@model.Name</strong>
                         </p>
 
                         <label class="text-danger">@error</label>
@@ -36,10 +36,10 @@
 @code {
 
     [Parameter]
-    public EventCallback<LocationModel> OnDeleted { get; set; }
+    public EventCallback<StuffModel> OnDeleted { get; set; }
 
 
-    LocationModel? model { get; set; }
+    StuffModel? model { get; set; }
     string error { get; set; } = "";
     bool loading { get; set; } = false;
 
@@ -52,7 +52,7 @@
 
         try
         {
-            var result = await http.DeleteAsync($"{ApiRoutes.Locations}/{model.Id}");
+            var result = await http.DeleteAsync($"{ApiRoutes.Stuffs}/{model.Id}");
             result.EnsureSuccessStatusCode();
 
             await OnDeleted.InvokeAsync();
@@ -68,9 +68,9 @@
     }
 
 
-    public void Open(LocationModel location)
+    public void Open(StuffModel stuff)
     {
-        model = location;
+        model = stuff;
 
         StateHasChanged();
     }

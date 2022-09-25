@@ -9,8 +9,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        Add Stuff
-                        @(locationName == null ? "" : $"in {locationName}")
+                        Edit Stuff @name
                     </h5>
                     <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
                 </div>
@@ -19,17 +18,7 @@
                         <DataAnnotationsValidator />
 
                         <p class="mb-3 fw-normal">
-                            @if (locationName == null)
-                            {
-                                <text>Add a new stuff.</text>
-                            }
-                            else
-                            {
-                                <text>
-                                    Add a new stuff in
-                                    <strong>@locationName</strong>
-                                .</text>
-                            }
+                            Edit stuff <strong>@name</strong>
                         </p>
 
                         <div class="form-floating mb-1">
@@ -61,12 +50,15 @@
 }
 
 @code {
+
     [Parameter]
-    public EventCallback<StuffModel> OnCreated { get; set; }
+    public EventCallback<StuffModel> OnUpdated { get; set; }
+
 
     StuffCreateModel? model { get; set; }
-
-    string? locationName { get; set; }
+    
+    string? id { get; set; }
+    string? name { get; set; }
     string error { get; set; } = "";
     bool loading { get; set; } = false;
 
@@ -79,10 +71,9 @@
 
         try
         {
-            var result = await http.PostAsync<StuffModel>(ApiRoutes.Stuffs, model);
+            var result = await http.PutAsync<StuffModel>($"{ApiRoutes.Stuffs}/{id}", model);
 
-            Close();
-            await OnCreated.InvokeAsync(result);
+            await OnUpdated.InvokeAsync(result);
         }
         catch (Exception ex)
         {
@@ -90,21 +81,28 @@
         }
 
         loading = false;
+
+        Close();
     }
 
-    public void Open(LocationModel? location = null)
+
+    public void Open(StuffModel stuff)
     {
-        locationName = location?.Name;
+        id = stuff.Id;
+        name = stuff.Name;
 
         model = new StuffCreateModel 
         {
-            LocationId = location?.Id
+            LocationId = stuff.LocationId,
+            Name = stuff.Name,
+            Notes = stuff.Notes,
         };
 
         StateHasChanged();
     }
 
-    public void Close()
+
+    void Close()
     {
         model = null;
     }
