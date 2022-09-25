@@ -34,8 +34,22 @@ internal static class DataSeeder
             UserName = "admin",
             NormalizedUserName = "ADMIN",
             PasswordHash = hasher.HashPassword(null, "adminadmin"),
-            SecurityStamp = Guid.NewGuid().ToString(),
+            SecurityStamp = "70effd01-76d5-4d56-85ac-6ddb5ffd3819",
         };
         builder.Entity<ApplicationUser>().HasData(adminUser);
+    }
+
+    internal static void SeedLocations(this ModelBuilder builder)
+    {
+        var entity = new Location
+        {
+            Id = 1,
+            Name = "Office",
+            Slug = "office",
+            CreatedBy = "admin",
+            Created = DateTime.UtcNow,
+            Updated = DateTime.UtcNow,
+        };
+        builder.Entity<Location>().HasData(entity);
     }
 }

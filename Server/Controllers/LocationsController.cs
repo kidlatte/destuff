@@ -16,15 +16,15 @@ namespace Destuff.Server.Controllers;
 [Authorize]
 public class LocationsController : BaseController<Location>
 {
-    private ILocationIdService _locationId { get; }
+    private ILocationIdentifier LocationId { get; }
 
-    public LocationsController(ApplicationDbContext context, IMapper mapper, ILocationIdService locationId): base(context, mapper)
+    public LocationsController(ApplicationDbContext context, IMapper mapper, ILocationIdentifier locationId): base(context, mapper)
     {
-        _locationId = locationId;
+        LocationId = locationId;
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<LocationModel>>> GetLocations()
+    public async Task<ActionResult<List<LocationModel>>> Get()
     {
         var query = Query;
 
@@ -51,9 +51,9 @@ public class LocationsController : BaseController<Location>
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<LocationModel?>> GetLocation(string id)
+    public async Task<ActionResult<LocationModel?>> Get(string id)
     {
-        int actualId = _locationId.Decode(id);
+        int actualId = LocationId.Decode(id);
         var query = Query.Where(x => x.Id == actualId);
 
         var model = await query
@@ -66,7 +66,7 @@ public class LocationsController : BaseController<Location>
         return model;
     }
 
-    [HttpGet("s/{slug}")]
+    [HttpGet(ApiRoutes.LocationSlug + "/{slug}")]
     public async Task<ActionResult<LocationModel?>> GetLocationBySlug(string slug)
     {
         var query = Query.Where(x => x.Slug == slug);
@@ -81,13 +81,37 @@ public class LocationsController : BaseController<Location>
         return model;
     }
 
-    [HttpPost]
-    public async Task<ActionResult<LocationModel>> CreateLocation([FromBody] LocationCreateModel model)
+    [HttpGet(ApiRoutes.LocationTree + "/{id}")]
+    public async Task<ActionResult<LocationTreeModel?>> GetLocationTree(string id)
     {
-        if (!ModelState.IsValid)
+        int actualId = LocationId.Decode(id);
+        var query = Query.Include(x => x.Children).Where(x => x.Id == actualId);
+
+        var model = await query
+            .ProjectTo<LocationTreeModel?>(Mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync();
+
+        if (model == null)
+            return NotFound();
+
+        // TODO: use supporting hierarchy table
+        if (model.Children != null)
+        foreach (var item in model.Children)
+        {
+            var _item = (await GetLocationTree(item.Id!)).Value;
+            item.Children = _item?.Children;
+        }
+
+        return model;
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<LocationModel>> Create([FromBody] LocationCreateModel model)
+    {
+        if (!ModelState.IsValid || model.Name == null)
             return BadRequest(model);
 
-        var slug = model.Name!.ToSlug();
+        var slug = model.Name.ToSlug();
         var exists = await Query.AnyAsync(x => x.Slug == slug);
         if (exists)
             return BadRequest("Name already exists.");
@@ -103,13 +127,13 @@ public class LocationsController : BaseController<Location>
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<LocationModel>> UpdateLocation(string id, [FromBody] LocationCreateModel model)
+    public async Task<ActionResult<LocationModel>> Update(string id, [FromBody] LocationCreateModel model)
     {
-        if (!ModelState.IsValid)
+        if (!ModelState.IsValid || model.Name == null)
             return BadRequest(model);
 
-        int actualId = _locationId.Decode(id);
-        var slug = model.Name!.ToSlug();
+        int actualId = LocationId.Decode(id);
+        var slug = model.Name.ToSlug();
 
         var exists = await Query.AnyAsync(x => x.Id != actualId && x.Slug == slug);
         if (exists)
@@ -128,9 +152,9 @@ public class LocationsController : BaseController<Location>
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult<LocationModel>> DeleteLocation(string id)
+    public async Task<ActionResult<LocationModel>> Delete(string id)
     {
-        int actualId = _locationId.Decode(id);
+        int actualId = LocationId.Decode(id);
         var entity = await Query.Where(x => x.Id == actualId).FirstOrDefaultAsync();
         if (entity == null)
             return NotFound();

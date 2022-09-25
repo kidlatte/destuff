@@ -7,13 +7,21 @@ namespace Destuff.Server.Services;
 
 public class MapperProfile : Profile
 {
-    public MapperProfile(ILocationIdService locationId)
+    public MapperProfile(ILocationIdentifier locationId, IStuffIdentifier stuffId)
     {
         CreateMap<LocationCreateModel, Location>()
             .ForMember(e => e.ParentId, o => o.MapFrom(m => m.ParentId != null ? locationId.Decode(m.ParentId) :  default(int?)));
-        CreateMap<Location, LocationModel>()
+        CreateMap<Location, LocationModel>().IncludeAllDerived()
             .ForMember(m => m.Id, o => o.MapFrom(e => locationId.Encode(e.Id)))
             .ForMember(m => m.ParentId, o => o.MapFrom(e => e.ParentId != null ? locationId.Encode(e.ParentId.Value) : null))
             .ForMember(m => m.Children, o => o.Ignore());
+        CreateMap<Location, LocationTreeModel>()
+            .ForMember(m => m.Id, o => o.MapFrom(e => locationId.Encode(e.Id)));
+
+        CreateMap<StuffCreateModel, Stuff>()
+            .ForMember(e => e.LocationId, o => o.MapFrom(m => m.LocationId != null ? locationId.Decode(m.LocationId) :  default(int?)));
+        CreateMap<Stuff, StuffModel>().IncludeAllDerived()
+            .ForMember(m => m.Id, o => o.MapFrom(e => stuffId.Encode(e.Id)))
+            .ForMember(m => m.LocationId, o => o.MapFrom(e => e.LocationId != null ? locationId.Encode(e.LocationId.Value) : null));
     }
 }

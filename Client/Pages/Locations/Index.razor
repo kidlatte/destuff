@@ -1,8 +1,5 @@
 @page "/locations"
-
-@* @using Excubo.Blazor.TreeViews *@
 @using Destuff.Shared.Models
-
 @inject IHttpService http
 
 <PageTitle>Locations</PageTitle>
@@ -10,7 +7,7 @@
 <h1>Locations</h1>
 
 <div class="text-end">
-    <button @onclick="() => create?.Open()" type="button" class="btn btn-sm btn-primary">Add</button>
+    <button @onclick="() => create?.Open()" type="button" class="btn btn-primary">Add</button>
 </div>
 
 <div>
@@ -30,12 +27,13 @@
 
 @code
 {
+    List<LocationModel>? items { get; set; }
+    LocationModel? selected { get; set; }
+
     CreateModal? create;
     UpdateModal? update;
     DeleteModal? delete;
 
-    List<LocationModel>? items { get; set; }
-    LocationModel? selected { get; set; }
 
     protected override Task OnInitializedAsync()
     {

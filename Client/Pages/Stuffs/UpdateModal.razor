@@ -9,15 +9,31 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        Delete Location @model.Name
+                        Edit Stuff @name
                     </h5>
                     <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
                 </div>
                 <EditForm OnValidSubmit="OnSubmit" Model="model" autocomplete="off">
                     <div class="modal-body">
+                        <DataAnnotationsValidator />
+
                         <p class="mb-3 fw-normal">
-                            Are you sure you want to delete location <strong>@model.Name</strong>
+                            Edit stuff <strong>@name</strong>
                         </p>
+
+                        <div class="form-floating mb-1">
+                            <InputText @bind-Value="model.Name" class="form-control"
+                                placeholder="Name" disable="@loading" autocomplete="off" />
+                            <label for="floatingPassword">Name</label>
+                            <ValidationMessage For="@(() => model.Name)" />
+                        </div>
+
+                        <div class="form-floating mb-1">
+                            <InputTextArea @bind-Value="model.Notes" class="form-control" style="height: 100px"
+                                placeholder="Notes" disable="@loading" />
+                            <label for="floatingPassword">Notes</label>
+                            <ValidationMessage For="@(() => model.Notes)" />
+                        </div>
 
                         <label class="text-danger">@error</label>
                     </div>
@@ -36,10 +52,13 @@
 @code {
 
     [Parameter]
-    public EventCallback<LocationModel> OnDeleted { get; set; }
+    public EventCallback<StuffModel> OnUpdated { get; set; }
 
 
-    LocationModel? model { get; set; }
+    StuffCreateModel? model { get; set; }
+    
+    string? id { get; set; }
+    string? name { get; set; }
     string error { get; set; } = "";
     bool loading { get; set; } = false;
 
@@ -52,10 +71,9 @@
 
         try
         {
-            var result = await http.DeleteAsync($"{ApiRoutes.Locations}/{model.Id}");
-            result.EnsureSuccessStatusCode();
+            var result = await http.PutAsync<StuffModel>($"{ApiRoutes.Stuffs}/{id}", model);
 
-            await OnDeleted.InvokeAsync();
+            await OnUpdated.InvokeAsync(result);
         }
         catch (Exception ex)
         {
@@ -68,9 +86,17 @@
     }
 
 
-    public void Open(LocationModel location)
+    public void Open(StuffModel stuff)
     {
-        model = location;
+        id = stuff.Id;
+        name = stuff.Name;
+
+        model = new StuffCreateModel 
+        {
+            LocationId = stuff.LocationId,
+            Name = stuff.Name,
+            Notes = stuff.Notes,
+        };
 
         StateHasChanged();
     }

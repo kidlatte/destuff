@@ -17,7 +17,13 @@ public class LocationModel: LocationCreateModel
 {
     public string? Id { get; set; }
     public string? Slug { get; set; }
-
-    // public LocationModel? Parent { get; set; }
     public List<LocationModel>? Children { get; set; }
+}
+
+public class LocationTreeModel
+{
+    public string Id { get; set; } = null!;
+    public string? Slug { get; set; }
+    public string? Name { get; set; }
+    public List<LocationTreeModel>? Children { get; set; }
 }

@@ -9,6 +9,10 @@ h1:focus {
   outline: none;
 }
 
+.btn {
+  min-width: 50px;
+}
+
 .content {
   padding-top: 1.1rem;
 }
