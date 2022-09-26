@@ -24,14 +24,14 @@
                         <div class="form-floating mb-1">
                             <InputText @bind-Value="model.Name" class="form-control"
                                 placeholder="Name" disable="@loading" autocomplete="off" />
-                            <label for="floatingPassword">Name</label>
+                            <label>Name</label>
                             <ValidationMessage For="@(() => model.Name)" />
                         </div>
 
                         <div class="form-floating mb-1">
                             <InputTextArea @bind-Value="model.Notes" class="form-control" style="height: 100px"
                                 placeholder="Notes" disable="@loading" />
-                            <label for="floatingPassword">Notes</label>
+                            <label>Notes</label>
                             <ValidationMessage For="@(() => model.Notes)" />
                         </div>
 

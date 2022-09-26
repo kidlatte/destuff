@@ -35,7 +35,7 @@
                         <div class="form-floating mb-1">
                             <InputText @bind-Value="model.Name" class="form-control"
                                 placeholder="Name" disable="@loading" autocomplete="off" />
-                            <label for="floatingPassword">Name</label>
+                            <label>Name</label>
                             <ValidationMessage For="@(() => model.Name)" />
                         </div>
 
@@ -65,10 +65,16 @@
     public EventCallback<StuffModel> OnCreated { get; set; }
 
     StuffCreateModel? model { get; set; }
+    List<LocationModel>? locations { get; set; }
 
     string? locationName { get; set; }
     string error { get; set; } = "";
     bool loading { get; set; } = false;
+
+    protected override async Task OnInitializedAsync() 
+    {
+        locations = await http.GetAsync<List<LocationModel>>(ApiRoutes.Locations);
+    }
 
     async Task OnSubmit()
     {
