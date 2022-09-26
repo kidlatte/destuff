@@ -6,46 +6,27 @@
 * install libman
 * restore libman packages
 
-
 ## Restore
 dotnet restore
 libman restore
 
+## Build
+dotnet build
+
 ## Develop
 dotnet watch --project Server
+
+## Migrate
+dotnet tool install --global dotnet-ef
+dotnet ef migrations --project Server add {MigrationName}
 
 ## Run
 dotnet run --project Server
 
-## Build
-dotnet build
+## Test
+dotnet test Tests
 
-[location]
-Name
-Flags
-Notes
-
-ParentId?
-Parent
-Children
-
-Items
-Images
-
-[item]
-Name
-Flags
-Notes
-
-LocationId?
-Location
-
-[image]
-Path
-
-LocationId?
-Location
-
-ItemId?
-Item
+### Bug: dotnet watch
+set environment to development
+`export ASPNETCORE_ENVIRONMENT=Development`
 

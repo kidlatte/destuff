@@ -17,4 +17,10 @@ public class Image: Entity
 
     public int? LocationId { get; set; }
     public Location? Location { get; set; }
+
+    public int? PurchaseId { get; set; }
+    public Purchase? Purchase { get; set; }
+
+    public int? EventId { get; set; }
+    public Event? Event { get; set; }
 }

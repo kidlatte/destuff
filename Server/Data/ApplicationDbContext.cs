@@ -7,11 +7,17 @@ namespace Destuff.Server.Data;
 
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
+    public DbSet<Setting> Settings => Set<Setting>();
     public DbSet<Stuff> Stuffs => Set<Stuff>();
     public DbSet<Location> Locations => Set<Location>();
+    public DbSet<StuffLocation> StuffLocations => Set<StuffLocation>();
     public DbSet<Tag> Tags => Set<Tag>();
     public DbSet<Image> Images => Set<Image>();
-
+    public DbSet<Supplier> Suppliers => Set<Supplier>();
+    public DbSet<Purchase> Purchases => Set<Purchase>();
+    public DbSet<PurchaseItem> PurchaseItems => Set<PurchaseItem>();
+    public DbSet<Event> Events => Set<Event>();
+    
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
@@ -20,6 +26,23 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        builder.Entity<Stuff>()
+            .HasMany(s => s.Locations)
+            .WithMany(l => l.Stuffs)
+            .UsingEntity<StuffLocation>
+            (
+                sl => sl.HasOne(x => x.Location)
+                    .WithMany(l => l.StuffLocations)
+                    .HasForeignKey(x => x.LocationId),
+                sl => sl.HasOne(x => x.Stuff)
+                    .WithMany(s => s.StuffLocations)
+                    .HasForeignKey(x => x.StuffId),
+                sl => sl.HasKey(x => new { x.StuffId, x.LocationId })
+            );
+
+        builder.SeedUsers();
+        builder.SeedLocations();
     }
 }
 
@@ -44,8 +67,8 @@ internal static class DataSeeder
         var entity = new Location
         {
             Id = 1,
-            Name = "Office",
-            Slug = "office",
+            Name = "Storage",
+            Slug = "storage",
             CreatedBy = "admin",
             Created = DateTime.UtcNow,
             Updated = DateTime.UtcNow,

@@ -19,12 +19,14 @@ public class Location: Entity
     public LocationFlags Flags { get; set; }
 
     public int Order { get; set; }
+    public string? PathData { get; set; }
 
     public int? ParentId { get; set; }
     public Location? Parent { get; set; }
     
     public ICollection<Location>? Children { get; set; }
     public ICollection<Stuff>? Stuffs { get; set; }
+    public ICollection<StuffLocation>? StuffLocations { get; set; }
     public ICollection<Image>? Images { get; set; }
     public ICollection<Tag>? Tags { get; set; }
 }

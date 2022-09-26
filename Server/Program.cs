@@ -1,11 +1,7 @@
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using AutoMapper;
 using Destuff.Server.Data;
 using Destuff.Server.Data.Entities;
-using Destuff.Server.Models;
 using Destuff.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
