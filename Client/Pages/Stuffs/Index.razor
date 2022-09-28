@@ -17,6 +17,7 @@
         <thead>
             <tr>
                 <th scope="col">Name</th>
+                <th scope="col">Locations</th>
                 <th scope="col" style=""></th>
             </tr>
         </thead>
@@ -25,11 +26,14 @@
             {
                 <tr>
                     <td>
-                        <a
-                            href="@($"/s/{item.Slug}")"
-                        >
-                            @item.Name
-                        </a>
+                        <a href="@($"/s/{item.Slug}")">@item.Name</a>
+                    </td>
+                    <td>
+                        @foreach(var (loc, i) in item.Locations.OrEmpty().Select((loc, i) => (loc, i)))
+                        {
+                            @if (i > 0) {<text>, </text>}
+                            <a href="@($"/l/{loc.Slug}")">@loc.Name</a>
+                        }
                     </td>
                     <td>
                         <button @onclick="() => update?.Open(item)" class="btn btn-sm btn-outline-primary border border-0">

@@ -8,18 +8,12 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">
-                        Edit Stuff @name
-                    </h5>
+                    <h5 class="modal-title">Edit Stuff @name</h5>
                     <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
                 </div>
                 <EditForm OnValidSubmit="OnSubmit" Model="model" autocomplete="off">
                     <div class="modal-body">
                         <DataAnnotationsValidator />
-
-                        <p class="mb-3 fw-normal">
-                            Edit stuff <strong>@name</strong>
-                        </p>
 
                         <div class="form-floating mb-1">
                             <InputText @bind-Value="model.Name" class="form-control"
@@ -91,12 +85,7 @@
         id = stuff.Id;
         name = stuff.Name;
 
-        model = new StuffCreateModel 
-        {
-            LocationId = stuff.LocationId,
-            Name = stuff.Name,
-            Notes = stuff.Notes,
-        };
+        model = stuff.ToCreate();
 
         StateHasChanged();
     }

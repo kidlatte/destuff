@@ -26,6 +26,13 @@
                             <LocationSelect @bind-Value="model.LocationId" Loading="loading" />
                         </div>
 
+                        <div class="form-floating mb-1">
+                            <InputTextArea @bind-Value="model.Notes" class="form-control" style="height: 100px"
+                                placeholder="Notes" disable="@loading" />
+                            <label>Notes</label>
+                            <ValidationMessage For="@(() => model.Notes)" />
+                        </div>
+
                         <label class="text-danger">@error</label>
                     </div>
                     <div class="modal-footer">

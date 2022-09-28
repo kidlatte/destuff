@@ -17,10 +17,12 @@ namespace Destuff.Server.Controllers;
 public class StuffsController : BaseController<Stuff>
 {
     private IStuffIdentifier StuffId { get; }
+    private ILocationIdentifier LocationId { get; }
 
-    public StuffsController(ApplicationDbContext context, IMapper mapper, IStuffIdentifier stuffId) : base(context, mapper)
+    public StuffsController(ApplicationDbContext context, IMapper mapper, IStuffIdentifier stuffId, ILocationIdentifier locationId) : base(context, mapper)
     {
         StuffId = stuffId;
+        LocationId = locationId;
     }
 
     [HttpGet]
@@ -99,6 +101,13 @@ public class StuffsController : BaseController<Stuff>
         var entity = Mapper.Map<Stuff>(model);
         entity.Slug = slug;
         Audit(entity);
+
+        if (model.LocationId != null)
+        {
+            var locationId = LocationId.Decode(model.LocationId);
+            var stuffLocation = new StuffLocation { LocationId = locationId, Count = 1 };
+            entity.StuffLocations = new List<StuffLocation> { stuffLocation };
+        }
 
         Context.Add(entity);
         await Context.SaveChangesAsync();

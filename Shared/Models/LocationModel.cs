@@ -20,10 +20,14 @@ public class LocationModel: LocationCreateModel
     public List<LocationModel>? Children { get; set; }
 }
 
-public class LocationTreeModel
+public class LocationBasicModel
 {
     public string Id { get; set; } = null!;
     public string? Slug { get; set; }
     public string? Name { get; set; }
+}
+
+public class LocationTreeModel : LocationBasicModel
+{
     public List<LocationTreeModel>? Children { get; set; }
 }

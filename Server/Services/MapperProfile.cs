@@ -15,8 +15,10 @@ public class MapperProfile : Profile
             .ForMember(m => m.Id, o => o.MapFrom(e => locationId.Encode(e.Id)))
             .ForMember(m => m.ParentId, o => o.MapFrom(e => e.ParentId != null ? locationId.Encode(e.ParentId.Value) : null))
             .ForMember(m => m.Children, o => o.Ignore());
-        CreateMap<Location, LocationTreeModel>()
+        CreateMap<Location, LocationBasicModel>().IncludeAllDerived()
             .ForMember(m => m.Id, o => o.MapFrom(e => locationId.Encode(e.Id)));
+        CreateMap<Location, LocationTreeModel>();
+
 
         CreateMap<StuffCreateModel, Stuff>();
         CreateMap<Stuff, StuffModel>().IncludeAllDerived()
