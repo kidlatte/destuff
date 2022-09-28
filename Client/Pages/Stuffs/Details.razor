@@ -1,0 +1,59 @@
+@page "/s/{Slug}"
+@attribute [Authorize]
+
+@inject IHttpService http
+@inject NavigationManager nav
+
+@if (model != null)
+{
+    <div class="text-end">
+        <a
+            href="/"
+            class="btn btn-outline-secondary btn-sm"
+        >
+            Stuffs
+        </a>
+        <button
+            @onclick="() => delete?.Open(model)"
+            type="button" class="btn btn-outline-danger btn-sm"
+        >
+            Delete
+        </button>
+    </div>
+
+    <h1>@model.Name</h1>
+
+    <div>@model.Notes</div>
+}
+
+<DeleteModal @ref="delete" OnDeleted="OnDeleted" />
+
+@code
+{
+    [Parameter]
+    public string? Slug { get; set; }
+    
+    StuffModel? model { get; set; }
+    DeleteModal? delete;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            model = await http.GetAsync<StuffModel>($"{ApiRoutes.StuffSlug}/{Slug}");
+        }
+        catch (HttpRequestException ex)
+        {
+            if (ex.StatusCode == HttpStatusCode.NotFound)
+                nav.NavigateTo($"/locations");
+            else
+                throw;
+        }
+    }
+
+    void OnDeleted()
+    {
+        nav.NavigateTo($"/");
+    }
+
+}

@@ -1,4 +1,6 @@
 @page "/"
+@attribute [Authorize]
+
 @inject IHttpService http
 
 <PageTitle>Stuffs | Destuff</PageTitle>
@@ -22,7 +24,13 @@
             @foreach(var item in items.OrEmpty())
             {
                 <tr>
-                    <td>@item.Name</td>
+                    <td>
+                        <a
+                            href="@($"/s/{item.Slug}")"
+                        >
+                            @item.Name
+                        </a>
+                    </td>
                     <td>
                         <button @onclick="() => update?.Open(item)" class="btn btn-sm btn-outline-primary border border-0">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">

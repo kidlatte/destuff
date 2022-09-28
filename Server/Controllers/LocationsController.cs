@@ -12,8 +12,7 @@ using Destuff.Shared.Models;
 namespace Destuff.Server.Controllers;
 
 [Route(ApiRoutes.Locations)]
-[ApiController]
-[Authorize]
+[ApiController, Authorize]
 public class LocationsController : BaseController<Location>
 {
     private ILocationIdentifier LocationId { get; }

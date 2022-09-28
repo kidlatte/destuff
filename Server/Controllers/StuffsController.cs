@@ -13,8 +13,7 @@ using Destuff.Shared.Models;
 namespace Destuff.Server.Controllers;
 
 [Route(ApiRoutes.Stuffs)]
-[ApiController]
-[Authorize]
+[ApiController, Authorize]
 public class StuffsController : BaseController<Stuff>
 {
     private IStuffIdentifier StuffId { get; }
@@ -60,6 +59,21 @@ public class StuffsController : BaseController<Stuff>
     {
         int actualId = StuffId.Decode(id);
         var query = Query.Where(x => x.Id == actualId);
+
+        var model = await query
+            .ProjectTo<StuffModel>(Mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync();
+
+        if (model == null)
+            return NotFound();
+
+        return model;
+    }
+
+    [HttpGet(ApiRoutes.StuffSlug + "/{slug}")]
+    public async Task<ActionResult<StuffModel?>> GetStuffBySlug(string slug)
+    {
+        var query = Query.Where(x => x.Slug == slug);
 
         var model = await query
             .ProjectTo<StuffModel>(Mapper.ConfigurationProvider)
