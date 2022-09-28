@@ -1,0 +1,18 @@
+@foreach(var item in Items.OrEmpty())
+{
+    <button @onclick="() => OnLocationClick(item)" type="button" class="list-group-item list-group-item-action border border-top-0 border-bottom-0">
+        @item.Name
+    </button>
+    <LocationOption Items="item.Children" OnSelect="OnSelect" />
+}
+
+@code
+{
+    [Parameter] public EventCallback<LocationModel> OnSelect { get; set; }
+    [Parameter] public List<LocationModel>? Items { get; set; }
+
+    async Task OnLocationClick(LocationModel? location)
+    {
+        await OnSelect.InvokeAsync(location);
+    }
+}

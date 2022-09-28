@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 namespace Destuff.Server.Data.Entities;
 
 public class StuffLocation

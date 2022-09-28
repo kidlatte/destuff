@@ -1,0 +1,51 @@
+@inject IHttpService http
+
+<input @bind-value="locationName" bind-value:event="oninput" @onfocus ="() => OnLocationFocus()"  @onblur ="() => OnLocationBlur()"
+    class="form-control" placeholder="Location" disable="@Loading" autocomplete="off" />
+<label>Location</label>
+@if (showLocations)
+{
+    <div class="autocomplete list-group">
+        <button @onclick="() => OnLocationClick(null)" type="button" class="list-group-item list-group-item-action border border-top-0 border-bottom-0">
+            <em class="text-muted">none</em>
+        </button>
+        <LocationOption Items="locations" OnSelect="OnLocationClick" />
+    </div>
+}
+
+@code
+{
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+    [Parameter] public bool Loading { get; set; }
+
+    List<LocationModel>? locations { get; set; }
+    string? locationName { get; set; }
+    bool showLocations { get; set; } = false;
+
+    protected override async Task OnInitializedAsync() 
+    {
+        locations = await http.GetAsync<List<LocationModel>>(ApiRoutes.Locations);
+    }        
+
+    void OnLocationFocus()
+    {
+        showLocations = true;
+    }
+
+    async Task OnLocationBlur()
+    {
+        await Task.Delay(500);
+        showLocations = false;
+    }
+
+    async Task OnLocationClick(LocationModel? location)
+    {
+        Console.WriteLine($"OnLocationClick: {location?.Id} {location?.Name}");
+        Value = location?.Id;
+        if (ValueChanged.HasDelegate)
+            await ValueChanged.InvokeAsync(location?.Id);
+        locationName = location?.Name;
+        showLocations = false;
+    }
+}
