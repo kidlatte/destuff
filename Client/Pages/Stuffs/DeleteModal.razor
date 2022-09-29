@@ -36,10 +36,10 @@
 @code {
 
     [Parameter]
-    public EventCallback<StuffModel> OnDeleted { get; set; }
+    public EventCallback<IStuffModel> OnDeleted { get; set; }
 
 
-    StuffModel? model { get; set; }
+    IStuffModel? model { get; set; }
     string error { get; set; } = "";
     bool loading { get; set; } = false;
 
@@ -68,7 +68,7 @@
     }
 
 
-    public void Open(StuffModel stuff)
+    public void Open(IStuffModel stuff)
     {
         model = stuff;
 

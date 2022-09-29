@@ -14,6 +14,12 @@
             Stuffs
         </a>
         <button
+            @onclick="() => update?.Open(model)"
+            type="button" class="btn btn-outline-primary btn-sm"
+        >
+            Edit
+        </button>
+        <button
             @onclick="() => delete?.Open(model)"
             type="button" class="btn btn-outline-danger btn-sm"
         >
@@ -23,10 +29,25 @@
 
     <h1>@model.Name</h1>
 
+    <div style="width: 600px; max-width: 100%;">
     <div>@model.Notes</div>
+
+    @if (model.IsSingleLocation && model.FirstLocation != null)
+    {
+        <dl class="row">
+            <dt class="col-sm-3">Location</dt>
+            <dd class="col-sm-9">
+                <a href="@($"/l/{model.FirstLocation.Slug}")">
+                    @model.FirstLocation.Name
+                </a>
+            </dd>
+        </dl>
+    }
+    </div>
 }
 
 <DeleteModal @ref="delete" OnDeleted="OnDeleted" />
+<UpdateModal @ref="update" OnUpdated="LoadData" />
 
 @code
 {
@@ -35,8 +56,11 @@
     
     StuffModel? model { get; set; }
     DeleteModal? delete;
+    UpdateModal? update;
 
-    protected override async Task OnParametersSetAsync()
+    protected override Task OnParametersSetAsync() => LoadData();
+
+    private async Task LoadData()
     {
         try
         {
@@ -53,7 +77,6 @@
 
     void OnDeleted()
     {
-        nav.NavigateTo($"/");
+        nav.NavigateTo("/");
     }
-
 }

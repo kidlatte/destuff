@@ -49,6 +49,11 @@ public class LocationsController : BaseController<Location>
         return result;
     }
 
+    [Route(ApiRoutes.LocationLookup)]
+    [HttpGet]
+    public Task<List<LocationBasicModel>> GetLookup() => Query
+        .ProjectTo<LocationBasicModel>(Mapper.ConfigurationProvider).ToListAsync();
+
     [HttpGet("{id}")]
     public async Task<ActionResult<LocationModel?>> Get(string id)
     {

@@ -2,6 +2,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Destuff.Shared.Models;
 
+public interface ILocationModel
+{
+    string? Id { get; set; }
+    string? Slug { get; set; }
+    string? Name { get; set; }
+}
+
 public class LocationCreateModel
 {
     [Required]
@@ -13,16 +20,16 @@ public class LocationCreateModel
     public string? ParentId { get; set; }
 }
 
-public class LocationModel: LocationCreateModel
+public class LocationModel: LocationCreateModel, ILocationModel
 {
     public string? Id { get; set; }
     public string? Slug { get; set; }
     public List<LocationModel>? Children { get; set; }
 }
 
-public class LocationBasicModel
+public class LocationBasicModel: ILocationModel
 {
-    public string Id { get; set; } = null!;
+    public string? Id { get; set; }
     public string? Slug { get; set; }
     public string? Name { get; set; }
 }

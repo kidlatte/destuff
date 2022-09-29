@@ -19,9 +19,11 @@ public class MapperProfile : Profile
             .ForMember(m => m.Id, o => o.MapFrom(e => locationId.Encode(e.Id)));
         CreateMap<Location, LocationTreeModel>();
 
-
         CreateMap<StuffCreateModel, Stuff>();
         CreateMap<Stuff, StuffModel>().IncludeAllDerived()
             .ForMember(m => m.Id, o => o.MapFrom(e => stuffId.Encode(e.Id)));
+        CreateMap<Stuff, StuffListModel>().IncludeAllDerived();
+
+        CreateMap<StuffLocation, StuffLocationModel>();
     }
 }

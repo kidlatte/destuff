@@ -6,10 +6,15 @@
 @if (showLocations)
 {
     <div class="autocomplete list-group">
-        <button @onclick="() => OnLocationClick(null)" type="button" class="list-group-item list-group-item-action border border-top-0 border-bottom-0">
+        <button @onclick="() => OnLocationClick(null)" type="button" class="list-group-item list-group-item-action">
             <em class="text-muted">none</em>
         </button>
-        <LocationOption Items="locations" OnSelect="OnLocationClick" />
+        @foreach(var item in locations.OrEmpty())
+        {
+            <button @onclick="() => OnLocationClick(item)" type="button" class="list-group-item list-group-item-action">
+                @item.Name
+            </button>
+        }
     </div>
 }
 
@@ -19,13 +24,14 @@
     [Parameter] public EventCallback<string?> ValueChanged { get; set; }
     [Parameter] public bool Loading { get; set; }
 
-    List<LocationModel>? locations { get; set; }
+    List<LocationBasicModel>? locations { get; set; }
     string? locationName { get; set; }
     bool showLocations { get; set; } = false;
 
     protected override async Task OnInitializedAsync() 
     {
-        locations = await http.GetAsync<List<LocationModel>>(ApiRoutes.Locations);
+        locations = await http.GetAsync<List<LocationBasicModel>>(ApiRoutes.LocationLookup);
+        locationName = locations?.FirstOrDefault(x => x.Id == Value)?.Name;
     }        
 
     void OnLocationFocus()
@@ -39,7 +45,7 @@
         showLocations = false;
     }
 
-    async Task OnLocationClick(LocationModel? location)
+    async Task OnLocationClick(ILocationModel? location)
     {
         Console.WriteLine($"OnLocationClick: {location?.Id} {location?.Name}");
         Value = location?.Id;
