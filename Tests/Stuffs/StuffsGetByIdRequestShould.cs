@@ -20,7 +20,7 @@ public class StuffsGetByIdRequestShould : IntegrationTestBase
     public async Task Get_Stuff_Details()
     {
         // Arrange
-        var create = new StuffCreateModel { Name = "New Loaction" };
+        var create = new StuffCreateModel { Name = "New Location" };
         var model = await AuthorizedSendAsync<StuffModel>(create, HttpMethod.Post);
 
         // Act

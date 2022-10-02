@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using Destuff.Server.Data;
@@ -30,6 +31,8 @@ builder.Services.AddSingleton<Profile, MapperProfile>();
 builder.Services.AddSingleton(provider => 
         new MapperConfiguration(cfg => cfg.AddProfile(provider.GetRequiredService<Profile>()))
     .CreateMapper());
+
+builder.Services.AddSingleton<FileExtensionContentTypeProvider>(_ => new());
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

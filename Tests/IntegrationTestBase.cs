@@ -1,19 +1,22 @@
+global using Xunit;
+global using System.Net;
+global using System.Net.Http;
+global using System.Net.Http.Json;
+global using System.Threading.Tasks;
+global using Destuff.Shared;
+global using Destuff.Shared.Models;
+
 using System;
 using System.Data.Common;
 using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Destuff.Server.Data;
-using Destuff.Shared;
-using Destuff.Shared.Models;
 
 namespace Destuff.Tests;
 
@@ -23,7 +26,7 @@ public abstract class IntegrationTestBase: IDisposable
 
     protected readonly HttpMethod Method;
     protected readonly string Route;
-    readonly HttpClient Http;
+    protected readonly HttpClient Http;
     readonly WebApplicationFactory<Program> app;
     readonly DbConnection _connection;
 

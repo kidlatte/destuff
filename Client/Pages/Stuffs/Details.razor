@@ -32,12 +32,18 @@
     <h1>@model.Name</h1>
 
     <div style="width: 600px; max-width: 100%;">
-        <ul class="list-group">
+        <div class="row row-cols-2 row-cols-md-6 g-2 mb-3">
             @foreach(var item in uploads)
             {
-                <li class="list-group-item">@item.FileName</li>
+                <div class="col">
+                    <div class="card">
+                        <a href="@item.Url" target="_blank">
+                            <img src="@item.Url" class="card-img-top" alt="@item.FileName">
+                        </a>
+                    </div>
+                </div>
             }
-        </ul>
+        </div>
 
         @if (model.IsSingleLocation && model.FirstLocation != null)
         {
@@ -77,7 +83,8 @@
         try
         {
             model = await http.GetAsync<StuffModel>($"{ApiRoutes.StuffSlug}/{Slug}");
-            uploads.AddRange(model.Uploads.OrEmpty());
+            if (model != null)
+                uploads.AddRange(model.Uploads.OrEmpty());
         }
         catch (HttpRequestException ex)
         {
