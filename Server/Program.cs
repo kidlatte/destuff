@@ -5,11 +5,12 @@ using Destuff.Server.Data.Entities;
 using Destuff.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
 var configuration = builder.Configuration;
+builder.Services.AddSingleton<IConfiguration>(_ => configuration);
 
 // Generate connection string
-var path = configuration.GetStoragePath();
-
+var path = configuration.GetConfigPath();
 var dbfile = Path.Join(path, "destuff.db");
 var connString = $"Data Source={dbfile}";
 

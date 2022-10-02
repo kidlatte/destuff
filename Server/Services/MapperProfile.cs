@@ -25,5 +25,6 @@ public class MapperProfile : Profile
         CreateMap<Stuff, StuffListModel>().IncludeAllDerived();
 
         CreateMap<StuffLocation, StuffLocationModel>();
+        CreateMap<Upload, UploadModel>();
     }
 }

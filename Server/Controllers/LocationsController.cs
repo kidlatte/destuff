@@ -23,7 +23,7 @@ public class LocationsController : BaseController<Location>
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<LocationModel>>> Get()
+    public async Task<ActionResult<IList<LocationModel>>> Get()
     {
         var query = Query;
 

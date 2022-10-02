@@ -18,17 +18,21 @@ public static class UtilityHelper
         return appSettingsSection.Get<AppSettings>();
     }
 
-    public static string GetStoragePath(this IConfiguration configuration)
+    public static string GetConfigPath(this IConfiguration configuration) => GetPath(configuration, "config");
+
+    public static string GetDataPath(this IConfiguration configuration) => GetPath(configuration, "data");
+
+    private static string GetPath(this IConfiguration configuration, string pathName)
     {
         string path;
         if (configuration["DOTNET_RUNNING_IN_CONTAINER"] == "true")
         {
-            path = "/config";
+            path = $"/{pathName}";
         }
         else
         {
             var folderPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            path = Path.Join(folderPath, "Destuff");
+            path = Path.Join(folderPath, "Destuff", pathName);
         }
 
         Directory.CreateDirectory(path);

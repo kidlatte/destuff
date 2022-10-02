@@ -21,7 +21,7 @@ public abstract class IntegrationTestBase: IDisposable
 {
     protected string? AuthToken { get; set; }
 
-    readonly HttpMethod _method;
+    protected readonly HttpMethod Method;
     protected readonly string Route;
     readonly HttpClient Http;
     readonly WebApplicationFactory<Program> app;
@@ -29,11 +29,11 @@ public abstract class IntegrationTestBase: IDisposable
 
     public IntegrationTestBase(HttpMethod method, string route)
     {
-        _method = method;
+        Method = method;
         Route = route;
 
         // Arrange
-        _connection = new SqliteConnection("Filename=:memory:");
+        _connection = new SqliteConnection("Data Source=:memory:");
         _connection.Open();
 
         app = new WebApplicationFactory<Program>()
@@ -52,10 +52,9 @@ public abstract class IntegrationTestBase: IDisposable
         Http = app.CreateClient();
     }
 
-
     protected async Task<HttpResponseMessage> SendAsync(object? model, HttpMethod? method = null, string? route = null)
     {
-        var request = new HttpRequestMessage(method ?? _method, route ?? Route);
+        var request = new HttpRequestMessage(method ?? Method, route ?? Route);
         if (model != null)
             request.Content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
         return await Http.SendAsync(request);
@@ -65,6 +64,20 @@ public abstract class IntegrationTestBase: IDisposable
     {
         var response = await SendAsync(model, method, route);
         return await response.Content.ReadFromJsonAsync<T>();
+    }
+
+    protected async Task<HttpResponseMessage> AuthorizedSendAsync(HttpRequestMessage request)
+    {
+        if (AuthToken == null)
+        {
+            var user = new RegisterModel { UserName = "TokenUser", Password = "Qwer1234!" };
+            await SendAsync(user, HttpMethod.Post, ApiRoutes.AuthRegister);
+            var token = await SendAsync<AuthTokenModel>(user, HttpMethod.Post, ApiRoutes.AuthLogin);
+            AuthToken = token?.AuthToken;
+        }
+
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AuthToken);
+        return await Http.SendAsync(request);
     }
 
     protected async Task<HttpResponseMessage> AuthorizedSendAsync(object? model = null, HttpMethod? method = null, string? route = null)
@@ -77,7 +90,7 @@ public abstract class IntegrationTestBase: IDisposable
             AuthToken = token?.AuthToken;
         }
 
-        var request = new HttpRequestMessage(method ?? _method, route ?? Route);
+        var request = new HttpRequestMessage(method ?? Method, route ?? Route);
         if (model != null)
             request.Content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AuthToken);
