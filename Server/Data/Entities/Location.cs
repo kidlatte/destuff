@@ -27,7 +27,7 @@ public class Location: Entity
     public ICollection<Location>? Children { get; set; }
     public ICollection<Stuff>? Stuffs { get; set; }
     public ICollection<StuffLocation>? StuffLocations { get; set; }
-    public ICollection<Image>? Images { get; set; }
+    public ICollection<Upload>? Uploads { get; set; }
     public ICollection<Tag>? Tags { get; set; }
 }
 

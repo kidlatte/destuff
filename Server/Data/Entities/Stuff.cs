@@ -25,7 +25,7 @@ public class Stuff: Entity
 
     public ICollection<Location>? Locations { get; set; }
     public ICollection<StuffLocation>? StuffLocations { get; set; }
-    public ICollection<Image>? Images { get; set; }
+    public ICollection<Upload>? Uploads { get; set; }
     public ICollection<Tag>? Tags { get; set; }
 }
 

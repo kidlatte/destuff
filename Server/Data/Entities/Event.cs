@@ -29,7 +29,7 @@ public class Event : EventItem
     public int LocationId { get; set; }
     public Location? Location { get; set; }
    
-    public ICollection<Image>? Images { get; set; }
+    public ICollection<Upload>? Uploads { get; set; }
 
     public int ToLocationId { get; set; }
     public Location? ToLocation { get; set; }

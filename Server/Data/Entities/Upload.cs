@@ -2,10 +2,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Destuff.Server.Data.Entities;
 
-public class Image: Entity
+public class Upload: Entity
 {
     [Required]
     [MaxLength(255)]
+    public string? FileName { get; set; }
+
+    [Required]
+    [MaxLength(1023)]
     public string? Path { get; set; }
 
     public string? Notes { get; set; }

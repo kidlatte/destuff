@@ -12,7 +12,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Location> Locations => Set<Location>();
     public DbSet<StuffLocation> StuffLocations => Set<StuffLocation>();
     public DbSet<Tag> Tags => Set<Tag>();
-    public DbSet<Image> Images => Set<Image>();
+    public DbSet<Upload> Uploads => Set<Upload>();
     public DbSet<Supplier> Suppliers => Set<Supplier>();
     public DbSet<Purchase> Purchases => Set<Purchase>();
     public DbSet<PurchaseItem> PurchaseItems => Set<PurchaseItem>();

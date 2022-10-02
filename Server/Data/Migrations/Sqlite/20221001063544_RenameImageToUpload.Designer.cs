@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Destuff.Server.Data.Migrations.Sqlite
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220926214126_AddPurchasesEventsSettings")]
-    partial class AddPurchasesEventsSettings
+    [Migration("20221001063544_RenameImageToUpload")]
+    partial class RenameImageToUpload
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -87,11 +87,11 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                         {
                             Id = "fe73948a-1173-43ad-9473-2f014b39f7c3",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "f991a2f1-fa19-4bae-a543-b26bc8682afa",
+                            ConcurrencyStamp = "6b8af8b0-0154-4702-9f8c-c120d1210f78",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEH2sas4eRyDaMYyy2xla2MvliSBbbWz4rkRG7R31tDFwV1UEAp5cLlBwd3eCn0C4IQ==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEFFRaQu/TSynC199ay8D8JaJtv24bErrHvWa8etrmriicx6FhxmsIn4LLUN6SScvaw==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "70effd01-76d5-4d56-85ac-6ddb5ffd3819",
                             TwoFactorEnabled = false,
@@ -150,58 +150,6 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                     b.ToTable("Events");
                 });
 
-            modelBuilder.Entity("Destuff.Server.Data.Entities.Image", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(255)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int?>("EventId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("LocationId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Order")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Path")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int?>("PurchaseId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("StuffId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("Updated")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EventId");
-
-                    b.HasIndex("LocationId");
-
-                    b.HasIndex("PurchaseId");
-
-                    b.HasIndex("StuffId");
-
-                    b.ToTable("Images");
-                });
-
             modelBuilder.Entity("Destuff.Server.Data.Entities.Location", b =>
                 {
                     b.Property<int>("Id")
@@ -256,13 +204,13 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2022, 9, 26, 21, 41, 26, 514, DateTimeKind.Utc).AddTicks(9008),
+                            Created = new DateTime(2022, 10, 1, 6, 35, 44, 312, DateTimeKind.Utc).AddTicks(1833),
                             CreatedBy = "admin",
                             Flags = 0L,
                             Name = "Storage",
                             Order = 0,
                             Slug = "storage",
-                            Updated = new DateTime(2022, 9, 26, 21, 41, 26, 514, DateTimeKind.Utc).AddTicks(9014)
+                            Updated = new DateTime(2022, 10, 1, 6, 35, 44, 312, DateTimeKind.Utc).AddTicks(1838)
                         });
                 });
 
@@ -495,6 +443,63 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                     b.ToTable("Tags");
                 });
 
+            modelBuilder.Entity("Destuff.Server.Data.Entities.Upload", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("EventId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("LocationId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasMaxLength(1023)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("PurchaseId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("StuffId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Updated")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("LocationId");
+
+                    b.HasIndex("PurchaseId");
+
+                    b.HasIndex("StuffId");
+
+                    b.ToTable("Uploads");
+                });
+
             modelBuilder.Entity("LocationTag", b =>
                 {
                     b.Property<int>("LocationId")
@@ -693,33 +698,6 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                     b.Navigation("ToLocation");
                 });
 
-            modelBuilder.Entity("Destuff.Server.Data.Entities.Image", b =>
-                {
-                    b.HasOne("Destuff.Server.Data.Entities.Event", "Event")
-                        .WithMany("Images")
-                        .HasForeignKey("EventId");
-
-                    b.HasOne("Destuff.Server.Data.Entities.Location", "Location")
-                        .WithMany("Images")
-                        .HasForeignKey("LocationId");
-
-                    b.HasOne("Destuff.Server.Data.Entities.Purchase", "Purchase")
-                        .WithMany("Images")
-                        .HasForeignKey("PurchaseId");
-
-                    b.HasOne("Destuff.Server.Data.Entities.Stuff", "Stuff")
-                        .WithMany("Images")
-                        .HasForeignKey("StuffId");
-
-                    b.Navigation("Event");
-
-                    b.Navigation("Location");
-
-                    b.Navigation("Purchase");
-
-                    b.Navigation("Stuff");
-                });
-
             modelBuilder.Entity("Destuff.Server.Data.Entities.Location", b =>
                 {
                     b.HasOne("Destuff.Server.Data.Entities.Location", "Parent")
@@ -772,6 +750,33 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                         .IsRequired();
 
                     b.Navigation("Location");
+
+                    b.Navigation("Stuff");
+                });
+
+            modelBuilder.Entity("Destuff.Server.Data.Entities.Upload", b =>
+                {
+                    b.HasOne("Destuff.Server.Data.Entities.Event", "Event")
+                        .WithMany("Uploads")
+                        .HasForeignKey("EventId");
+
+                    b.HasOne("Destuff.Server.Data.Entities.Location", "Location")
+                        .WithMany("Uploads")
+                        .HasForeignKey("LocationId");
+
+                    b.HasOne("Destuff.Server.Data.Entities.Purchase", "Purchase")
+                        .WithMany("Uploads")
+                        .HasForeignKey("PurchaseId");
+
+                    b.HasOne("Destuff.Server.Data.Entities.Stuff", "Stuff")
+                        .WithMany("Uploads")
+                        .HasForeignKey("StuffId");
+
+                    b.Navigation("Event");
+
+                    b.Navigation("Location");
+
+                    b.Navigation("Purchase");
 
                     b.Navigation("Stuff");
                 });
@@ -859,30 +864,30 @@ namespace Destuff.Server.Data.Migrations.Sqlite
 
             modelBuilder.Entity("Destuff.Server.Data.Entities.Event", b =>
                 {
-                    b.Navigation("Images");
+                    b.Navigation("Uploads");
                 });
 
             modelBuilder.Entity("Destuff.Server.Data.Entities.Location", b =>
                 {
                     b.Navigation("Children");
 
-                    b.Navigation("Images");
-
                     b.Navigation("StuffLocations");
+
+                    b.Navigation("Uploads");
                 });
 
             modelBuilder.Entity("Destuff.Server.Data.Entities.Purchase", b =>
                 {
-                    b.Navigation("Images");
-
                     b.Navigation("Items");
+
+                    b.Navigation("Uploads");
                 });
 
             modelBuilder.Entity("Destuff.Server.Data.Entities.Stuff", b =>
                 {
-                    b.Navigation("Images");
-
                     b.Navigation("StuffLocations");
+
+                    b.Navigation("Uploads");
                 });
 
             modelBuilder.Entity("Destuff.Server.Data.Entities.Supplier", b =>

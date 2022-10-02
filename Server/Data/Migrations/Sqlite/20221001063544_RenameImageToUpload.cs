@@ -5,13 +5,16 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Destuff.Server.Data.Migrations.Sqlite
 {
-    public partial class AddPurchasesEventsSettings : Migration
+    public partial class RenameImageToUpload : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
                 name: "FK_Stuffs_Locations_LocationId",
                 table: "Stuffs");
+
+            migrationBuilder.DropTable(
+                name: "Images");
 
             migrationBuilder.DropIndex(
                 name: "IX_Stuffs_LocationId",
@@ -38,18 +41,6 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                 name: "PathData",
                 table: "Locations",
                 type: "TEXT",
-                nullable: true);
-
-            migrationBuilder.AddColumn<int>(
-                name: "EventId",
-                table: "Images",
-                type: "INTEGER",
-                nullable: true);
-
-            migrationBuilder.AddColumn<int>(
-                name: "PurchaseId",
-                table: "Images",
-                type: "INTEGER",
                 nullable: true);
 
             migrationBuilder.CreateTable(
@@ -210,25 +201,58 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Uploads",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    FileName = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
+                    Path = table.Column<string>(type: "TEXT", maxLength: 1023, nullable: false),
+                    Notes = table.Column<string>(type: "TEXT", nullable: true),
+                    Order = table.Column<int>(type: "INTEGER", nullable: false),
+                    StuffId = table.Column<int>(type: "INTEGER", nullable: true),
+                    LocationId = table.Column<int>(type: "INTEGER", nullable: true),
+                    PurchaseId = table.Column<int>(type: "INTEGER", nullable: true),
+                    EventId = table.Column<int>(type: "INTEGER", nullable: true),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 255, nullable: true),
+                    Created = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Updated = table.Column<DateTime>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Uploads", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Uploads_Events_EventId",
+                        column: x => x.EventId,
+                        principalTable: "Events",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Uploads_Locations_LocationId",
+                        column: x => x.LocationId,
+                        principalTable: "Locations",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Uploads_Purchases_PurchaseId",
+                        column: x => x.PurchaseId,
+                        principalTable: "Purchases",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Uploads_Stuffs_StuffId",
+                        column: x => x.StuffId,
+                        principalTable: "Stuffs",
+                        principalColumn: "Id");
+                });
+
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "fe73948a-1173-43ad-9473-2f014b39f7c3", 0, "f991a2f1-fa19-4bae-a543-b26bc8682afa", null, false, false, null, null, "ADMIN", "AQAAAAEAACcQAAAAEH2sas4eRyDaMYyy2xla2MvliSBbbWz4rkRG7R31tDFwV1UEAp5cLlBwd3eCn0C4IQ==", null, false, "70effd01-76d5-4d56-85ac-6ddb5ffd3819", false, "admin" });
+                values: new object[] { "fe73948a-1173-43ad-9473-2f014b39f7c3", 0, "6b8af8b0-0154-4702-9f8c-c120d1210f78", null, false, false, null, null, "ADMIN", "AQAAAAEAACcQAAAAEFFRaQu/TSynC199ay8D8JaJtv24bErrHvWa8etrmriicx6FhxmsIn4LLUN6SScvaw==", null, false, "70effd01-76d5-4d56-85ac-6ddb5ffd3819", false, "admin" });
 
             migrationBuilder.InsertData(
                 table: "Locations",
                 columns: new[] { "Id", "Created", "CreatedBy", "Flags", "Name", "Notes", "Order", "ParentId", "PathData", "Slug", "Updated" },
-                values: new object[] { 1, new DateTime(2022, 9, 26, 21, 41, 26, 514, DateTimeKind.Utc).AddTicks(9008), "admin", 0L, "Storage", null, 0, null, null, "storage", new DateTime(2022, 9, 26, 21, 41, 26, 514, DateTimeKind.Utc).AddTicks(9014) });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Images_EventId",
-                table: "Images",
-                column: "EventId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Images_PurchaseId",
-                table: "Images",
-                column: "PurchaseId");
+                values: new object[] { 1, new DateTime(2022, 10, 1, 6, 35, 44, 312, DateTimeKind.Utc).AddTicks(1833), "admin", 0L, "Storage", null, 0, null, null, "storage", new DateTime(2022, 10, 1, 6, 35, 44, 312, DateTimeKind.Utc).AddTicks(1838) });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Events_LocationId",
@@ -265,34 +289,29 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                 table: "StuffLocations",
                 column: "LocationId");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Images_Events_EventId",
-                table: "Images",
-                column: "EventId",
-                principalTable: "Events",
-                principalColumn: "Id");
+            migrationBuilder.CreateIndex(
+                name: "IX_Uploads_EventId",
+                table: "Uploads",
+                column: "EventId");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Images_Purchases_PurchaseId",
-                table: "Images",
-                column: "PurchaseId",
-                principalTable: "Purchases",
-                principalColumn: "Id");
+            migrationBuilder.CreateIndex(
+                name: "IX_Uploads_LocationId",
+                table: "Uploads",
+                column: "LocationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Uploads_PurchaseId",
+                table: "Uploads",
+                column: "PurchaseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Uploads_StuffId",
+                table: "Uploads",
+                column: "StuffId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Images_Events_EventId",
-                table: "Images");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Images_Purchases_PurchaseId",
-                table: "Images");
-
-            migrationBuilder.DropTable(
-                name: "Events");
-
             migrationBuilder.DropTable(
                 name: "PurchaseItems");
 
@@ -303,18 +322,16 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                 name: "StuffLocations");
 
             migrationBuilder.DropTable(
+                name: "Uploads");
+
+            migrationBuilder.DropTable(
+                name: "Events");
+
+            migrationBuilder.DropTable(
                 name: "Purchases");
 
             migrationBuilder.DropTable(
                 name: "Suppliers");
-
-            migrationBuilder.DropIndex(
-                name: "IX_Images_EventId",
-                table: "Images");
-
-            migrationBuilder.DropIndex(
-                name: "IX_Images_PurchaseId",
-                table: "Images");
 
             migrationBuilder.DeleteData(
                 table: "AspNetUsers",
@@ -338,24 +355,56 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                 name: "PathData",
                 table: "Locations");
 
-            migrationBuilder.DropColumn(
-                name: "EventId",
-                table: "Images");
-
-            migrationBuilder.DropColumn(
-                name: "PurchaseId",
-                table: "Images");
-
             migrationBuilder.AddColumn<int>(
                 name: "LocationId",
                 table: "Stuffs",
                 type: "INTEGER",
                 nullable: true);
 
+            migrationBuilder.CreateTable(
+                name: "Images",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    LocationId = table.Column<int>(type: "INTEGER", nullable: true),
+                    StuffId = table.Column<int>(type: "INTEGER", nullable: true),
+                    Created = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", maxLength: 255, nullable: true),
+                    Notes = table.Column<string>(type: "TEXT", nullable: true),
+                    Order = table.Column<int>(type: "INTEGER", nullable: false),
+                    Path = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
+                    Updated = table.Column<DateTime>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Images", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Images_Locations_LocationId",
+                        column: x => x.LocationId,
+                        principalTable: "Locations",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Images_Stuffs_StuffId",
+                        column: x => x.StuffId,
+                        principalTable: "Stuffs",
+                        principalColumn: "Id");
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Stuffs_LocationId",
                 table: "Stuffs",
                 column: "LocationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Images_LocationId",
+                table: "Images",
+                column: "LocationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Images_StuffId",
+                table: "Images",
+                column: "StuffId");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Stuffs_Locations_LocationId",

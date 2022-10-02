@@ -10,7 +10,7 @@ public class Purchase : Entity
     public Supplier? Supplier { get; set; }
 
     public ICollection<PurchaseItem>? Items { get; set; }
-    public ICollection<Image>? Images { get; set; }
+    public ICollection<Upload>? Uploads { get; set; }
 }
 
 public class PurchaseItem : EventItem
