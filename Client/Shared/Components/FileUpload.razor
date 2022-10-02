@@ -1,0 +1,62 @@
+@using System.Net.Http.Headers
+
+@inject IHttpService http
+
+<label class="@Class">
+    Upload files
+    <InputFile OnChange="@OnInputFileChange" accept="@accept" multiple
+        class="invisible" style="width: 0; height: 0;" />
+</label>
+
+@code
+{
+    [Parameter]
+    public EventCallback<UploadModel> OnUploaded { get; set; }
+
+    [Parameter] public string? LocationId { get; set; }
+    [Parameter] public string? StuffId { get; set; }
+    [Parameter] public string? EventId { get; set; }
+    
+    [Parameter] public string Label { get; set; } = "Upload files";
+    [Parameter] public string Class { get; set; } = "btn btn-primary";
+    [Parameter] public bool ImageOnly { get; set; } = false;
+
+    string accept => ImageOnly ? "image/*" : "*";
+
+    private bool shouldRender;
+
+    protected override bool ShouldRender() => shouldRender;
+
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        shouldRender = false;
+
+        foreach (var file in e.GetMultipleFiles())
+        {
+            var fileContent = new StreamContent(file.OpenReadStream(Settings.MaxUploadSize));
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+
+            using var content = new MultipartFormDataContent();
+            content.Add(fileContent, "file", file.Name);
+            
+            if (LocationId != null)
+                content.Add(new StringContent(LocationId), nameof(LocationId));
+
+            if (StuffId != null)
+                content.Add(new StringContent(StuffId), nameof(StuffId));
+
+            if (EventId != null)
+                content.Add(new StringContent(EventId), nameof(EventId));
+
+            var request = new HttpRequestMessage(HttpMethod.Post, ApiRoutes.Uploads);
+            request.Content = content;
+
+            var response = await http.SendAsync(request);
+            var model = await response.Content.ReadFromJsonAsync<UploadModel>();
+
+            await OnUploaded.InvokeAsync(model);
+        }
+
+        shouldRender = true;
+    }
+}

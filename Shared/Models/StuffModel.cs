@@ -30,6 +30,7 @@ public class StuffModel : IStuffModel
     public string? Notes { get; set; }
 
     public ICollection<StuffLocationModel>? StuffLocations { get; set; }
+    public ICollection<UploadModel>? Uploads { get; set; }
 
     public LocationBasicModel? FirstLocation => StuffLocations?.FirstOrDefault()?.Location;
 

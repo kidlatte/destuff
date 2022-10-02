@@ -7,7 +7,7 @@ namespace Destuff.Server.Services;
 
 public class MapperProfile : Profile
 {
-    public MapperProfile(ILocationIdentifier locationId, IStuffIdentifier stuffId)
+    public MapperProfile(ILocationIdentifier locationId, IStuffIdentifier stuffId, IUploadIdentifier uploadId)
     {
         CreateMap<LocationCreateModel, Location>()
             .ForMember(e => e.ParentId, o => o.MapFrom(m => m.ParentId != null ? locationId.Decode(m.ParentId) :  default(int?)));
@@ -25,6 +25,7 @@ public class MapperProfile : Profile
         CreateMap<Stuff, StuffListModel>().IncludeAllDerived();
 
         CreateMap<StuffLocation, StuffLocationModel>();
-        CreateMap<Upload, UploadModel>();
+        CreateMap<Upload, UploadModel>().IncludeAllDerived()
+            .ForMember(m => m.Id, o => o.MapFrom(e => uploadId.Encode(e.Id)));
     }
 }

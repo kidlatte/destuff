@@ -82,20 +82,11 @@ public abstract class IntegrationTestBase: IDisposable
 
     protected async Task<HttpResponseMessage> AuthorizedSendAsync(object? model = null, HttpMethod? method = null, string? route = null)
     {
-        if (AuthToken == null)
-        {
-            var user = new RegisterModel { UserName = "TokenUser", Password = "Qwer1234!" };
-            await SendAsync(user, HttpMethod.Post, ApiRoutes.AuthRegister);
-            var token = await SendAsync<AuthTokenModel>(user, HttpMethod.Post, ApiRoutes.AuthLogin);
-            AuthToken = token?.AuthToken;
-        }
-
         var request = new HttpRequestMessage(method ?? Method, route ?? Route);
         if (model != null)
             request.Content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AuthToken);
-
-        return await Http.SendAsync(request);
+            
+        return await AuthorizedSendAsync(request);
     }
 
     protected async Task<T?> AuthorizedSendAsync<T>(object? model = null, HttpMethod? method = null, string? route = null) where T : class

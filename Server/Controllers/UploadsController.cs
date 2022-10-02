@@ -28,13 +28,10 @@ public class UploadsController : BaseController<Stuff>
     }
 
     [HttpPost]
-    public async Task<ActionResult<UploadModel>> Create([FromForm] IEnumerable<IFormFile> files)
+    public async Task<ActionResult<UploadModel>> Create([FromForm] UploadCreateModel model)
     {
-        if (files.Count() != 1)
-            return BadRequest();
-
-        var file = files.Single();
-        if (file.Length == 0)
+        var file = model.File;
+        if (file == null || file.Length == 0)
             return BadRequest();
 
         try
@@ -49,7 +46,16 @@ public class UploadsController : BaseController<Stuff>
             await using FileStream fs = new(filePath, FileMode.Create);
             await file.CopyToAsync(fs);
 
-            var entity = new Upload { FileName = file.FileName, Path = filePath };
+            var locationId = model.LocationId != null ? LocationId.Decode(model.LocationId) : default(int?);
+            var stuffId = model.StuffId != null ? StuffId.Decode(model.StuffId) : default(int?);
+
+            var entity = new Upload 
+            { 
+                FileName = file.FileName, 
+                Path = filePath,
+                LocationId = locationId,
+                StuffId = stuffId,
+            };
             Audit(entity);
             
             Context.Add(entity);

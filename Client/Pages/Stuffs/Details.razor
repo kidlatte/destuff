@@ -9,19 +9,21 @@
     <div class="text-end">
         <a
             href="/"
-            class="btn btn-outline-secondary btn-sm"
+            class="btn btn-outline-secondary"
         >
             Stuffs
         </a>
+        <FileUpload StuffId="@model.Id" OnUploaded="OnUploaded" ImageOnly="true"
+            Label="Upload" Class="btn btn-outline-primary" />
         <button
             @onclick="() => update?.Open(model)"
-            type="button" class="btn btn-outline-primary btn-sm"
+            type="button" class="btn btn-outline-primary"
         >
             Edit
         </button>
         <button
             @onclick="() => delete?.Open(model)"
-            type="button" class="btn btn-outline-danger btn-sm"
+            type="button" class="btn btn-outline-danger"
         >
             Delete
         </button>
@@ -30,20 +32,28 @@
     <h1>@model.Name</h1>
 
     <div style="width: 600px; max-width: 100%;">
-    <div>@model.Notes</div>
+        <ul class="list-group">
+            @foreach(var item in uploads)
+            {
+                <li class="list-group-item">@item.FileName</li>
+            }
+        </ul>
 
-    @if (model.IsSingleLocation && model.FirstLocation != null)
-    {
-        <dl class="row">
-            <dt class="col-sm-3">Location</dt>
-            <dd class="col-sm-9">
-                <a href="@($"/l/{model.FirstLocation.Slug}")">
-                    @model.FirstLocation.Name
-                </a>
-            </dd>
-        </dl>
-    }
+        @if (model.IsSingleLocation && model.FirstLocation != null)
+        {
+            <dl class="row">
+                <dt class="col-sm-3">Location</dt>
+                <dd class="col-sm-9">
+                    <a href="@($"/l/{model.FirstLocation.Slug}")">
+                        @model.FirstLocation.Name
+                    </a>
+                </dd>
+            </dl>
+        }
+
+        <div>@model.Notes</div>
     </div>
+
 }
 
 <DeleteModal @ref="delete" OnDeleted="OnDeleted" />
@@ -55,6 +65,8 @@
     public string? Slug { get; set; }
     
     StuffModel? model { get; set; }
+    List<UploadModel> uploads = new List<UploadModel>();
+
     DeleteModal? delete;
     UpdateModal? update;
 
@@ -65,6 +77,7 @@
         try
         {
             model = await http.GetAsync<StuffModel>($"{ApiRoutes.StuffSlug}/{Slug}");
+            uploads.AddRange(model.Uploads.OrEmpty());
         }
         catch (HttpRequestException ex)
         {
@@ -78,5 +91,10 @@
     void OnDeleted()
     {
         nav.NavigateTo("/");
+    }
+
+    void OnUploaded(UploadModel upload)
+    {
+        uploads.Add(upload);
     }
 }
