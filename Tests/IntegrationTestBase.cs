@@ -1,4 +1,5 @@
 global using Xunit;
+global using System;
 global using System.Net;
 global using System.Net.Http;
 global using System.Net.Http.Json;
@@ -6,7 +7,6 @@ global using System.Threading.Tasks;
 global using Destuff.Shared;
 global using Destuff.Shared.Models;
 
-using System;
 using System.Data.Common;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -17,6 +17,8 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Destuff.Server.Data;
+using Destuff.Server.Services;
+using Destuff.Tests.Services;
 
 namespace Destuff.Tests;
 
@@ -44,10 +46,12 @@ public abstract class IntegrationTestBase: IDisposable
             {
                 builder.ConfigureServices(services => 
                 {
-                    var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
-                    if (descriptor != null) services.Remove(descriptor);
+                    var types = new [] { typeof(DbContextOptions<ApplicationDbContext>), typeof(IFileService) };
+                    var descriptors = services.Where(d => types.Contains(d.ServiceType)).ToList();
+                    descriptors.ForEach(x => services.Remove(x));
 
                     services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(_connection));
+                    services.AddScoped<IFileService>(_ => new TestFileService());
                     services.BuildServiceProvider();
                 });
             });

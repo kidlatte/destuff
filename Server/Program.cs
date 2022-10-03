@@ -6,9 +6,7 @@ using Destuff.Server.Data.Entities;
 using Destuff.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-
 var configuration = builder.Configuration;
-builder.Services.AddSingleton<IConfiguration>(_ => configuration);
 
 // Generate connection string
 var path = configuration.GetConfigPath();
@@ -33,6 +31,7 @@ builder.Services.AddSingleton(provider =>
     .CreateMapper());
 
 builder.Services.AddSingleton<FileExtensionContentTypeProvider>(_ => new());
+builder.Services.AddScoped<IFileService>(_ => new FileService(configuration.GetDataPath()));
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

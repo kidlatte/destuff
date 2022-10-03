@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using Destuff.Server.Data;
 using Destuff.Server.Data.Entities;
 using Destuff.Server.Models;
@@ -18,15 +17,13 @@ namespace Destuff.Server.Controllers;
 [ApiController, Authorize]
 public class UploadsController : BaseController<Upload>
 {
-    private IConfiguration Configuration { get; }
     private IStuffIdentifier StuffId { get; }
     private ILocationIdentifier LocationId { get; }
     private IUploadIdentifier UploadId { get; }
 
-    public UploadsController(ApplicationDbContext context, IMapper mapper, IConfiguration configuration,
+    public UploadsController(ApplicationDbContext context, IMapper mapper,
         IStuffIdentifier stuffId, ILocationIdentifier locationId, IUploadIdentifier uploadId) : base(context, mapper)
     {
-        Configuration = configuration;
         StuffId = stuffId;
         LocationId = locationId;
         UploadId = uploadId;
@@ -50,30 +47,21 @@ public class UploadsController : BaseController<Upload>
     }
 
     [HttpPost]
-    public async Task<ActionResult<UploadModel>> Create([FromForm] UploadCreateModel model)
+    public async Task<ActionResult<UploadModel>> Create([FromForm] UploadCreateModel model, [FromServices] IFileService file)
     {
-        var file = model.File;
-        if (file == null || file.Length == 0)
+        if (model.File == null || model.File.Length == 0)
             return BadRequest();
 
         try
         {
-            var path = Path.Combine(Configuration.GetDataPath(), "uploads", DateTime.UtcNow.ToString("yyyyMMdd"));
-            Directory.CreateDirectory(path);
-
-            var fileName = $"{Path.GetFileNameWithoutExtension(file.FileName)}-{Guid.NewGuid().ToString().Substring(0, 5)}{Path.GetExtension(file.FileName)}";
-            var filePath = Path.Combine(path, fileName);
-
-
-            await using FileStream fs = new(filePath, FileMode.Create);
-            await file.CopyToAsync(fs);
+            var filePath = await file.Save(model.File);
 
             var locationId = model.LocationId != null ? LocationId.Decode(model.LocationId) : default(int?);
             var stuffId = model.StuffId != null ? StuffId.Decode(model.StuffId) : default(int?);
 
             var entity = new Upload 
             { 
-                FileName = file.FileName, 
+                FileName = model.File.FileName, 
                 Path = filePath,
                 LocationId = locationId,
                 StuffId = stuffId,
