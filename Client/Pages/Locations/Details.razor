@@ -10,19 +10,19 @@
     <div class="text-end">
         <a
             href="/locations"
-            class="btn btn-outline-secondary btn-sm"
+            class="btn btn-outline-secondary"
         >
             Locations
         </a>
         <button
             @onclick="() => update?.Open(model)"
-            type="button" class="btn btn-outline-primary btn-sm"
+            type="button" class="btn btn-outline-primary"
         >
             Edit
         </button>
         <button
             @onclick="() => delete?.Open(model)"
-            type="button" class="btn btn-outline-danger btn-sm"
+            type="button" class="btn btn-outline-danger"
             disabled="@tree?.First().Children?.Any()"
         >
             Delete

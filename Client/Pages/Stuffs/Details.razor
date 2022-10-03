@@ -1,6 +1,6 @@
 @page "/s/{Slug}"
-@attribute [Authorize]
 
+@attribute [Authorize]
 @inject IHttpService http
 @inject NavigationManager nav
 
@@ -32,17 +32,8 @@
     <h1>@model.Name</h1>
 
     <div style="width: 600px; max-width: 100%;">
-        <div class="row row-cols-2 row-cols-md-6 g-2 mb-3">
-            @foreach(var item in uploads)
-            {
-                <div class="col">
-                    <div class="card">
-                        <a href="@item.Url" target="_blank">
-                            <img src="@item.Url" class="card-img-top" alt="@item.FileName">
-                        </a>
-                    </div>
-                </div>
-            }
+        <div class="mb-4">
+            <Thumbnails Items="uploads" />
         </div>
 
         @if (model.IsSingleLocation && model.FirstLocation != null)

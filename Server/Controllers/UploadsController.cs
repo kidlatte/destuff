@@ -20,13 +20,15 @@ public class UploadsController : BaseController<Upload>
     private IStuffIdentifier StuffId { get; }
     private ILocationIdentifier LocationId { get; }
     private IUploadIdentifier UploadId { get; }
+    private IFileService Files { get; }
 
     public UploadsController(ApplicationDbContext context, IMapper mapper,
-        IStuffIdentifier stuffId, ILocationIdentifier locationId, IUploadIdentifier uploadId) : base(context, mapper)
+        IStuffIdentifier stuffId, ILocationIdentifier locationId, IUploadIdentifier uploadId, IFileService file) : base(context, mapper)
     {
         StuffId = stuffId;
         LocationId = locationId;
         UploadId = uploadId;
+        Files = file;
     }
 
     [AllowAnonymous]
@@ -40,21 +42,20 @@ public class UploadsController : BaseController<Upload>
         if (entity == null || entity.Path == null || entity.FileName != name)
             return NotFound();
 
-        string contentType = provider.TryGetContentType(name, out string? value) ? value : "application/octet-stream";
-
         var file = System.IO.File.OpenRead(entity.Path);
+        string contentType = Files.GetContentType(name);
         return File(file, contentType);
     }
 
     [HttpPost]
-    public async Task<ActionResult<UploadModel>> Create([FromForm] UploadCreateModel model, [FromServices] IFileService file)
+    public async Task<ActionResult<UploadModel>> Create([FromForm] UploadCreateModel model)
     {
         if (model.File == null || model.File.Length == 0)
             return BadRequest();
 
         try
         {
-            var filePath = await file.Save(model.File);
+            var filePath = await Files.Save(model.File);
 
             var locationId = model.LocationId != null ? LocationId.Decode(model.LocationId) : default(int?);
             var stuffId = model.StuffId != null ? StuffId.Decode(model.StuffId) : default(int?);
@@ -79,4 +80,20 @@ public class UploadsController : BaseController<Upload>
         }
     }
 
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(string id)
+    {
+        int actualId = UploadId.Decode(id);
+        var entity = await Query.Where(x => x.Id == actualId).FirstOrDefaultAsync();
+        if (entity == null)
+            return NotFound();
+
+        if (entity.Path != null)
+            Files.Delete(entity.Path);
+
+        Context.Remove(entity);
+        await Context.SaveChangesAsync();
+
+        return NoContent();
+    }    
 }

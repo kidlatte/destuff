@@ -8,6 +8,7 @@ global using Destuff.Shared;
 global using Destuff.Shared.Models;
 
 using System.Data.Common;
+using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
@@ -18,7 +19,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Destuff.Server.Data;
 using Destuff.Server.Services;
-using Destuff.Tests.Services;
 
 namespace Destuff.Tests;
 
@@ -51,7 +51,7 @@ public abstract class IntegrationTestBase: IDisposable
                     descriptors.ForEach(x => services.Remove(x));
 
                     services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(_connection));
-                    services.AddScoped<IFileService>(_ => new TestFileService());
+                    services.AddScoped<IFileService>(_ => new FileService(Directory.GetCurrentDirectory()));
                     services.BuildServiceProvider();
                 });
             });
