@@ -12,8 +12,7 @@ using Destuff.Shared.Models;
 namespace Destuff.Server.Controllers;
 
 [Route(ApiRoutes.Locations)]
-[ApiController]
-[Authorize]
+[ApiController, Authorize]
 public class LocationsController : BaseController<Location>
 {
     private ILocationIdentifier LocationId { get; }
@@ -24,7 +23,7 @@ public class LocationsController : BaseController<Location>
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<LocationModel>>> Get()
+    public async Task<ActionResult<IList<LocationModel>>> Get()
     {
         var query = Query;
 
@@ -49,6 +48,11 @@ public class LocationsController : BaseController<Location>
 
         return result;
     }
+
+    [Route(ApiRoutes.LocationLookup)]
+    [HttpGet]
+    public Task<List<LocationBasicModel>> GetLookup() => Query
+        .ProjectTo<LocationBasicModel>(Mapper.ConfigurationProvider).ToListAsync();
 
     [HttpGet("{id}")]
     public async Task<ActionResult<LocationModel?>> Get(string id)

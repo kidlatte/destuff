@@ -8,30 +8,31 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">
-                        Edit Stuff @name
-                    </h5>
+                    <h5 class="modal-title">Edit Stuff @name</h5>
                     <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
                 </div>
                 <EditForm OnValidSubmit="OnSubmit" Model="model" autocomplete="off">
                     <div class="modal-body">
                         <DataAnnotationsValidator />
 
-                        <p class="mb-3 fw-normal">
-                            Edit stuff <strong>@name</strong>
-                        </p>
-
                         <div class="form-floating mb-1">
                             <InputText @bind-Value="model.Name" class="form-control"
                                 placeholder="Name" disable="@loading" autocomplete="off" />
-                            <label for="floatingPassword">Name</label>
+                            <label>Name</label>
                             <ValidationMessage For="@(() => model.Name)" />
                         </div>
+
+                        @if (singleLocation)
+                        {
+                            <div class="form-floating mb-1">
+                                <LocationSelect @bind-Value="model.LocationId" Loading="loading" />
+                            </div>
+                        }
 
                         <div class="form-floating mb-1">
                             <InputTextArea @bind-Value="model.Notes" class="form-control" style="height: 100px"
                                 placeholder="Notes" disable="@loading" />
-                            <label for="floatingPassword">Notes</label>
+                            <label>Notes</label>
                             <ValidationMessage For="@(() => model.Notes)" />
                         </div>
 
@@ -59,6 +60,8 @@
     
     string? id { get; set; }
     string? name { get; set; }
+    bool singleLocation { get; set; }
+
     string error { get; set; } = "";
     bool loading { get; set; } = false;
 
@@ -90,13 +93,9 @@
     {
         id = stuff.Id;
         name = stuff.Name;
+        singleLocation = stuff.IsSingleLocation;
 
-        model = new StuffCreateModel 
-        {
-            LocationId = stuff.LocationId,
-            Name = stuff.Name,
-            Notes = stuff.Notes,
-        };
+        model = stuff.ToCreate();
 
         StateHasChanged();
     }

@@ -15,7 +15,7 @@ namespace Destuff.Server.Data.Migrations.Sqlite
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "6.0.3");
+            modelBuilder.HasAnnotation("ProductVersion", "6.0.9");
 
             modelBuilder.Entity("Destuff.Server.Data.Entities.ApplicationUser", b =>
                 {
@@ -79,12 +79,31 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "fe73948a-1173-43ad-9473-2f014b39f7c3",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "6b8af8b0-0154-4702-9f8c-c120d1210f78",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            NormalizedUserName = "ADMIN",
+                            PasswordHash = "AQAAAAEAACcQAAAAEFFRaQu/TSynC199ay8D8JaJtv24bErrHvWa8etrmriicx6FhxmsIn4LLUN6SScvaw==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "70effd01-76d5-4d56-85ac-6ddb5ffd3819",
+                            TwoFactorEnabled = false,
+                            UserName = "admin"
+                        });
                 });
 
-            modelBuilder.Entity("Destuff.Server.Data.Entities.Image", b =>
+            modelBuilder.Entity("Destuff.Server.Data.Entities.Event", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Count")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("Created")
@@ -94,21 +113,25 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("LocationId")
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("LocationId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Notes")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Order")
+                    b.Property<int>("StuffId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Path")
-                        .IsRequired()
-                        .HasMaxLength(255)
+                    b.Property<string>("Summary")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("StuffId")
+                    b.Property<int>("ToLocationId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Type")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("Updated")
@@ -120,7 +143,9 @@ namespace Destuff.Server.Data.Migrations.Sqlite
 
                     b.HasIndex("StuffId");
 
-                    b.ToTable("Images");
+                    b.HasIndex("ToLocationId");
+
+                    b.ToTable("Events");
                 });
 
             modelBuilder.Entity("Destuff.Server.Data.Entities.Location", b =>
@@ -153,6 +178,9 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                     b.Property<int?>("ParentId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("PathData")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -169,9 +197,22 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                         .IsUnique();
 
                     b.ToTable("Locations");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Created = new DateTime(2022, 10, 1, 6, 35, 44, 312, DateTimeKind.Utc).AddTicks(1833),
+                            CreatedBy = "admin",
+                            Flags = 0L,
+                            Name = "Storage",
+                            Order = 0,
+                            Slug = "storage",
+                            Updated = new DateTime(2022, 10, 1, 6, 35, 44, 312, DateTimeKind.Utc).AddTicks(1838)
+                        });
                 });
 
-            modelBuilder.Entity("Destuff.Server.Data.Entities.Stuff", b =>
+            modelBuilder.Entity("Destuff.Server.Data.Entities.Purchase", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -184,10 +225,100 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
-                    b.Property<long>("Flags")
+                    b.Property<string>("Notes")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("Receipt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("Received")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("SupplierId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("LocationId")
+                    b.Property<DateTime>("Updated")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SupplierId");
+
+                    b.ToTable("Purchases");
+                });
+
+            modelBuilder.Entity("Destuff.Server.Data.Entities.PurchaseItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("Cost")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Count")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("PurchaseId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("StuffId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Summary")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Updated")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PurchaseId");
+
+                    b.HasIndex("StuffId");
+
+                    b.ToTable("PurchaseItems");
+                });
+
+            modelBuilder.Entity("Destuff.Server.Data.Entities.Stuff", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("Computed")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Count")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("Flags")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
@@ -211,12 +342,70 @@ namespace Destuff.Server.Data.Migrations.Sqlite
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LocationId");
-
                     b.HasIndex("Slug")
                         .IsUnique();
 
                     b.ToTable("Stuffs");
+                });
+
+            modelBuilder.Entity("Destuff.Server.Data.Entities.StuffLocation", b =>
+                {
+                    b.Property<int>("StuffId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("LocationId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Count")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("StuffId", "LocationId");
+
+                    b.HasIndex("LocationId");
+
+                    b.ToTable("StuffLocations");
+                });
+
+            modelBuilder.Entity("Destuff.Server.Data.Entities.Supplier", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ShortName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Updated")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Suppliers");
                 });
 
             modelBuilder.Entity("Destuff.Server.Data.Entities.Tag", b =>
@@ -250,6 +439,63 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                         .IsUnique();
 
                     b.ToTable("Tags");
+                });
+
+            modelBuilder.Entity("Destuff.Server.Data.Entities.Upload", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("EventId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("LocationId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasMaxLength(1023)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("PurchaseId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("StuffId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Updated")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("LocationId");
+
+                    b.HasIndex("PurchaseId");
+
+                    b.HasIndex("StuffId");
+
+                    b.ToTable("Uploads");
                 });
 
             modelBuilder.Entity("LocationTag", b =>
@@ -395,6 +641,19 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Setting", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("Settings");
+                });
+
             modelBuilder.Entity("StuffTag", b =>
                 {
                     b.Property<int>("StuffId")
@@ -410,19 +669,31 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                     b.ToTable("StuffTag");
                 });
 
-            modelBuilder.Entity("Destuff.Server.Data.Entities.Image", b =>
+            modelBuilder.Entity("Destuff.Server.Data.Entities.Event", b =>
                 {
                     b.HasOne("Destuff.Server.Data.Entities.Location", "Location")
-                        .WithMany("Images")
-                        .HasForeignKey("LocationId");
+                        .WithMany()
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Destuff.Server.Data.Entities.Stuff", "Stuff")
-                        .WithMany("Images")
-                        .HasForeignKey("StuffId");
+                        .WithMany()
+                        .HasForeignKey("StuffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Destuff.Server.Data.Entities.Location", "ToLocation")
+                        .WithMany()
+                        .HasForeignKey("ToLocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Location");
 
                     b.Navigation("Stuff");
+
+                    b.Navigation("ToLocation");
                 });
 
             modelBuilder.Entity("Destuff.Server.Data.Entities.Location", b =>
@@ -434,13 +705,78 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("Destuff.Server.Data.Entities.Stuff", b =>
+            modelBuilder.Entity("Destuff.Server.Data.Entities.Purchase", b =>
+                {
+                    b.HasOne("Destuff.Server.Data.Entities.Supplier", "Supplier")
+                        .WithMany("Purchases")
+                        .HasForeignKey("SupplierId");
+
+                    b.Navigation("Supplier");
+                });
+
+            modelBuilder.Entity("Destuff.Server.Data.Entities.PurchaseItem", b =>
+                {
+                    b.HasOne("Destuff.Server.Data.Entities.Purchase", "Purchase")
+                        .WithMany("Items")
+                        .HasForeignKey("PurchaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Destuff.Server.Data.Entities.Stuff", "Stuff")
+                        .WithMany()
+                        .HasForeignKey("StuffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Purchase");
+
+                    b.Navigation("Stuff");
+                });
+
+            modelBuilder.Entity("Destuff.Server.Data.Entities.StuffLocation", b =>
                 {
                     b.HasOne("Destuff.Server.Data.Entities.Location", "Location")
-                        .WithMany("Stuffs")
-                        .HasForeignKey("LocationId");
+                        .WithMany("StuffLocations")
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Destuff.Server.Data.Entities.Stuff", "Stuff")
+                        .WithMany("StuffLocations")
+                        .HasForeignKey("StuffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Location");
+
+                    b.Navigation("Stuff");
+                });
+
+            modelBuilder.Entity("Destuff.Server.Data.Entities.Upload", b =>
+                {
+                    b.HasOne("Destuff.Server.Data.Entities.Event", "Event")
+                        .WithMany("Uploads")
+                        .HasForeignKey("EventId");
+
+                    b.HasOne("Destuff.Server.Data.Entities.Location", "Location")
+                        .WithMany("Uploads")
+                        .HasForeignKey("LocationId");
+
+                    b.HasOne("Destuff.Server.Data.Entities.Purchase", "Purchase")
+                        .WithMany("Uploads")
+                        .HasForeignKey("PurchaseId");
+
+                    b.HasOne("Destuff.Server.Data.Entities.Stuff", "Stuff")
+                        .WithMany("Uploads")
+                        .HasForeignKey("StuffId");
+
+                    b.Navigation("Event");
+
+                    b.Navigation("Location");
+
+                    b.Navigation("Purchase");
+
+                    b.Navigation("Stuff");
                 });
 
             modelBuilder.Entity("LocationTag", b =>
@@ -524,18 +860,37 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Destuff.Server.Data.Entities.Event", b =>
+                {
+                    b.Navigation("Uploads");
+                });
+
             modelBuilder.Entity("Destuff.Server.Data.Entities.Location", b =>
                 {
                     b.Navigation("Children");
 
-                    b.Navigation("Images");
+                    b.Navigation("StuffLocations");
 
-                    b.Navigation("Stuffs");
+                    b.Navigation("Uploads");
+                });
+
+            modelBuilder.Entity("Destuff.Server.Data.Entities.Purchase", b =>
+                {
+                    b.Navigation("Items");
+
+                    b.Navigation("Uploads");
                 });
 
             modelBuilder.Entity("Destuff.Server.Data.Entities.Stuff", b =>
                 {
-                    b.Navigation("Images");
+                    b.Navigation("StuffLocations");
+
+                    b.Navigation("Uploads");
+                });
+
+            modelBuilder.Entity("Destuff.Server.Data.Entities.Supplier", b =>
+                {
+                    b.Navigation("Purchases");
                 });
 #pragma warning restore 612, 618
         }

@@ -13,19 +13,20 @@ using Destuff.Shared.Models;
 namespace Destuff.Server.Controllers;
 
 [Route(ApiRoutes.Stuffs)]
-[ApiController]
-[Authorize]
+[ApiController, Authorize]
 public class StuffsController : BaseController<Stuff>
 {
     private IStuffIdentifier StuffId { get; }
+    private ILocationIdentifier LocationId { get; }
 
-    public StuffsController(ApplicationDbContext context, IMapper mapper, IStuffIdentifier stuffId) : base(context, mapper)
+    public StuffsController(ApplicationDbContext context, IMapper mapper, IStuffIdentifier stuffId, ILocationIdentifier locationId) : base(context, mapper)
     {
         StuffId = stuffId;
+        LocationId = locationId;
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedList<StuffModel>>> Get([FromQuery] GridQuery? grid)
+    public async Task<ActionResult<PagedList<StuffListModel>>> Get([FromQuery] GridQuery? grid)
     {
         var query = Query;
 
@@ -49,10 +50,10 @@ public class StuffsController : BaseController<Stuff>
 
         var list = await query
             .Skip(grid.Skip).Take(grid.Take)
-            .ProjectTo<StuffModel>(Mapper.ConfigurationProvider)
+            .ProjectTo<StuffListModel>(Mapper.ConfigurationProvider)
             .ToListAsync();
 
-        return new PagedList<StuffModel>(count, list);
+        return new PagedList<StuffListModel>(count, list);
     }
 
     [HttpGet("{id}")]
@@ -60,6 +61,21 @@ public class StuffsController : BaseController<Stuff>
     {
         int actualId = StuffId.Decode(id);
         var query = Query.Where(x => x.Id == actualId);
+
+        var model = await query
+            .ProjectTo<StuffModel>(Mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync();
+
+        if (model == null)
+            return NotFound();
+
+        return model;
+    }
+
+    [HttpGet(ApiRoutes.StuffSlug + "/{slug}")]
+    public async Task<ActionResult<StuffModel?>> GetStuffBySlug(string slug)
+    {
+        var query = Query.Where(x => x.Slug == slug);
 
         var model = await query
             .ProjectTo<StuffModel>(Mapper.ConfigurationProvider)
@@ -86,6 +102,13 @@ public class StuffsController : BaseController<Stuff>
         entity.Slug = slug;
         Audit(entity);
 
+        if (model.LocationId != null)
+        {
+            var locationId = LocationId.Decode(model.LocationId);
+            var stuffLocation = new StuffLocation { LocationId = locationId, Count = 1 };
+            entity.StuffLocations = new List<StuffLocation> { stuffLocation };
+        }
+
         Context.Add(entity);
         await Context.SaveChangesAsync();
 
@@ -105,13 +128,31 @@ public class StuffsController : BaseController<Stuff>
         if (exists)
             return BadRequest("Account name already exists.");
 
-        var entity = await Query.Where(x => x.Id == actualId).FirstOrDefaultAsync();
+        var entity = await Query.Include(x => x.StuffLocations!.Take(2))
+            .Where(x => x.Id == actualId).FirstOrDefaultAsync();
         if (entity == null)
             return NotFound();
 
         Mapper.Map(model, entity);
         entity.Slug = slug;
         Audit(entity);
+
+        var count = entity.StuffLocations?.Count ?? 0;
+        var isSingleLocation = count == 0  || count == 1 && entity.StuffLocations?.First().Count == 1;
+        if (isSingleLocation)
+        {
+            if (model.LocationId == null)
+            {
+                entity.StuffLocations = new List<StuffLocation>();
+            }
+            else
+            {
+                var locationId = LocationId.Decode(model.LocationId);
+                var stuffLocation = new StuffLocation { LocationId = locationId, Count = 1 };
+                entity.StuffLocations = new List<StuffLocation> { stuffLocation };
+            }
+        }
+
         await Context.SaveChangesAsync();
 
         return Mapper.Map<StuffModel>(entity);

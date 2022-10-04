@@ -1,19 +1,24 @@
-using System;
+global using Xunit;
+global using System;
+global using System.Net;
+global using System.Net.Http;
+global using System.Net.Http.Json;
+global using System.Threading.Tasks;
+global using Destuff.Shared;
+global using Destuff.Shared.Models;
+
 using System.Data.Common;
+using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Destuff.Server.Data;
-using Destuff.Shared;
-using Destuff.Shared.Models;
+using Destuff.Server.Services;
 
 namespace Destuff.Tests;
 
@@ -21,19 +26,19 @@ public abstract class IntegrationTestBase: IDisposable
 {
     protected string? AuthToken { get; set; }
 
-    readonly HttpMethod _method;
+    protected readonly HttpMethod Method;
     protected readonly string Route;
-    readonly HttpClient Http;
+    protected readonly HttpClient Http;
     readonly WebApplicationFactory<Program> app;
     readonly DbConnection _connection;
 
     public IntegrationTestBase(HttpMethod method, string route)
     {
-        _method = method;
+        Method = method;
         Route = route;
 
         // Arrange
-        _connection = new SqliteConnection("Filename=:memory:");
+        _connection = new SqliteConnection("Data Source=:memory:");
         _connection.Open();
 
         app = new WebApplicationFactory<Program>()
@@ -41,10 +46,12 @@ public abstract class IntegrationTestBase: IDisposable
             {
                 builder.ConfigureServices(services => 
                 {
-                    var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
-                    if (descriptor != null) services.Remove(descriptor);
+                    var types = new [] { typeof(DbContextOptions<ApplicationDbContext>), typeof(IFileService) };
+                    var descriptors = services.Where(d => types.Contains(d.ServiceType)).ToList();
+                    descriptors.ForEach(x => services.Remove(x));
 
                     services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(_connection));
+                    services.AddScoped<IFileService>(_ => new FileService(Directory.GetCurrentDirectory()));
                     services.BuildServiceProvider();
                 });
             });
@@ -52,10 +59,9 @@ public abstract class IntegrationTestBase: IDisposable
         Http = app.CreateClient();
     }
 
-
     protected async Task<HttpResponseMessage> SendAsync(object? model, HttpMethod? method = null, string? route = null)
     {
-        var request = new HttpRequestMessage(method ?? _method, route ?? Route);
+        var request = new HttpRequestMessage(method ?? Method, route ?? Route);
         if (model != null)
             request.Content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
         return await Http.SendAsync(request);
@@ -67,7 +73,7 @@ public abstract class IntegrationTestBase: IDisposable
         return await response.Content.ReadFromJsonAsync<T>();
     }
 
-    protected async Task<HttpResponseMessage> AuthorizedSendAsync(object? model = null, HttpMethod? method = null, string? route = null)
+    protected async Task<HttpResponseMessage> AuthorizedSendAsync(HttpRequestMessage request)
     {
         if (AuthToken == null)
         {
@@ -77,12 +83,17 @@ public abstract class IntegrationTestBase: IDisposable
             AuthToken = token?.AuthToken;
         }
 
-        var request = new HttpRequestMessage(method ?? _method, route ?? Route);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AuthToken);
+        return await Http.SendAsync(request);
+    }
+
+    protected async Task<HttpResponseMessage> AuthorizedSendAsync(object? model = null, HttpMethod? method = null, string? route = null)
+    {
+        var request = new HttpRequestMessage(method ?? Method, route ?? Route);
         if (model != null)
             request.Content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AuthToken);
-
-        return await Http.SendAsync(request);
+            
+        return await AuthorizedSendAsync(request);
     }
 
     protected async Task<T?> AuthorizedSendAsync<T>(object? model = null, HttpMethod? method = null, string? route = null) where T : class

@@ -33,12 +33,16 @@ public class LocationIdentifier : HashIdentifier<Location>, ILocationIdentifier 
 public interface IStuffIdentifier : IHashIdentifier<Stuff> { }
 public class StuffIdentifier : HashIdentifier<Stuff>, IStuffIdentifier { }
 
+public interface IUploadIdentifier : IHashIdentifier<Upload> { }
+public class UploadIdentifier : HashIdentifier<Upload>, IUploadIdentifier { }
+
 public static class HashIdentifierExtensions
 {
     public static IServiceCollection AddHashIdentifiers(this IServiceCollection services)
     {
         services.AddSingleton<ILocationIdentifier, LocationIdentifier>();
         services.AddSingleton<IStuffIdentifier, StuffIdentifier>();
+        services.AddSingleton<IUploadIdentifier, UploadIdentifier>();
         return services;
     }
 }

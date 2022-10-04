@@ -7,7 +7,7 @@ namespace Destuff.Server.Services;
 
 public class MapperProfile : Profile
 {
-    public MapperProfile(ILocationIdentifier locationId, IStuffIdentifier stuffId)
+    public MapperProfile(ILocationIdentifier locationId, IStuffIdentifier stuffId, IUploadIdentifier uploadId)
     {
         CreateMap<LocationCreateModel, Location>()
             .ForMember(e => e.ParentId, o => o.MapFrom(m => m.ParentId != null ? locationId.Decode(m.ParentId) :  default(int?)));
@@ -15,13 +15,18 @@ public class MapperProfile : Profile
             .ForMember(m => m.Id, o => o.MapFrom(e => locationId.Encode(e.Id)))
             .ForMember(m => m.ParentId, o => o.MapFrom(e => e.ParentId != null ? locationId.Encode(e.ParentId.Value) : null))
             .ForMember(m => m.Children, o => o.Ignore());
-        CreateMap<Location, LocationTreeModel>()
+        CreateMap<Location, LocationBasicModel>().IncludeAllDerived()
             .ForMember(m => m.Id, o => o.MapFrom(e => locationId.Encode(e.Id)));
+        CreateMap<Location, LocationTreeModel>();
 
-        CreateMap<StuffCreateModel, Stuff>()
-            .ForMember(e => e.LocationId, o => o.MapFrom(m => m.LocationId != null ? locationId.Decode(m.LocationId) :  default(int?)));
+        CreateMap<StuffCreateModel, Stuff>();
         CreateMap<Stuff, StuffModel>().IncludeAllDerived()
-            .ForMember(m => m.Id, o => o.MapFrom(e => stuffId.Encode(e.Id)))
-            .ForMember(m => m.LocationId, o => o.MapFrom(e => e.LocationId != null ? locationId.Encode(e.LocationId.Value) : null));
+            .ForMember(m => m.Id, o => o.MapFrom(e => stuffId.Encode(e.Id)));
+        CreateMap<Stuff, StuffListModel>().IncludeAllDerived()
+            .ForMember(m => m.Id, o => o.MapFrom(e => stuffId.Encode(e.Id)));
+
+        CreateMap<StuffLocation, StuffLocationModel>();
+        CreateMap<Upload, UploadModel>().IncludeAllDerived()
+            .ForMember(m => m.Id, o => o.MapFrom(e => uploadId.Encode(e.Id)));
     }
 }

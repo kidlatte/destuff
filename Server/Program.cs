@@ -1,19 +1,15 @@
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using AutoMapper;
 using Destuff.Server.Data;
 using Destuff.Server.Data.Entities;
-using Destuff.Server.Models;
 using Destuff.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
 // Generate connection string
-var path = configuration.GetStoragePath();
-
+var path = configuration.GetConfigPath();
 var dbfile = Path.Join(path, "destuff.db");
 var connString = $"Data Source={dbfile}";
 
@@ -33,6 +29,9 @@ builder.Services.AddSingleton<Profile, MapperProfile>();
 builder.Services.AddSingleton(provider => 
         new MapperConfiguration(cfg => cfg.AddProfile(provider.GetRequiredService<Profile>()))
     .CreateMapper());
+
+builder.Services.AddSingleton<FileExtensionContentTypeProvider>(_ => new());
+builder.Services.AddScoped<IFileService>(_ => new FileService(configuration.GetDataPath()));
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

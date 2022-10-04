@@ -19,11 +19,13 @@ public class Stuff: Entity
     public StuffFlags Flags { get; set; }
 
     public int Order { get; set; }
+    
+    public int Count { get; set; }
+    public DateTime? Computed { get; set; }
 
-    public int? LocationId { get; set; }
-    public Location? Location { get; set; }
-
-    public ICollection<Image>? Images { get; set; }
+    public ICollection<Location>? Locations { get; set; }
+    public ICollection<StuffLocation>? StuffLocations { get; set; }
+    public ICollection<Upload>? Uploads { get; set; }
     public ICollection<Tag>? Tags { get; set; }
 }
 

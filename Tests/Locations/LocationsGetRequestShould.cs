@@ -27,7 +27,7 @@ public class LocationsGetRequestShould : IntegrationTestBase
         // Assert
         Assert.NotNull(result);
         Assert.NotEmpty(result);
-        Assert.Equal(model.Name, result.First().Name);
+        Assert.Equal(model.Name, result.Last().Name);
     }
 
     [Fact]
@@ -46,7 +46,7 @@ public class LocationsGetRequestShould : IntegrationTestBase
         Assert.NotNull(result);
         Assert.NotEmpty(result);
         
-        var children = result.First().Children;
+        var children = result.Last().Children;
         Assert.NotNull(children);
         Assert.NotEmpty(children);
     }
@@ -69,11 +69,11 @@ public class LocationsGetRequestShould : IntegrationTestBase
         Assert.NotNull(result);
         Assert.NotEmpty(result);
 
-        var children = result.First().Children;
+        var children = result.Last().Children;
         Assert.NotNull(children);
         Assert.NotEmpty(children);
 
-        var grandchildren = result?.First().Children?.First().Children;
+        var grandchildren = result?.Last().Children?.Last().Children;
         Assert.NotNull(grandchildren);
         Assert.NotEmpty(grandchildren);
     }

@@ -4,8 +4,6 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using Blazored.LocalStorage;
-using Destuff.Shared.Models;
 
 namespace Destuff.Client.Services;
 
@@ -15,6 +13,7 @@ public interface IHttpService
     Task<T?> PostAsync<T>(string uri, object value) where T : class;
     Task<T?> PutAsync<T>(string uri, object value) where T : class;
     Task<HttpResponseMessage> DeleteAsync(string uri);
+    Task<HttpResponseMessage> SendAsync(HttpRequestMessage request);
 }
 
 public class HttpService : IHttpService
@@ -42,12 +41,8 @@ public class HttpService : IHttpService
 
     public Task<HttpResponseMessage> DeleteAsync(string uri) => sendRequest(HttpMethod.Delete, uri);
 
-    private async Task<HttpResponseMessage> sendRequest(HttpMethod method, string uri, object? value = null)
+    public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request)
     {
-        var request = new HttpRequestMessage(method, uri);
-        if (value != null)
-            request.Content = new StringContent(JsonSerializer.Serialize(value), Encoding.UTF8, "application/json");
-
         // add jwt auth header if user is logged in and request is to the api url
         var user = await _storage.GetUserAsync();
         var isApiUrl = request.RequestUri?.OriginalString.StartsWith("/api") ?? default;
@@ -55,6 +50,15 @@ public class HttpService : IHttpService
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", user.AuthToken);
 
         return await _http.SendAsync(request);
+    }
+
+    private Task<HttpResponseMessage> sendRequest(HttpMethod method, string uri, object? value = null)
+    {
+        var request = new HttpRequestMessage(method, uri);
+        if (value != null)
+            request.Content = new StringContent(JsonSerializer.Serialize(value), Encoding.UTF8, "application/json");
+
+        return SendAsync(request);
     }
 
     private async Task<T?> sendRequest<T>(HttpMethod method, string uri, object? value = null) where T : class
@@ -75,4 +79,5 @@ public class HttpService : IHttpService
 
         return await response.Content.ReadFromJsonAsync<T>();
     }
+    
 }

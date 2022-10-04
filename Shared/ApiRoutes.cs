@@ -11,7 +11,11 @@ public class ApiRoutes
     public const string Locations = "/api/locations";
     public const string LocationSlug = "/api/locations/s";
     public const string LocationTree = "/api/locations/t";
+    public const string LocationLookup = "/api/locations/lookup";
 
     public const string Stuffs = "/api/stuffs";
     public const string StuffSlug = "/api/stuffs/s";
+
+    public const string Uploads = "/api/uploads";
+    public const string UploadFiles = "/files";
 }

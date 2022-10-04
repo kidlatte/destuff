@@ -1,28 +1,28 @@
 @page "/l/{Slug}"
-
-@using Destuff.Shared.Models
+@attribute [Authorize]
 
 @inject IHttpService http
 @inject NavigationManager nav
+
 
 @if (model != null)
 {
     <div class="text-end">
         <a
             href="/locations"
-            class="btn btn-outline-secondary btn-sm"
+            class="btn btn-outline-secondary"
         >
             Locations
         </a>
         <button
             @onclick="() => update?.Open(model)"
-            type="button" class="btn btn-outline-primary btn-sm"
+            type="button" class="btn btn-outline-primary"
         >
             Edit
         </button>
         <button
             @onclick="() => delete?.Open(model)"
-            type="button" class="btn btn-outline-danger btn-sm"
+            type="button" class="btn btn-outline-danger"
             disabled="@tree?.First().Children?.Any()"
         >
             Delete
@@ -62,11 +62,10 @@
         {
             model = await http.GetAsync<LocationModel>($"{ApiRoutes.LocationSlug}/{Slug}");
         }
-        catch (System.Net.Http.HttpRequestException ex)
+        catch (HttpRequestException ex)
         {
-            if (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            if (ex.StatusCode == HttpStatusCode.NotFound)
                 nav.NavigateTo($"/locations");
-            
             else
                 throw;
         }
