@@ -1,6 +1,8 @@
 @page "/"
-@attribute [Authorize]
+@page "/stuffs"
 
+@attribute [Authorize]
+@inject NavigationManager nav
 @inject IHttpService http
 
 <PageTitle>Stuffs | Destuff</PageTitle>
@@ -12,7 +14,7 @@
     <button @onclick="() => bulk?.Open()" type="button" class="btn btn-secondary">Bulk</button>
 </div>
 
-@if (items.OrEmpty().Any())
+@if (data != null && data.List.Any())
 {
     <table class="table">
         <thead>
@@ -23,7 +25,7 @@
             </tr>
         </thead>
         <tbody class="table-group-divider">
-            @foreach(var item in items.OrEmpty())
+            @foreach(var item in data.List)
             {
                 <tr>
                     <td>
@@ -54,6 +56,8 @@
             }
         </tbody>
     </table>
+
+    <Pager Count="data.Count" Page="Page" PageSize="PageSize" GenerateLink="GenerateLink" />
 }
 
 <CreateBulkModal @ref="bulk" OnCreated="LoadData" />
@@ -62,18 +66,23 @@
 
 @code
 {
-    ICollection<StuffListModel>? items { get; set; }
+    [Parameter, SupplyParameterFromQuery(Name = "p")]
+    public int Page { get; set; }
+    public int PageSize => 10;
 
+    PagedList<StuffListModel>? data { get; set; } 
+    
     CreateBulkModal? bulk;
     CreateModal? create;
     DeleteModal? delete;
 
-    protected override Task OnInitializedAsync() => LoadData();
+    protected override Task OnParametersSetAsync() => LoadData();
 
     async Task LoadData()
     {
-        var result = await http.GetAsync<PagedList<StuffListModel>>(ApiRoutes.Stuffs);
-        if (result != null)
-            items = result.List;
+        var query = new PagedQuery { Page = Page, PageSize = PageSize };
+        data = await http.GetAsync<PagedList<StuffListModel>>($"{ApiRoutes.Stuffs}?{query}");
     }
+
+    string GenerateLink(int page) => page == 0 ? "/" : $"/stuffs?p={page}";
 }
