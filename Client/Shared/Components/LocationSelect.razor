@@ -47,7 +47,6 @@
 
     async Task OnLocationClick(ILocationModel? location)
     {
-        Console.WriteLine($"OnLocationClick: {location?.Id} {location?.Name}");
         Value = location?.Id;
         if (ValueChanged.HasDelegate)
             await ValueChanged.InvokeAsync(location?.Id);

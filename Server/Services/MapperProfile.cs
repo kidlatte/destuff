@@ -22,7 +22,8 @@ public class MapperProfile : Profile
         CreateMap<StuffCreateModel, Stuff>();
         CreateMap<Stuff, StuffModel>().IncludeAllDerived()
             .ForMember(m => m.Id, o => o.MapFrom(e => stuffId.Encode(e.Id)));
-        CreateMap<Stuff, StuffListModel>().IncludeAllDerived();
+        CreateMap<Stuff, StuffListModel>().IncludeAllDerived()
+            .ForMember(m => m.Id, o => o.MapFrom(e => stuffId.Encode(e.Id)));
 
         CreateMap<StuffLocation, StuffLocationModel>();
         CreateMap<Upload, UploadModel>().IncludeAllDerived()

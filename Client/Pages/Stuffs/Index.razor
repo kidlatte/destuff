@@ -9,6 +9,7 @@
 
 <div class="text-end">
     <button @onclick="() => create?.Open()" type="button" class="btn btn-primary">Add</button>
+    <button @onclick="() => bulk?.Open()" type="button" class="btn btn-secondary">Bulk</button>
 </div>
 
 @if (items.OrEmpty().Any())
@@ -55,6 +56,7 @@
     </table>
 }
 
+<CreateBulkModal @ref="bulk" OnCreated="LoadData" />
 <CreateModal @ref="create" OnCreated="LoadData" />
 <DeleteModal @ref="delete" OnDeleted="LoadData" />
 
@@ -62,6 +64,7 @@
 {
     ICollection<StuffListModel>? items { get; set; }
 
+    CreateBulkModal? bulk;
     CreateModal? create;
     DeleteModal? delete;
 
