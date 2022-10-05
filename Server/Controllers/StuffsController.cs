@@ -33,21 +33,18 @@ public class StuffsController : BaseController<Stuff>
         grid ??= new GridQuery();
         if (!string.IsNullOrEmpty(grid.Search))
             query = query.Where(x => x.Name.ToLower().Contains(grid.Search.ToLower()));
-        var count = await query.CountAsync();
 
-        if (!string.IsNullOrEmpty(grid.SortField))
+        switch (grid.SortField)
         {
-            switch (grid.SortField)
-            {
-                case "name":
-                    query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
+            case "name":
+                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
+            break;
+            default:
+                query = query.OrderByDescending(x => x.Created);
                 break;
-                default:
-                    query = query.OrderByDescending(x => x.Created);
-                    break;
-            }
         }
 
+        var count = await query.CountAsync();
         var list = await query
             .Skip(grid.Skip).Take(grid.Take)
             .ProjectTo<StuffListModel>(Mapper.ConfigurationProvider)

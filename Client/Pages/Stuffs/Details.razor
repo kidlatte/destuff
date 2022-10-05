@@ -31,7 +31,7 @@
 
     <h1>@model.Name</h1>
 
-    <div style="width: 600px; max-width: 100%;">
+    <div class="mw-100" style="width: 600px; max-width: 100%;">
         <div class="mb-4">
             <Thumbnails Items="uploads" />
         </div>
@@ -53,8 +53,8 @@
 
 }
 
+<UpdateModal @ref="update" OnUpdated="OnUpdated" />
 <DeleteModal @ref="delete" OnDeleted="OnDeleted" />
-<UpdateModal @ref="update" OnUpdated="LoadData" />
 
 @code
 {
@@ -80,19 +80,22 @@
         catch (HttpRequestException ex)
         {
             if (ex.StatusCode == HttpStatusCode.NotFound)
-                nav.NavigateTo($"/locations");
+                nav.NavigateTo($"/");
             else
                 throw;
         }
     }
 
-    void OnDeleted()
+    async Task OnUpdated(StuffModel stuff)
     {
-        nav.NavigateTo("/");
+        var path = $"s/{stuff.Slug}";
+
+        if (nav.ToBaseRelativePath(nav.Uri) == path)
+            await LoadData();
+        else
+            nav.NavigateTo(path);
     }
 
-    void OnUploaded(UploadModel upload)
-    {
-        uploads.Add(upload);
-    }
+    void OnDeleted() => nav.NavigateTo("/");
+    void OnUploaded(UploadModel upload) => uploads.Add(upload);
 }

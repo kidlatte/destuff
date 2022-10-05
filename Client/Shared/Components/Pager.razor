@@ -1,62 +1,65 @@
-<nav aria-label="page navigation">
-  <ul class="pagination justify-content-end">
+@if (pages > 1 || Page > 0)
+{
+    <nav aria-label="page navigation">
+        <ul class="pagination justify-content-end">
 
-    @if(prevEnabled)
-    {
-        <li class="page-item">
-            <a class="page-link" href="@GetQueryString(Page - 1)" aria-label="Previous">
-                <span aria-hidden="true">&laquo;</span>
-            </a>
-        </li>
-    }
-    else
-    {
-        <li class="page-item disabled">
-            <span class="page-link" aria-label="Previous">
-                &laquo;
-            </span>
-        </li>
-    }
+            @if(prevEnabled)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="@GetQueryString(Page - 1)" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            }
+            else
+            {
+                <li class="page-item disabled">
+                    <span class="page-link" aria-label="Previous">
+                        &laquo;
+                    </span>
+                </li>
+            }
 
-    @for (int i = 0; i < pages; i++)
-    {
-        @if (i == Page)
-        {
-            <li class="page-item active">
-                <a class="page-link">
-                    @(i + 1)
-                </a>
-            </li>    
-        }
-        else
-        {
-            <li class="page-item">
-                <a href="@GetQueryString(i)" class="page-link">
-                    @(i + 1)
-                </a>
-            </li>    
-        }
-    }
+            @for (int i = 0; i < pages; i++)
+            {
+                @if (i == Page)
+                {
+                    <li class="page-item active">
+                        <a class="page-link">
+                            @(i + 1)
+                        </a>
+                    </li>    
+                }
+                else
+                {
+                    <li class="page-item">
+                        <a href="@GetQueryString(i)" class="page-link">
+                            @(i + 1)
+                        </a>
+                    </li>    
+                }
+            }
 
-    @if(nextEnabled)
-    {
-        <li class="page-item">
-            <a class="page-link" href="@GetQueryString(Page + 1)" aria-label="Next">
-                <span aria-hidden="true">&raquo;</span>
-            </a>
-        </li>
-    }
-    else
-    {
-        <li class="page-item disabled">
-            <span class="page-link" aria-label="Next">
-                &raquo;
-            </span>
-        </li>
-    }
+            @if(nextEnabled)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="@GetQueryString(Page + 1)" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            }
+            else
+            {
+                <li class="page-item disabled">
+                    <span class="page-link" aria-label="Next">
+                        &raquo;
+                    </span>
+                </li>
+            }
 
-  </ul>
-</nav>
+        </ul>
+    </nav>
+}
 
 @code
 {

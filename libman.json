@@ -8,8 +8,15 @@
       "destination": "Client/wwwroot/lib/bootstrap",
       "files": [
         "dist/css/bootstrap.min.css",
-        "dist/js/bootstrap.bundle.min.js",
-        "scss/*"
+        "dist/js/bootstrap.bundle.min.js"
+      ]
+    },
+    {
+      "library": "bootstrap-icons@1.9.1",
+      "destination": "Client/wwwroot/lib/bootstrap-icons",
+      "files": [
+        "font/bootstrap-icons.min.css",
+        "font/fonts/*"
       ]
     }
   ]
