@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using Destuff.Shared.Models;
 
 namespace Destuff.Server.Data.Entities;
 
@@ -19,7 +21,10 @@ public class Location: Entity
     public LocationFlags Flags { get; set; }
 
     public int Order { get; set; }
-    public string? PathData { get; set; }
+
+    // TODO remove columnt attribute
+    [Column("PathData")]
+    public LocationDataModel? Data { get; set; }
 
     public int? ParentId { get; set; }
     public Location? Parent { get; set; }

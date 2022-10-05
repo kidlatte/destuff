@@ -1,5 +1,6 @@
 global using Xunit;
 global using System;
+global using System.Linq;
 global using System.Net;
 global using System.Net.Http;
 global using System.Net.Http.Json;
@@ -9,7 +10,6 @@ global using Destuff.Shared.Models;
 
 using System.Data.Common;
 using System.IO;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;

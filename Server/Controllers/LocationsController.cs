@@ -155,6 +155,29 @@ public class LocationsController : BaseController<Location>
         return Mapper.Map<LocationModel>(entity);
     }
 
+
+    [HttpPut(ApiRoutes.LocationMap)]
+    public async Task<IActionResult> MapPaths()
+    {
+        var query = Query.Include(x => x.Parent);
+        foreach (var item in query)
+        {
+            var parent = item.Parent;
+            if (parent == null)
+                item.Data = new LocationDataModel { Path = new List<LocationBasicModel>() };
+            else if (parent.Data != null)
+            {
+                var path = parent.Data.Path?.ToList() ?? new List<LocationBasicModel>();
+                path.Add(Mapper.Map<LocationBasicModel>(parent));
+                item.Data = new LocationDataModel { Path = path };
+            }
+        }
+
+        await Context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
     [HttpDelete("{id}")]
     public async Task<ActionResult<LocationModel>> Delete(string id)
     {

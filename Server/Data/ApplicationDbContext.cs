@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Destuff.Server.Data.Entities;
+using Destuff.Server.Services;
 
 namespace Destuff.Server.Data;
 
@@ -40,6 +41,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                     .HasForeignKey(x => x.StuffId),
                 sl => sl.HasKey(x => new { x.StuffId, x.LocationId })
             );
+
+        builder.Entity<Location>()
+            .Property(x => x.Data).HasJsonConversion();
 
         builder.SeedUsers();
         builder.SeedLocations();
