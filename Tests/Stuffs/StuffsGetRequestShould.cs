@@ -31,16 +31,15 @@ public class StuffsGetRequestShould : IntegrationTestBase
     }
 
     [Theory]
-    [InlineData(3, "Stuff Name", null, null, null, null, null)]
-    [InlineData(2, "Search 01", "search", null, null, null, null)]
-    [InlineData(2, "Search 02", "search", 1, 1, null, null)]
+    [InlineData(3, "Search 02", null, null, null, null, null)]
+    [InlineData(2, "Search 02", "search", null, null, null, null)]
+    [InlineData(2, "Search 01", "search", 1, 1, null, null)]
     [InlineData(2, "Search 02", "search", null, null, "name", SortDirection.Descending)]
     public async Task Get_Stuffs_WithPaging(int count, string firstName, string? search, int? page, int? pageSize, string? sortField, SortDirection? sortDir)
     {
         // Arrange
         await AuthorizedSendAsync<StuffModel>(new StuffCreateModel { Name = "Stuff Name" }, HttpMethod.Post);
-        var model = new StuffCreateModel { Name = "Search 01" };
-        await AuthorizedSendAsync<StuffModel>(model, HttpMethod.Post);
+        await AuthorizedSendAsync<StuffModel>(new StuffCreateModel { Name = "Search 01" }, HttpMethod.Post);
         await AuthorizedSendAsync<StuffModel>(new StuffCreateModel { Name = "Search 02" }, HttpMethod.Post);
 
         // Act

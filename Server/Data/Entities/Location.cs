@@ -24,7 +24,7 @@ public class Location: Entity
 
     // TODO remove columnt attribute
     [Column("PathData")]
-    public LocationDataModel? Data { get; set; }
+    public LocationData? Data { get; set; }
 
     public int? ParentId { get; set; }
     public Location? Parent { get; set; }

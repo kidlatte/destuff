@@ -1,4 +1,4 @@
-@page "/l/{Slug}"
+@page "/locations/{Slug}"
 @attribute [Authorize]
 
 @inject IHttpService http
@@ -74,6 +74,6 @@
     }
 
     void Updated (LocationModel item) {
-        nav.NavigateTo($"/l/{item.Slug}");
+        nav.NavigateTo($"/locations/{item.Slug}");
     }
 }

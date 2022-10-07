@@ -1,0 +1,50 @@
+@inject IHttpService http
+@inject NavigationManager nav
+
+@if (Models != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Location</th>
+                <th scope="col">Count</th>
+                <th scope="col" style=""></th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider">
+            @foreach(var item in Models)
+            {
+                <tr>
+                    <td>
+                        <a href="@($"/locations/{item.Location?.Slug}")">@item.Location?.Name</a>
+                    </td>
+                    <td>
+                        @item.Count
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger border border-0">
+                            <i class="bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code
+{
+    [Parameter] public string? LocationId { get; set; }
+    [Parameter] public ICollection<StuffLocationModel>? Models { get; set; }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+    }
+
+    async Task LoadData()
+    {
+        if (LocationId != null)
+            Models = await http.GetAsync<List<StuffLocationModel>>($"{ApiRoutes.Stuffs}?s={LocationId}");
+    }
+}

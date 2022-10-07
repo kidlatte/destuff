@@ -41,13 +41,13 @@
             {
                 <tr>
                     <td>
-                        <a href="@($"/s/{item.Slug}")">@item.Name</a>
+                        <a href="@($"/stuffs/{item.Slug}")">@item.Name</a>
                     </td>
                     <td>
                         @foreach(var (loc, i) in item.Locations.OrEmpty().Select((loc, i) => (loc, i)))
                         {
                             @if (i > 0) {<text>, </text>}
-                            <a href="@($"/l/{loc.Slug}")">@loc.Name</a>
+                            <a href="@($"/locations/{loc.Slug}")">@loc.Name</a>
                         }
                     </td>
                     <td>
@@ -78,7 +78,7 @@
 
     public int PageSize => 10;
 
-    PagedList<StuffListModel>? data { get; set; } 
+    PagedList<StuffListModel>? data { get; set; }
     
     CreateBulkModal? bulk;
     CreateModal? create;

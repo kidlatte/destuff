@@ -1,73 +1,106 @@
-@page "/s/{Slug}"
+@page "/stuffs/{Slug}"
+@page "/stuffs/{Slug}/{Tab}"
 
 @attribute [Authorize]
 @inject IHttpService http
 @inject NavigationManager nav
 
+<PageTitle>@(model == null ? "Stuffs" : $"{model.Name} | Stuffs") | Destuff</PageTitle>
+
 @if (model != null)
 {
-    <div class="text-end">
-        <a
-            href="/"
-            class="btn btn-outline-secondary"
-        >
-            Stuffs
-        </a>
-        <FileUpload StuffId="@model.Id" OnUploaded="OnUploaded" ImageOnly="true"
-            Label="Upload" Class="btn btn-outline-primary" />
-        <button
-            @onclick="() => update?.Open(model)"
-            type="button" class="btn btn-outline-primary"
-        >
-            Edit
-        </button>
-        <button
-            @onclick="() => delete?.Open(model)"
-            type="button" class="btn btn-outline-danger"
-        >
-            Delete
-        </button>
+    <div class="d-flex mb-5">
+        <div class="me-auto">
+            <Tabs Tab="@Tab" BasePath="@($"/stuffs/{Slug}")" />
+        </div>
+        <div>
+            <a
+                href="/"
+                class="btn btn-outline-secondary"
+            >
+                Stuffs
+            </a>
+            @if (Tab == StuffTabs.Details)
+            {
+                <FileUpload StuffId="@model.Id" OnUploaded="OnUploaded" ImageOnly="true"
+                    Label="Upload" Class="btn btn-outline-primary ms-1" />
+                <button
+                    @onclick="() => update?.Open(model)"
+                    type="button" class="btn btn-outline-primary"
+                >
+                    Edit
+                </button>
+                <button
+                    @onclick="() => delete?.Open(model)"
+                    type="button" class="btn btn-outline-danger"
+                >
+                    Delete
+                </button>
+
+                <UpdateModal @ref="update" OnUpdated="OnUpdated" />
+                <DeleteModal @ref="delete" OnDeleted="OnDeleted" />
+            }
+            else if (Tab == StuffTabs.Locations)
+            {
+                <button
+                    @onclick="() => locationAdd?.Open()"
+                    type="button" class="btn btn-outline-primary ms-1"
+                >
+                    Add
+                </button>
+
+                <LocationAddModal @ref="locationAdd" Model="model" OnAdded="LoadData" />
+            }
+        </div>
     </div>
+    
 
     <h1>@model.Name</h1>
 
-    <div class="mw-100" style="width: 600px; max-width: 100%;">
-        <div class="mb-4">
-            <Thumbnails Items="uploads" />
+    @if (Tab == StuffTabs.Details)
+    {
+        <div class="mw-100" style="width: 600px; max-width: 100%;">
+            <div class="mb-4">
+                <Thumbnails Items="uploads" />
+            </div>
+
+            @if (model.IsSingleLocation && model.FirstLocation != null)
+            {
+                <dl class="row">
+                    <dt class="col-sm-3">Location</dt>
+                    <dd class="col-sm-9">
+                        <a href="@($"/locations/{model.FirstLocation.Slug}")">
+                            @model.FirstLocation.Name
+                        </a>
+                        <small class="muted">
+                            (<a href="@($"/stuffs/{Slug}/locations")">more</a>)
+                        </small>
+                    </dd>
+                </dl>
+            }
+
+            <div>@model.Notes</div>
         </div>
-
-        @if (model.IsSingleLocation && model.FirstLocation != null)
-        {
-            <dl class="row">
-                <dt class="col-sm-3">Location</dt>
-                <dd class="col-sm-9">
-                    <a href="@($"/l/{model.FirstLocation.Slug}")">
-                        @model.FirstLocation.Name
-                    </a>
-                </dd>
-            </dl>
-        }
-
-        <div>@model.Notes</div>
-    </div>
-
+    }
+    else if (Tab == StuffTabs.Locations)
+    {
+        <Locations Models="model.StuffLocations" />
+    }
 }
-
-<UpdateModal @ref="update" OnUpdated="OnUpdated" />
-<DeleteModal @ref="delete" OnDeleted="OnDeleted" />
 
 @code
 {
-    [Parameter]
-    public string? Slug { get; set; }
+    [Parameter] public string? Slug { get; set; }
+    [Parameter] public string? Tab { get; set; }
     
     StuffModel? model { get; set; }
     List<UploadModel> uploads = new List<UploadModel>();
 
     DeleteModal? delete;
     UpdateModal? update;
+    LocationAddModal? locationAdd;
 
-    protected override Task OnParametersSetAsync() => LoadData();
+    protected override Task OnInitializedAsync() => LoadData();
 
     private async Task LoadData()
     {
@@ -88,7 +121,7 @@
 
     async Task OnUpdated(StuffModel stuff)
     {
-        var path = $"s/{stuff.Slug}";
+        var path = $"stuffs/{stuff.Slug}";
 
         if (nav.ToBaseRelativePath(nav.Uri) == path)
             await LoadData();
