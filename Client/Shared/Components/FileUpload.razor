@@ -2,11 +2,21 @@
 
 @inject IHttpService http
 
-<label class="@Class">
-    @Label
-    <InputFile OnChange="@OnInputFileChange" accept="@accept" multiple
-        class="invisible" style="width: 0; height: 0;" />
-</label>
+@if (loading)
+{
+    <button class="@Class" type="button" disabled>
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        Loading...
+    </button>
+}
+else
+{
+    <label class="@Class">
+        @Label
+        <InputFile OnChange="@OnInputFileChange" accept="@accept" multiple
+            class="invisible" style="width: 0; height: 0;" />
+    </label>
+}
 
 @code
 {
@@ -23,13 +33,11 @@
 
     string accept => ImageOnly ? "image/*" : "*";
 
-    private bool shouldRender;
-
-    protected override bool ShouldRender() => shouldRender;
+    private bool loading;
 
     private async Task OnInputFileChange(InputFileChangeEventArgs e)
     {
-        shouldRender = false;
+        loading = true;
 
         foreach (var file in e.GetMultipleFiles())
         {
@@ -48,7 +56,8 @@
             if (EventId != null)
                 content.Add(new StringContent(EventId), nameof(EventId));
 
-            var request = new HttpRequestMessage(HttpMethod.Post, ApiRoutes.Uploads);
+            var route = ImageOnly ? ApiRoutes.UploadImage : ApiRoutes.Uploads;
+            var request = new HttpRequestMessage(HttpMethod.Post, route);
             request.Content = content;
 
             var response = await http.SendAsync(request);
@@ -57,6 +66,6 @@
             await OnUploaded.InvokeAsync(model);
         }
 
-        shouldRender = true;
+        loading = false;
     }
 }

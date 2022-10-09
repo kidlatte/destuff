@@ -9,6 +9,7 @@
 
 <div class="text-end">
     <button @onclick="() => create?.Open()" type="button" class="btn btn-primary">Add</button>
+    <button @onclick="MapPaths" type="button" class="btn btn-secodary">Refresh</button>
 </div>
 
 <div>
@@ -43,8 +44,15 @@
 
     async Task LoadData(LocationModel? model = null)
     {
-        var result = await http.GetAsync<List<LocationModel>>(ApiRoutes.Locations);
-        items = result;
+        items = await http.GetAsync<List<LocationModel>>(ApiRoutes.Locations);
         selected = model;
+    }
+
+    async Task MapPaths()
+    {
+        var request = new HttpRequestMessage(HttpMethod.Put, ApiRoutes.LocationMap);
+        await http.SendAsync(request);
+
+        items = await http.GetAsync<List<LocationModel>>(ApiRoutes.Locations);
     }
 }

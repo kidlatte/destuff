@@ -12,6 +12,10 @@ public class Upload: Entity
     [MaxLength(1023)]
     public string? Path { get; set; }
 
+    // [Required]
+    // [MaxLength(1023)]
+    // public string? Original { get; set; }
+
     public string? Notes { get; set; }
 
     public int Order { get; set; }

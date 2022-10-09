@@ -1,0 +1,52 @@
+@inject IHttpService http
+@inject NavigationManager nav
+
+@if (Models != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Location</th>
+                <th scope="col">Count</th>
+                <th scope="col" style=""></th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider">
+            @foreach(var item in Models)
+            {
+                <tr>
+                    <td>
+                        <a href="@($"/locations/{item.Location?.Slug}")">@item.Location?.Name</a>
+                    </td>
+                    <td>
+                        @item.Count
+                    </td>
+                    <td>
+                        <button @onclick="() => DeleteClick(item)" class="btn btn-sm btn-outline-danger border border-0">
+                            <i class="bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <LocationRemoveModal @ref="remove" Stuff="Stuff" OnDeleted="OnDeleted" />
+}
+
+@code
+{
+    [Parameter] public IStuffModel? Stuff { get; set; }
+    [Parameter] public ICollection<StuffLocationModel>? Models { get; set; }
+
+    LocationRemoveModal? remove;
+
+    void DeleteClick(StuffLocationModel model)
+    {
+        if (remove != null && model.Location != null)
+            remove.Open(model.Location);
+    }
+
+    void OnDeleted(ILocationModel model) =>
+        Models = Models.OrEmpty().Where(x => x.Location != null && x.Location.Id != model.Id).ToList();
+}

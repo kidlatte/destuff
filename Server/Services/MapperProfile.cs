@@ -18,6 +18,8 @@ public class MapperProfile : Profile
         CreateMap<Location, LocationBasicModel>().IncludeAllDerived()
             .ForMember(m => m.Id, o => o.MapFrom(e => locationId.Encode(e.Id)));
         CreateMap<Location, LocationTreeModel>();
+        CreateMap<Location, LocationDataModel>();
+        CreateMap<LocationBasicModel, LocationDataModel>();
 
         CreateMap<StuffCreateModel, Stuff>();
         CreateMap<Stuff, StuffModel>().IncludeAllDerived()
@@ -25,7 +27,11 @@ public class MapperProfile : Profile
         CreateMap<Stuff, StuffListModel>().IncludeAllDerived()
             .ForMember(m => m.Id, o => o.MapFrom(e => stuffId.Encode(e.Id)));
 
+        CreateMap<StuffLocationCreateModel, StuffLocation>()
+            .ForMember(e => e.StuffId, o => o.MapFrom(m => m.StuffId != null ? stuffId.Decode(m.StuffId) :  default(int?)))
+            .ForMember(e => e.LocationId, o => o.MapFrom(m => m.LocationId != null ? locationId.Decode(m.LocationId) :  default(int?)));
         CreateMap<StuffLocation, StuffLocationModel>();
+
         CreateMap<Upload, UploadModel>().IncludeAllDerived()
             .ForMember(m => m.Id, o => o.MapFrom(e => uploadId.Encode(e.Id)));
     }

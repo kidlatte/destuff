@@ -16,10 +16,10 @@
                         <DataAnnotationsValidator />
 
                         <div class="form-floating mb-1">
-                            <InputText @bind-Value="model.Name" disable="@loading"
-                                class="form-control" placeholder="Name" autocomplete="off" />
+                            <span class="form-control">
+                                @Model?.Name
+                            </span>
                             <label>Name</label>
-                            <ValidationMessage For="@(() => model.Name)" />
                         </div>
 
                         <div class="form-floating mb-1">
@@ -27,10 +27,10 @@
                         </div>
 
                         <div class="form-floating mb-1">
-                            <InputTextArea @bind-Value="model.Notes" disable="@loading"
-                                class="form-control" style="height: 100px" placeholder="Notes" />
-                            <label>Notes</label>
-                            <ValidationMessage For="@(() => model.Notes)" />
+                            <InputNumber @bind-Value="model.Count" disable="@loading"
+                                class="form-control" placeholder="Name" autocomplete="off" />
+                            <label>Count</label>
+                            <ValidationMessage For="@(() => model.Count)" />
                         </div>
 
                         <label class="text-danger">@error</label>
@@ -49,17 +49,15 @@
 
 @code {
     [Parameter]
-    public EventCallback<StuffModel> OnCreated { get; set; }
+    public EventCallback<StuffLocationModel> OnAdded { get; set; }
+    
+    [Parameter]
+    public IStuffModel? Model { get; set; }
 
-    StuffCreateModel? model { get; set; }
+    StuffLocationCreateModel? model { get; set; }
 
     string error { get; set; } = "";
     bool loading { get; set; } = false;
-
-    protected override async Task OnInitializedAsync() 
-    {
-        await base.OnInitializedAsync();
-    }
 
     async Task OnSubmit()
     {
@@ -70,10 +68,10 @@
 
         try
         {
-            var result = await http.PostAsync<StuffModel>(ApiRoutes.Stuffs, model);
+            var result = await http.PostAsync<StuffLocationModel>(ApiRoutes.StuffLocations, model);
 
             Close();
-            await OnCreated.InvokeAsync(result);
+            await OnAdded.InvokeAsync(result);
         }
         catch (Exception ex)
         {
@@ -85,7 +83,8 @@
 
     public void Open()
     {
-        model = new StuffCreateModel();
+        if (Model != null)
+            model = new StuffLocationCreateModel { StuffId = Model.Id, Count = 1 };
         StateHasChanged();
     }
 
