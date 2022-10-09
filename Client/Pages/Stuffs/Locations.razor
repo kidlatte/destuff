@@ -22,7 +22,7 @@
                         @item.Count
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-outline-danger border border-0">
+                        <button @onclick="() => DeleteClick(item)" class="btn btn-sm btn-outline-danger border border-0">
                             <i class="bi-trash"></i>
                         </button>
                     </td>
@@ -30,21 +30,23 @@
             }
         </tbody>
     </table>
+
+    <LocationRemoveModal @ref="remove" Stuff="Stuff" OnDeleted="OnDeleted" />
 }
 
 @code
 {
-    [Parameter] public string? LocationId { get; set; }
+    [Parameter] public IStuffModel? Stuff { get; set; }
     [Parameter] public ICollection<StuffLocationModel>? Models { get; set; }
 
-    protected async override Task OnParametersSetAsync()
+    LocationRemoveModal? remove;
+
+    void DeleteClick(StuffLocationModel model)
     {
-        await base.OnParametersSetAsync();
+        if (remove != null && model.Location != null)
+            remove.Open(model.Location);
     }
 
-    async Task LoadData()
-    {
-        if (LocationId != null)
-            Models = await http.GetAsync<List<StuffLocationModel>>($"{ApiRoutes.Stuffs}?s={LocationId}");
-    }
+    void OnDeleted(ILocationModel model) =>
+        Models = Models.OrEmpty().Where(x => x.Location != null && x.Location.Id != model.Id).ToList();
 }

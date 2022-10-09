@@ -155,17 +155,17 @@ public class StuffsController : BaseController<Stuff>
         return Mapper.Map<StuffModel>(entity);
     }
 
-    [HttpDelete("{id}")]
-    public async Task<ActionResult<StuffModel>> Delete(string id)
+    [HttpDelete("{hash}")]
+    public async Task<IActionResult> Delete(string hash)
     {
-        int actualId = StuffId.Decode(id);
-        var entity = await Query.Where(x => x.Id == actualId).FirstOrDefaultAsync();
+        int id = StuffId.Decode(hash);
+        var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
         if (entity == null)
             return NotFound();
 
         Context.Remove(entity);
         await Context.SaveChangesAsync();
 
-        return Mapper.Map<StuffModel>(entity);
+        return NoContent();
     }    
 }

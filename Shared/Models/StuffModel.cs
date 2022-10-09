@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Destuff.Shared.Services;
 
 namespace Destuff.Shared.Models;
@@ -34,6 +35,7 @@ public class StuffModel : IStuffModel
 
     public LocationBasicModel? FirstLocation => StuffLocations?.FirstOrDefault()?.Location;
 
+    [JsonIgnore]
     public bool IsSingleLocation 
     {
         get 

@@ -58,4 +58,19 @@ public class StuffLocationsController : BaseController
 
         return Mapper.Map<StuffLocationModel>(entity);
     }
+
+    [HttpDelete("{stuffHash}/{locationHash}")]
+    public async Task<IActionResult> Delete(string stuffHash, string locationHash)
+    {
+        int stuffId = StuffId.Decode(stuffHash);
+        int locationId = LocationId.Decode(locationHash);
+        var entity = await Context.StuffLocations.Where(x => x.StuffId == stuffId && x.LocationId == locationId).FirstOrDefaultAsync();
+        if (entity == null)
+            return NotFound();
+
+        Context.Remove(entity);
+        await Context.SaveChangesAsync();
+
+        return NoContent();
+    }    
 }

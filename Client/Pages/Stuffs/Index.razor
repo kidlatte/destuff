@@ -44,10 +44,10 @@
                         <a href="@($"/stuffs/{item.Slug}")">@item.Name</a>
                     </td>
                     <td>
-                        @foreach(var (loc, i) in item.Locations.OrEmpty().Select((loc, i) => (loc, i)))
+                        @foreach(var (location, i) in item.Locations.ToIndex())
                         {
                             @if (i > 0) {<text>, </text>}
-                            <a href="@($"/locations/{loc.Slug}")">@loc.Name</a>
+                            <a href="@($"/locations/{location.Slug}")">@location.Name</a>
                         }
                     </td>
                     <td>

@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Destuff.Server.Data.Entities;
 
-// [Index(nameof(StuffId), nameof(LocationId), IsUnique = true)]
 public class StuffLocation
 {
     public int StuffId { get; set; }

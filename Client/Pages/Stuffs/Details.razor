@@ -78,13 +78,43 @@
                     </dd>
                 </dl>
             }
+            else if (model.StuffLocations != null && model.StuffLocations.Any())
+            {
+                <dl class="row">
+                    <dt class="col-sm-3">Count</dt>
+                    <dd class="col-sm-9">
+                        <a href="@($"/stuffs/{Slug}/locations")">
+                            @model.StuffLocations.Sum(x => x.Count)
+                        </a>
+                    </dd>
+                </dl>
+                <dl class="row">
+                    <dt class="col-sm-3">Location</dt>
+                    <dd class="col-sm-9">
+                        @foreach(var (item, i) in model.StuffLocations.ToIndex())
+                        {
+                            @if (i > 0) {<text>, </text>}
+                            if (item.Location != null)
+                            {
+                                <a href="@($"/locations/{item.Location.Slug}")">
+                                    @item.Location.Name
+                                </a>
+                                @if (item.Count > 1)
+                                {
+                                    <span title="@($"{item.Count} units")">@($" ({item.Count})")</span>
+                                }
+                            }
+                        }
+                    </dd>
+                </dl>
+            }
 
             <div>@model.Notes</div>
         </div>
     }
     else if (Tab == StuffTabs.Locations)
     {
-        <Locations Models="model.StuffLocations" />
+        <Locations Stuff="model" Models="model.StuffLocations" />
     }
 }
 
