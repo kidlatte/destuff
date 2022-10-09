@@ -14,7 +14,7 @@ public class Upload: Entity
 
     // [Required]
     // [MaxLength(1023)]
-    // public string? Thumbnail { get; set; }
+    // public string? Original { get; set; }
 
     public string? Notes { get; set; }
 

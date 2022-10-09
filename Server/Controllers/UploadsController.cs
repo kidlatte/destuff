@@ -48,7 +48,7 @@ public class UploadsController : BaseController<Upload>
     }
 
     [HttpPost]
-    public async Task<ActionResult<UploadModel>> Create([FromForm] UploadCreateModel model)
+    public async Task<ActionResult<UploadModel>> Post([FromForm] UploadCreateModel model)
     {
         if (model.File == null || model.File.Length == 0)
             return BadRequest();
@@ -56,6 +56,39 @@ public class UploadsController : BaseController<Upload>
         try
         {
             var filePath = await Files.Save(model.File);
+
+            var locationId = model.LocationId != null ? LocationId.Decode(model.LocationId) : default(int?);
+            var stuffId = model.StuffId != null ? StuffId.Decode(model.StuffId) : default(int?);
+
+            var entity = new Upload 
+            { 
+                FileName = model.File.FileName, 
+                Path = filePath,
+                LocationId = locationId,
+                StuffId = stuffId,
+            };
+            Audit(entity);
+            
+            Context.Add(entity);
+            await Context.SaveChangesAsync();
+
+            return Mapper.Map<UploadModel>(entity);
+        }
+        catch (IOException)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    [HttpPost(ApiRoutes.UploadImage)]
+    public async Task<ActionResult<UploadModel>> PostImage([FromForm] UploadCreateModel model)
+    {
+        if (model.File == null || model.File.Length == 0)
+            return BadRequest();
+
+        try
+        {
+            var filePath = await Files.SaveImage(model.File);
 
             var locationId = model.LocationId != null ? LocationId.Decode(model.LocationId) : default(int?);
             var stuffId = model.StuffId != null ? StuffId.Decode(model.StuffId) : default(int?);

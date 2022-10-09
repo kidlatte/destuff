@@ -19,5 +19,6 @@ public class ApiRoutes
     public const string StuffLocations = "/api/stuff-locations";
 
     public const string Uploads = "/api/uploads";
+    public const string UploadImage = "/api/uploads/i";
     public const string UploadFiles = "/files";
 }
