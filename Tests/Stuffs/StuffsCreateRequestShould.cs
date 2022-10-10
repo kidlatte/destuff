@@ -20,10 +20,10 @@ public class StuffsCreateRequestShould : IntegrationTestBase
         var model = new StuffCreateModel { Name = "Stuff 001" };
 
         // Act
-        var result = await AuthorizedSendAsync<StuffModel>(model);
+        var result = await AuthorizedSendAsync(model);
 
         // Assert
-        Assert.NotNull(result);
+        Assert.True(result.IsSuccessStatusCode);
     }
 
 
