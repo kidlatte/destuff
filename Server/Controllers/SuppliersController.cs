@@ -1,0 +1,117 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Destuff.Server.Data;
+using Destuff.Server.Data.Entities;
+using Destuff.Server.Models;
+using Destuff.Server.Services;
+using Destuff.Shared;
+using Destuff.Shared.Models;
+
+namespace Destuff.Server.Controllers;
+
+[Route(ApiRoutes.Suppliers)]
+[ApiController, Authorize]
+public class SuppliersController : BaseController<Supplier>
+{
+    private ISupplierIdentifier SupplierId { get; }
+
+    public SuppliersController(ApplicationDbContext context, IMapper mapper, ISupplierIdentifier supplierId) : base(context, mapper)
+    {
+        SupplierId = supplierId;
+    }
+
+    [HttpGet]
+    public async Task<PagedList<SupplierListModel>> Get([FromQuery] GridQuery? grid)
+    {
+        var query = Query;
+
+        grid ??= new GridQuery();
+        if (!string.IsNullOrEmpty(grid.Search))
+            query = query.Where(x => x.Name.ToLower().Contains(grid.Search.ToLower()));
+
+        switch (grid.SortField)
+        {
+            case "name":
+                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
+                break;
+            default:
+                query = query.OrderByDescending(x => x.Created);
+                break;
+        }
+
+        var count = await query.CountAsync();
+        var list = await query
+            .Skip(grid.Skip).Take(grid.Take)
+            .ProjectTo<SupplierListModel>(Mapper.ConfigurationProvider)
+            .ToListAsync();
+
+        return new PagedList<SupplierListModel>(count, list);
+    }
+
+    [HttpGet("{hash}")]
+    public async Task<ActionResult<SupplierModel?>> Get(string hash)
+    {
+        int id = SupplierId.Decode(hash);
+        var query = Query.Where(x => x.Id == id);
+
+        var model = await query
+            .ProjectTo<SupplierModel>(Mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync();
+
+        if (model == null)
+            return NotFound();
+
+        return model;
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<SupplierModel>> Create([FromBody] SupplierCreateModel model)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(model);
+
+        var entity = Mapper.Map<Supplier>(model);
+        Audit(entity);
+
+        Context.Add(entity);
+        await Context.SaveChangesAsync();
+
+        return Mapper.Map<SupplierModel>(entity);
+    }
+
+    [HttpPut("{hash}")]
+    public async Task<ActionResult<SupplierModel>> Update(string hash, [FromBody] SupplierCreateModel model)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(model);
+
+        int id = SupplierId.Decode(hash);
+
+        var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
+        if (entity == null)
+            return NotFound();
+
+        Mapper.Map(model, entity);
+        Audit(entity);
+        await Context.SaveChangesAsync();
+
+        return Mapper.Map<SupplierModel>(entity);
+    }
+
+    [HttpDelete("{hash}")]
+    public async Task<IActionResult> Delete(string hash)
+    {
+        int id = SupplierId.Decode(hash);
+        var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
+        if (entity == null)
+            return NotFound();
+
+        Context.Remove(entity);
+        await Context.SaveChangesAsync();
+
+        return NoContent();
+    }    
+}

@@ -36,6 +36,15 @@ public class StuffIdentifier : HashIdentifier<Stuff>, IStuffIdentifier { }
 public interface IUploadIdentifier : IHashIdentifier<Upload> { }
 public class UploadIdentifier : HashIdentifier<Upload>, IUploadIdentifier { }
 
+public interface ISupplierIdentifier : IHashIdentifier<Supplier> { }
+public class SupplierIdentifier : HashIdentifier<Supplier>, ISupplierIdentifier { }
+
+public interface IPurchaseIdentifier : IHashIdentifier<Purchase> { }
+public class PurchaseIdentifier : HashIdentifier<Purchase>, IPurchaseIdentifier { }
+
+public interface IPurchaseItemIdentifier : IHashIdentifier<PurchaseItem> { }
+public class PurchaseItemIdentifier : HashIdentifier<PurchaseItem>, IPurchaseItemIdentifier { }
+
 public static class HashIdentifierExtensions
 {
     public static IServiceCollection AddHashIdentifiers(this IServiceCollection services)
@@ -43,6 +52,9 @@ public static class HashIdentifierExtensions
         services.AddSingleton<ILocationIdentifier, LocationIdentifier>();
         services.AddSingleton<IStuffIdentifier, StuffIdentifier>();
         services.AddSingleton<IUploadIdentifier, UploadIdentifier>();
+        services.AddSingleton<ISupplierIdentifier, SupplierIdentifier>();
+        services.AddSingleton<IPurchaseIdentifier, PurchaseIdentifier>();
+        services.AddSingleton<IPurchaseItemIdentifier, PurchaseItemIdentifier>();
         return services;
     }
 }
