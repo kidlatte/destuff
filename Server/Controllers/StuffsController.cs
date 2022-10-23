@@ -70,7 +70,7 @@ public class StuffsController : BaseController<Stuff>
     }
 
     [HttpGet(ApiRoutes.StuffSlug + "/{slug}")]
-    public async Task<ActionResult<StuffModel?>> GetStuffBySlug(string slug)
+    public async Task<ActionResult<StuffModel?>> GetBySlug(string slug)
     {
         var query = Query.Where(x => x.Slug == slug);
 

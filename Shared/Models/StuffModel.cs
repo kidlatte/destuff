@@ -45,6 +45,15 @@ public class StuffModel : IStuffModel
         }
     }
 
+    public StuffCreateModel ToCreate()
+    {
+        return new StuffCreateModel
+        {
+            Name = Name,
+            Notes = Notes,
+            LocationId = IsSingleLocation ? FirstLocation?.Id : null
+        };
+    }
 }
 
 public class StuffListModel : IStuffModel

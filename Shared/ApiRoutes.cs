@@ -23,6 +23,8 @@ public class ApiRoutes
     public const string UploadFiles = "/files";
 
     public const string Suppliers = "/api/suppliers";
+    public const string SupplierSlug = "/api/suppliers/s";
+
     public const string Purchases = "/api/purchases";
     public const string PurchaseItems = "/api/purchase-items";
 }

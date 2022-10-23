@@ -67,6 +67,21 @@ public class SuppliersController : BaseController<Supplier>
         return model;
     }
 
+    [HttpGet(ApiRoutes.SupplierSlug + "/{slug}")]
+    public async Task<ActionResult<SupplierModel?>> GetBySlug(string slug)
+    {
+        var query = Query.Where(x => x.ShortName.ToLower() == slug);
+
+        var model = await query
+            .ProjectTo<SupplierModel>(Mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync();
+
+        if (model == null)
+            return NotFound();
+
+        return model;
+    }
+
     [HttpPost]
     public async Task<ActionResult<SupplierModel>> Create([FromBody] SupplierCreateModel model)
     {

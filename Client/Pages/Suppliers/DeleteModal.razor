@@ -8,30 +8,16 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Location</h5>
+                    <h5 class="modal-title">
+                        Delete Supplier @model.Name
+                    </h5>
                     <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
                 </div>
                 <EditForm OnValidSubmit="OnSubmit" Model="model" autocomplete="off">
                     <div class="modal-body">
-                        <DataAnnotationsValidator />
-
-                        <div class="form-floating mb-1">
-                            <span class="form-control">
-                                @Model?.Name
-                            </span>
-                            <label>Name</label>
-                        </div>
-
-                        <div class="form-floating mb-1">
-                            <LocationSelect @bind-Value="model.LocationId" Loading="loading" />
-                        </div>
-
-                        <div class="form-floating mb-1">
-                            <InputNumber @bind-Value="model.Count" disable="@loading"
-                                class="form-control" placeholder="Name" autocomplete="off" />
-                            <label>Count</label>
-                            <ValidationMessage For="@(() => model.Count)" />
-                        </div>
+                        <p class="mb-3 fw-normal">
+                            Are you sure you want to delete stuff <strong>@model.Name</strong>
+                        </p>
 
                         <label class="text-danger">@error</label>
                     </div>
@@ -48,14 +34,12 @@
 }
 
 @code {
-    [Parameter]
-    public EventCallback<StuffLocationModel> OnAdded { get; set; }
-    
-    [Parameter]
-    public IStuffModel? Model { get; set; }
 
-    StuffLocationCreateModel? model { get; set; }
+    [Parameter]
+    public EventCallback<ISupplierModel> OnDeleted { get; set; }
 
+
+    ISupplierModel? model { get; set; }
     string error { get; set; } = "";
     bool loading { get; set; } = false;
 
@@ -68,10 +52,10 @@
 
         try
         {
-            var result = await http.PostAsync<StuffLocationModel>(ApiRoutes.StuffLocations, model);
+            var result = await http.DeleteAsync($"{ApiRoutes.Suppliers}/{model.Id}");
+            result.EnsureSuccessStatusCode();
 
-            Close();
-            await OnAdded.InvokeAsync(result);
+            await OnDeleted.InvokeAsync();
         }
         catch (Exception ex)
         {
@@ -79,16 +63,20 @@
         }
 
         loading = false;
+
+        Close();
     }
 
-    public void Open()
+
+    public void Open(ISupplierModel stuff)
     {
-        if (Model != null)
-            model = new StuffLocationCreateModel { StuffId = Model.Id, Count = 1 };
+        model = stuff;
+
         StateHasChanged();
     }
 
-    public void Close()
+
+    void Close()
     {
         model = null;
     }

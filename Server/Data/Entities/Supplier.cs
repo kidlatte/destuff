@@ -4,13 +4,17 @@ namespace Destuff.Server.Data.Entities;
 
 public class Supplier : Entity
 {
-    [Required]
-    [MaxLength(255)]
+    //[Required, MaxLength(255)]
+    //public string Slug { get; set; } = null!;
+
+    [Required, MaxLength(255)]
     public string ShortName { get; set; } = null!;
 
-    [Required]
-    [MaxLength(255)]
+    [Required, MaxLength(255)]
     public string Name { get; set; } = null!;
+
+    //[MaxLength(1023)]
+    //public string Url { get; set; } = null!;
 
     [MaxLength(255)]
     public string? Phone { get; set; }
