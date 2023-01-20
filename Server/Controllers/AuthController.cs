@@ -38,7 +38,7 @@ public class AuthController : ControllerBase
         var query = _userManager.Users.AsQueryable();
 
         if (!string.IsNullOrEmpty(request.Query))
-            query = query.Where(x => x.UserName.StartsWith(request.Query));
+            query = query.Where(x => x.UserName != null && x.UserName.StartsWith(request.Query));
 
         var count = await query.CountAsync();
         if (count == 0)
@@ -74,9 +74,14 @@ public class AuthController : ControllerBase
     {
         _logger.LogInformation("Login: {User}", model.UserName);
 
-        var user = await _userManager.FindByNameAsync(model.UserName);
-        var isvalid = await _userManager.CheckPasswordAsync(user, model.Password);
+        if (!ModelState.IsValid || string.IsNullOrEmpty(model.UserName) || string.IsNullOrEmpty(model.Password))
+            return BadRequest(ModelState);
 
+        var user = await _userManager.FindByNameAsync(model.UserName);
+        if (user == null || user.UserName == null)
+            return BadRequest();
+
+        var isvalid = await _userManager.CheckPasswordAsync(user, model.Password);
         if (!isvalid)
             return BadRequest(new ErrorModel { Message = "Username or password is incorrect" });
 
@@ -109,7 +114,7 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<ActionResult<IdentityResultModel>> Register([FromBody] LoginModel model)
     {
-        if (!ModelState.IsValid)
+        if (!ModelState.IsValid || string.IsNullOrEmpty(model.UserName) || string.IsNullOrEmpty(model.Password))
             return BadRequest();
 
         try
@@ -134,12 +139,15 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> ChangePassword([FromBody] PasswordChangeModel model)
     {
 
-        if (!ModelState.IsValid)
+        if (!ModelState.IsValid || string.IsNullOrEmpty(model.UserName) || string.IsNullOrEmpty(model.Password))
             return BadRequest();
 
         try
         {
             var user = await _userManager.FindByNameAsync(model.UserName);
+            if (user == null)
+                return BadRequest();
+
             await _userManager.RemovePasswordAsync(user);
             var result = await _userManager.AddPasswordAsync(user, model.Password);
             return Ok(new IdentityResultModel
@@ -160,6 +168,9 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> DeleteUser(string userName)
     {
         var user = await _userManager.FindByNameAsync(userName);
+        if (user == null)
+            return BadRequest();
+
         var result = await _userManager.DeleteAsync(user);
         return Ok(new IdentityResultModel
         {
