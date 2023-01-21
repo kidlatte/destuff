@@ -9,6 +9,7 @@ using Destuff.Server.Models;
 using Destuff.Server.Services;
 using Destuff.Shared;
 using Destuff.Shared.Models;
+using BlazorGrid.Abstractions;
 
 namespace Destuff.Server.Controllers;
 
@@ -24,7 +25,7 @@ public class PurchasesController : BaseController<Purchase>
     }
 
     [HttpGet]
-    public async Task<PagedList<PurchaseListModel>> Get([FromQuery] GridQuery? grid)
+    public async Task<ActionResult<BlazorGridResult<PurchaseListModel>>> Get([FromQuery] GridQuery? grid)
     {
         var query = Query;
 
@@ -34,6 +35,15 @@ public class PurchasesController : BaseController<Purchase>
 
         switch (grid.SortField)
         {
+            case "receipt":
+                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Receipt) : query.OrderBy(x => x.Receipt);
+                break;
+            case "received":
+                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Received) : query.OrderBy(x => x.Received);
+                break;
+            case "supplier":
+                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Supplier!.ShortName) : query.OrderBy(x => x.Supplier!.ShortName);
+                break;
             default:
                 query = query.OrderByDescending(x => x.Created);
                 break;
@@ -45,7 +55,11 @@ public class PurchasesController : BaseController<Purchase>
             .ProjectTo<PurchaseListModel>(Mapper.ConfigurationProvider)
             .ToListAsync();
 
-        return new PagedList<PurchaseListModel>(count, list);
+        return new BlazorGridResult<PurchaseListModel>
+        {
+            TotalCount = count,
+            Data = list,
+        };
     }
 
     [HttpGet("{hash}")]

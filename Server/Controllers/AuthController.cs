@@ -33,7 +33,7 @@ public class AuthController : ControllerBase
 
     [Authorize]
     [HttpPost, Route(ApiRoutes.Users)]
-    public async Task<IActionResult> FetchUsers(BlazorGridRequest request)
+    public async Task<ActionResult<BlazorGridResult<UserModel>>> FetchUsers(BlazorGridRequest request)
     {
         var query = _userManager.Users.AsQueryable();
 

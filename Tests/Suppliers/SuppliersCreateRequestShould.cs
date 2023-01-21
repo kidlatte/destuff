@@ -1,10 +1,3 @@
-using Xunit;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Destuff.Shared;
-using Destuff.Shared.Models;
-
 namespace Destuff.Tests.Suppliers;
 
 public class SuppliersCreateRequestShould : IntegrationTestBase
