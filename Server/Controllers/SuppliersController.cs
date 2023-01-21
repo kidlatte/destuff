@@ -30,10 +30,14 @@ public class SuppliersController : BaseController<Supplier>
 
         grid ??= new GridQuery();
         if (!string.IsNullOrEmpty(grid.Search))
-            query = query.Where(x => x.Name.ToLower().Contains(grid.Search.ToLower()));
+            query = query.Where(x => x.ShortName.ToLower().Contains(grid.Search.ToLower()) ||
+                x.Name.ToLower().Contains(grid.Search.ToLower()));
 
         switch (grid.SortField)
         {
+            case "shortName":
+                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.ShortName) : query.OrderBy(x => x.ShortName);
+                break;
             case "name":
                 query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
                 break;

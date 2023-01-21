@@ -16,12 +16,12 @@ public class PurchasesGetRequestShould : IntegrationTestBase
         await AuthorizedSendAsync<PurchaseModel>(model, HttpMethod.Post);
 
         // Act
-        var result = await AuthorizedSendAsync<BlazorGridResult<PurchaseModel>>();
+        var result = await AuthorizedSendAsync<PagedList<PurchaseModel>>();
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(1, result.TotalCount);
-        Assert.Single(result.Data);
+        Assert.Equal(1, result.Count);
+        Assert.Single(result.List);
     }
 
     [Theory]
@@ -51,12 +51,12 @@ public class PurchasesGetRequestShould : IntegrationTestBase
             SortField = sortField,
             SortDir = sortDir ?? default
         };
-        var result = await AuthorizedGetAsync<BlazorGridResult<PurchaseModel>>($"{Route}?{query}");
+        var result = await AuthorizedGetAsync<PagedList<PurchaseModel>>($"{Route}?{query}");
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(count, result.TotalCount);
-        Assert.NotEmpty(result.Data);
-        Assert.Equal(supplierName, result.Data.First().Supplier?.Name);
+        Assert.Equal(count, result.Count);
+        Assert.NotEmpty(result.List);
+        Assert.Equal(supplierName, result.List.First().Supplier?.Name);
     }
 }

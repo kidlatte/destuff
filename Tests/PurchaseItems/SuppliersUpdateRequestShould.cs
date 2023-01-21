@@ -1,0 +1,76 @@
+namespace Destuff.Tests.PurchaseItems;
+
+public class PurchaseItemsUpdateRequestShould : IntegrationTestBase
+{
+    public PurchaseItemsUpdateRequestShould() : base(HttpMethod.Put, ApiRoutes.PurchaseItems)
+    {
+    }
+
+    [Fact]
+    public async Task Update_PurchaseItem()
+    {
+        // Arrange
+        var stuff = await AuthorizedSendAsync<StuffModel>(new StuffCreateModel { Name = "Stuff 001" }, HttpMethod.Post, ApiRoutes.Stuffs);
+        Assert.NotNull(stuff);
+
+        var purchase = await AuthorizedSendAsync<PurchaseModel>(new PurchaseCreateModel(), HttpMethod.Post, ApiRoutes.Purchases);
+        Assert.NotNull(purchase);
+
+        var create = new PurchaseItemCreateModel { Quantity = 1, PurchaseId = purchase.Id, StuffId = stuff.Id };
+        var model = await AuthorizedSendAsync<PurchaseItemModel>(create, HttpMethod.Post);
+        Assert.NotNull(model);
+
+        // Act
+        var update = new PurchaseItemCreateModel { Quantity = 2, PurchaseId = purchase.Id, StuffId = stuff.Id };
+        var result = await AuthorizedPutAsync<PurchaseItemModel>(model?.Id!, update);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(update.Quantity, result?.Quantity);
+    }
+
+    [Fact]
+    public async Task Fail_Null_Purchase_Stuff_Update_PurchaseItem()
+    {
+        // Arrange
+        var stuff = await AuthorizedSendAsync<StuffModel>(new StuffCreateModel { Name = "Stuff 001" }, HttpMethod.Post, ApiRoutes.Stuffs);
+        Assert.NotNull(stuff);
+
+        var purchase = await AuthorizedSendAsync<PurchaseModel>(new PurchaseCreateModel(), HttpMethod.Post, ApiRoutes.Purchases);
+        Assert.NotNull(purchase);
+
+        var create = new PurchaseItemCreateModel { PurchaseId = purchase.Id, StuffId = stuff.Id };
+        var model = await AuthorizedSendAsync<PurchaseItemModel>(create, HttpMethod.Post);
+        Assert.NotNull(model);
+
+        // Act
+        var update = new PurchaseItemCreateModel { };
+        var result = await AuthorizedPutAsync(model?.Id!, update);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, result?.StatusCode);
+    }
+
+    [Fact]
+    public async Task Fail_Unauthorized_Update_PurchaseItem()
+    {
+        // Arrange
+        var stuff = await AuthorizedSendAsync<StuffModel>(new StuffCreateModel { Name = "Stuff 001" }, HttpMethod.Post, ApiRoutes.Stuffs);
+        Assert.NotNull(stuff);
+
+        var purchase = await AuthorizedSendAsync<PurchaseModel>(new PurchaseCreateModel(), HttpMethod.Post, ApiRoutes.Purchases);
+        Assert.NotNull(purchase);
+
+        var create = new PurchaseItemCreateModel { PurchaseId = purchase.Id, StuffId = stuff.Id };
+        var model = await AuthorizedSendAsync<PurchaseItemModel>(create, HttpMethod.Post);
+        Assert.NotNull(model);
+
+        // Act
+        var update = new PurchaseItemCreateModel { PurchaseId = purchase.Id, StuffId = stuff.Id };
+        var result = await SendAsync(update, HttpMethod.Put, $"{ApiRoutes.PurchaseItems}/{model?.Id}");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Unauthorized, result?.StatusCode);
+    }
+
+}

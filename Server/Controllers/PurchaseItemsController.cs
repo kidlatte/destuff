@@ -1,6 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Destuff.Server.Data;
@@ -9,6 +6,9 @@ using Destuff.Server.Models;
 using Destuff.Server.Services;
 using Destuff.Shared;
 using Destuff.Shared.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Destuff.Server.Controllers;
 
@@ -29,9 +29,20 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
         var query = Query;
 
         grid ??= new GridQuery();
+        if (!string.IsNullOrEmpty(grid.Search))
+            query = query.Where(x => x.Stuff!.Name.ToLower().Contains(grid.Search.ToLower()));
 
         switch (grid.SortField)
         {
+            case "quantity":
+                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Quantity) : query.OrderBy(x => x.Quantity);
+                break;
+            case "cost":
+                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Cost) : query.OrderBy(x => x.Cost);
+                break;
+            case "stuff":
+                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Stuff) : query.OrderBy(x => x.Stuff);
+                break;
             default:
                 query = query.OrderByDescending(x => x.Created);
                 break;

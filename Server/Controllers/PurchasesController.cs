@@ -25,13 +25,14 @@ public class PurchasesController : BaseController<Purchase>
     }
 
     [HttpGet]
-    public async Task<ActionResult<BlazorGridResult<PurchaseListModel>>> Get([FromQuery] GridQuery? grid)
+    public async Task<ActionResult<PagedList<PurchaseListModel>>> Get([FromQuery] GridQuery? grid)
     {
         var query = Query;
 
         grid ??= new GridQuery();
         if (!string.IsNullOrEmpty(grid.Search))
-            query = query.Where(x => x.Supplier!.Name.ToLower().Contains(grid.Search.ToLower()));
+            query = query.Where(x => x.Supplier!.ShortName.ToLower().Contains(grid.Search.ToLower()) ||
+                x.Supplier!.Name.ToLower().Contains(grid.Search.ToLower()));
 
         switch (grid.SortField)
         {
@@ -55,11 +56,7 @@ public class PurchasesController : BaseController<Purchase>
             .ProjectTo<PurchaseListModel>(Mapper.ConfigurationProvider)
             .ToListAsync();
 
-        return new BlazorGridResult<PurchaseListModel>
-        {
-            TotalCount = count,
-            Data = list,
-        };
+        return new PagedList<PurchaseListModel>(count, list);
     }
 
     [HttpGet("{hash}")]

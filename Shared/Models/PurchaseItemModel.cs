@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Destuff.Shared.Models;
 
 public class PurchaseItemCreateModel
@@ -10,7 +12,10 @@ public class PurchaseItemCreateModel
     public string? Summary { get; set; }
     public string? Notes { get; set; }
 
+    [Required]
     public string? StuffId { get; set; }
+
+    [Required]
     public string? PurchaseId { get; set; }
 }
 
