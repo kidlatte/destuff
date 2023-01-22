@@ -18,6 +18,9 @@ public class SupplierCreateModel
     [MaxLength(255)]
     public string? Name { get; set; }
 
+    [MaxLength(1023)]
+    public string? Url { get; set; }
+
     [MaxLength(255)]
     public string? Phone { get; set; }
 
@@ -30,6 +33,7 @@ public class SupplierCreateModel
 public class SupplierModel : SupplierCreateModel, ISupplierModel
 {
     public required string Id { get; set; }
+    public required string Slug { get; set; }
 
     public SupplierCreateModel ToCreate()
     {
@@ -47,9 +51,9 @@ public class SupplierModel : SupplierCreateModel, ISupplierModel
 public class SupplierListModel: ISupplierModel
 {
     public required string Id { get; set; }
+    public required string Slug { get; set; }
+
     public string? ShortName { get; set; }
     public string? Name { get; set; }
     public string? Phone { get; set; }
-
-    public string? Slug => ShortName?.ToLower();    
 }

@@ -1,0 +1,103 @@
+@page "/suppliers/{Slug}"
+@attribute [Authorize]
+
+@inject IHttpService http
+@inject NavigationManager nav
+
+
+@if (model != null)
+{
+    <div class="text-end">
+        <a
+            href="/suppliers"
+            class="btn btn-outline-secondary"
+        >
+            Suppliers
+        </a>
+        <button
+            @onclick="() => update?.Open(model)"
+            type="button" class="btn btn-outline-primary"
+        >
+            Edit
+        </button>
+        <button
+            @onclick="() => delete?.Open(model)"
+            type="button" class="btn btn-outline-danger"
+        >
+            Delete
+        </button>
+    </div>
+
+    <h1>@model.ShortName</h1>
+
+    <div class="mw-100" style="width: 600px; max-width: 100%;">
+        <dl class="row">
+            <dt class="col-sm-3">Name</dt>
+            <dd class="col-sm-9">@model.Name</dd>
+        </dl>
+
+        @if (!string.IsNullOrEmpty(model.Url))
+        {
+            <dl class="row">
+                <dt class="col-sm-3">Url</dt>
+                <dd class="col-sm-9">@model.Url</dd>
+            </dl>
+        }
+
+        @if (!string.IsNullOrEmpty(model.Phone))
+        {
+            <dl class="row">
+                <dt class="col-sm-3">Phone</dt>
+                <dd class="col-sm-9">@model.Phone</dd>
+            </dl>
+        }
+
+        @if (!string.IsNullOrEmpty(model.Address))
+        {
+            <dl class="row">
+                <dt class="col-sm-3">Address</dt>
+                <dd class="col-sm-9">@model.Address</dd>
+            </dl>
+        }
+
+        <div>@model.Notes</div>
+    </div>
+}
+
+<UpdateModal @ref="update" OnUpdated="Updated" />
+<DeleteModal @ref="delete" OnDeleted="LoadData" />
+
+@code {
+    [Parameter]
+    public string? Slug { get; set; }
+    
+    SupplierModel? model { get; set; }
+
+    UpdateModal? update;
+    DeleteModal? delete;
+
+
+    protected override Task OnParametersSetAsync()
+    {
+        return LoadData();
+    }
+
+    async Task LoadData()
+    {
+        try
+        {
+            model = await http.GetAsync<SupplierModel>($"{ApiRoutes.SupplierSlug}/{Slug}");
+        }
+        catch (HttpRequestException ex)
+        {
+            if (ex.StatusCode == HttpStatusCode.NotFound)
+                nav.NavigateTo($"/suppliers");
+            else
+                throw;
+        }
+    }
+
+    void Updated (SupplierModel item) {
+        nav.NavigateTo($"/suppliers/{item.Slug}");
+    }
+}

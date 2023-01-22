@@ -72,9 +72,9 @@ public class SuppliersController : BaseController<Supplier>
     }
 
     [HttpGet(ApiRoutes.SupplierSlug + "/{slug}")]
-    public async Task<ActionResult<SupplierModel?>> GetBySlug(string slug)
+    public async Task<ActionResult<SupplierModel>> GetBySlug(string slug)
     {
-        var query = Query.Where(x => x.ShortName.ToLower() == slug);
+        var query = Query.Where(x => x.Slug == slug);
 
         var model = await query
             .ProjectTo<SupplierModel>(Mapper.ConfigurationProvider)

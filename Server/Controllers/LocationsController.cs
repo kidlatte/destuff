@@ -95,7 +95,7 @@ public class LocationsController : BaseController<Location>
     }
 
     [HttpGet(ApiRoutes.LocationSlug + "/{slug}")]
-    public async Task<ActionResult<LocationModel?>> GetLocationBySlug(string slug)
+    public async Task<ActionResult<LocationModel>> GetLocationBySlug(string slug)
     {
         var query = Query.Where(x => x.Slug == slug);
 
