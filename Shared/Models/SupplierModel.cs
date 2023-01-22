@@ -4,8 +4,8 @@ namespace Destuff.Shared.Models;
 
 public interface ISupplierModel
 {
-    public string? Id { get; set; }
-    public string? Name { get; set; }
+    string Id { get; set; }
+    string? Name { get; set; }
 }
 
 public class SupplierCreateModel
@@ -29,7 +29,7 @@ public class SupplierCreateModel
 
 public class SupplierModel : SupplierCreateModel, ISupplierModel
 {
-    public string? Id { get; set; }
+    public required string Id { get; set; }
 
     public SupplierCreateModel ToCreate()
     {
@@ -46,7 +46,7 @@ public class SupplierModel : SupplierCreateModel, ISupplierModel
 
 public class SupplierListModel: ISupplierModel
 {
-    public string? Id { get; set; }
+    public required string Id { get; set; }
     public string? ShortName { get; set; }
     public string? Name { get; set; }
     public string? Phone { get; set; }

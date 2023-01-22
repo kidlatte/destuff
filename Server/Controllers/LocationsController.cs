@@ -130,20 +130,20 @@ public class LocationsController : BaseController<Location>
         return Mapper.Map<LocationModel>(entity);
     }
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult<LocationModel>> Update(string id, [FromBody] LocationCreateModel model)
+    [HttpPut("{hash}")]
+    public async Task<ActionResult<LocationModel>> Update(string hash, [FromBody] LocationCreateModel model)
     {
         if (!ModelState.IsValid || model.Name == null)
             return BadRequest(model);
 
-        int actualId = LocationId.Decode(id);
+        int id = LocationId.Decode(hash);
         var slug = model.Name.ToSlug();
 
-        var exists = await Query.AnyAsync(x => x.Id != actualId && x.Slug == slug);
+        var exists = await Query.AnyAsync(x => x.Id != id && x.Slug == slug);
         if (exists)
             return BadRequest("Account name already exists.");
 
-        var entity = await Query.Where(x => x.Id == actualId).FirstOrDefaultAsync();
+        var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
         if (entity == null)
             return NotFound();
 
