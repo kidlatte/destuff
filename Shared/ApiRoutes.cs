@@ -24,6 +24,7 @@ public class ApiRoutes
 
     public const string Suppliers = "/api/suppliers";
     public const string SupplierSlug = "/api/suppliers/s";
+    public const string SupplierLookup = "/api/suppliers/lookup";
 
     public const string Purchases = "/api/purchases";
     public const string PurchaseItems = "/api/purchase-items";

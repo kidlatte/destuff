@@ -48,7 +48,7 @@ public class SupplierModel : SupplierCreateModel, ISupplierModel
     }
 }
 
-public class SupplierListModel: ISupplierModel
+public class SupplierListItem: ISupplierModel
 {
     public required string Id { get; set; }
     public required string Slug { get; set; }

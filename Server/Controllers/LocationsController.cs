@@ -75,8 +75,8 @@ public class LocationsController : BaseController<Location>
 
     [Route(ApiRoutes.LocationLookup)]
     [HttpGet]
-    public Task<List<LocationBasicModel>> GetLookup() => Query
-        .ProjectTo<LocationBasicModel>(Mapper.ConfigurationProvider).ToListAsync();
+    public Task<List<LocationListItem>> GetLookup() => Query
+        .ProjectTo<LocationListItem>(Mapper.ConfigurationProvider).ToListAsync();
 
     [HttpGet("{hash}")]
     public async Task<ActionResult<LocationModel?>> Get(string hash)
@@ -164,11 +164,11 @@ public class LocationsController : BaseController<Location>
         {
             var parent = item.Parent;
             if (parent == null)
-                item.Data = new LocationData { Path = new List<LocationBasicModel>() };
+                item.Data = new LocationData { Path = new List<LocationListItem>() };
             else if (parent.Data != null)
             {
-                var path = parent.Data.Path?.ToList() ?? new List<LocationBasicModel>();
-                path.Add(Mapper.Map<LocationBasicModel>(parent));
+                var path = parent.Data.Path?.ToList() ?? new List<LocationListItem>();
+                path.Add(Mapper.Map<LocationListItem>(parent));
                 item.Data = new LocationData { Path = path };
             }
         }

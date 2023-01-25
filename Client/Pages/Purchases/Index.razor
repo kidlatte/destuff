@@ -1,12 +1,12 @@
-@page "/suppliers"
+@page "/purchases"
 
 @attribute [Authorize]
 @inject NavigationManager nav
 @inject IHttpService http
 
-<PageTitle>Suppliers | Destuff</PageTitle>
+<PageTitle>Purchases | Destuff</PageTitle>
 
-<h1>Suppliers</h1>
+<h1>Purchases</h1>
 
 <div class="d-flex mb-3">
     @if (data != null && data.Count > 0)
@@ -29,7 +29,7 @@
     <table class="table">
         <thead>
             <tr>
-                <th scope="col">Short Name</th>
+                <th scope="col">Receipt Date</th>
                 <th scope="col">Name</th>
                 <th scope="col">Phone</th>
                 <th scope="col" style=""></th>
@@ -40,18 +40,18 @@
             {
                 <tr>
                     <td>
-                        @item.ShortName
+                        @item.Receipt
                     </td>
                     <td>
-                        <a href="@($"/suppliers/{item.Slug}")">@item.Name</a>
+                        <a href="@($"/purchases/{item.Supplier?.Id}")">@item.Supplier?.ShortName</a>
                     </td>
                     <td>
-                        @item.Phone
+                        @*@item*@
                     </td>
                     <td>
-                        <button @onclick="() => delete?.Open(item)" class="btn btn-sm btn-outline-danger border border-0">
+                        @*<button @onclick="() => delete?.Open(item)" class="btn btn-sm btn-outline-danger border border-0">
                             <i class="bi-trash"></i>
-                        </button>
+                        </button>*@
                     </td>
                 </tr>
             }
@@ -62,7 +62,7 @@
 }
 
 <CreateModal @ref="create" OnCreated="LoadData" />
-<DeleteModal @ref="delete" OnDeleted="LoadData" />
+@*<DeleteModal @ref="delete" OnDeleted="LoadData" />*@
 
 @code
 {
@@ -75,10 +75,10 @@
 
     public int PageSize => 10;
 
-    PagedList<SupplierListItem>? data { get; set; }
+    PagedList<PurchaseListModel>? data { get; set; }
     
     CreateModal? create;
-    DeleteModal? delete;
+    //DeleteModal? delete;
 
     protected async override Task OnParametersSetAsync()
     {
@@ -89,10 +89,10 @@
     async Task LoadData()
     {
         var query = new PagedQuery { Search = Search, Page = Page, PageSize = PageSize };
-        data = await http.GetAsync<PagedList<SupplierListItem>>($"{ApiRoutes.Suppliers}?{query}");
+        data = await http.GetAsync<PagedList<PurchaseListModel>>($"{ApiRoutes.Purchases}?{query}");
     }
 
-    string GenerateLink(int page) => $"/suppliers?{new PagedQuery { Search = Search, Page = page }}";
+    string GenerateLink(int page) => $"/purchases?{new PagedQuery { Search = Search, Page = page }}";
 
-    void OnSearch() => nav.NavigateTo($"/suppliers?s={search}");
+    void OnSearch() => nav.NavigateTo($"/purchases?s={search}");
 }

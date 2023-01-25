@@ -24,7 +24,7 @@ public class SuppliersController : BaseController<Supplier>
     }
 
     [HttpGet]
-    public async Task<PagedList<SupplierListModel>> Get([FromQuery] GridQuery? grid)
+    public async Task<PagedList<SupplierListItem>> Get([FromQuery] GridQuery? grid)
     {
         var query = Query;
 
@@ -49,11 +49,16 @@ public class SuppliersController : BaseController<Supplier>
         var count = await query.CountAsync();
         var list = await query
             .Skip(grid.Skip).Take(grid.Take)
-            .ProjectTo<SupplierListModel>(Mapper.ConfigurationProvider)
+            .ProjectTo<SupplierListItem>(Mapper.ConfigurationProvider)
             .ToListAsync();
 
-        return new PagedList<SupplierListModel>(count, list);
+        return new PagedList<SupplierListItem>(count, list);
     }
+
+    [Route(ApiRoutes.SupplierLookup)]
+    [HttpGet]
+    public Task<List<SupplierListItem>> GetLookup() => Query
+        .ProjectTo<SupplierListItem>(Mapper.ConfigurationProvider).ToListAsync();
 
     [HttpGet("{hash}")]
     public async Task<ActionResult<SupplierModel?>> Get(string hash)

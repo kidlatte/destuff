@@ -1,0 +1,56 @@
+@inject IHttpService http
+
+<input @bind-value="supplierName" bind-value:event="oninput" @onfocus ="() => OnSupplierFocus()"  @onblur ="() => OnSupplierBlur()"
+    class="form-control" placeholder="Supplier" disable="@Loading" autocomplete="off" />
+<label>Supplier</label>
+@if (showSuppliers)
+{
+    <div class="autocomplete list-group">
+        <button @onclick="() => OnSupplierClick(null)" type="button" class="list-group-item list-group-item-action">
+            <em class="text-muted">none</em>
+        </button>
+        @foreach(var item in suppliers.OrEmpty())
+        {
+            <button @onclick="() => OnSupplierClick(item)" type="button" class="list-group-item list-group-item-action">
+                @item.Name
+            </button>
+        }
+    </div>
+}
+
+@code
+{
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+    [Parameter] public bool Loading { get; set; }
+
+    List<SupplierListItem>? suppliers { get; set; }
+    string? supplierName { get; set; }
+    bool showSuppliers { get; set; } = false;
+
+    protected override async Task OnInitializedAsync() 
+    {
+        suppliers = await http.GetAsync<List<SupplierListItem>>(ApiRoutes.SupplierLookup);
+        supplierName = suppliers?.FirstOrDefault(x => x.Id == Value)?.Name;
+    }        
+
+    void OnSupplierFocus()
+    {
+        showSuppliers = true;
+    }
+
+    async Task OnSupplierBlur()
+    {
+        await Task.Delay(500);
+        showSuppliers = false;
+    }
+
+    async Task OnSupplierClick(ISupplierModel? supplier)
+    {
+        Value = supplier?.Id;
+        if (ValueChanged.HasDelegate)
+            await ValueChanged.InvokeAsync(supplier?.Id);
+        supplierName = supplier?.Name;
+        showSuppliers = false;
+    }
+}

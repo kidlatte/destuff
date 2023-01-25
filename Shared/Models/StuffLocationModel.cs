@@ -10,6 +10,6 @@ public class StuffLocationCreateModel
 
 public class StuffLocationModel
 {
-    public LocationBasicModel? Location { get; set; }
+    public LocationListItem? Location { get; set; }
     public int Count { get; set; }
 }

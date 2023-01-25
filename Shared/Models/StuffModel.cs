@@ -33,7 +33,7 @@ public class StuffModel : IStuffModel
     public ICollection<StuffLocationModel>? StuffLocations { get; set; }
     public ICollection<UploadModel>? Uploads { get; set; }
 
-    public LocationBasicModel? FirstLocation => StuffLocations?.FirstOrDefault()?.Location;
+    public LocationListItem? FirstLocation => StuffLocations?.FirstOrDefault()?.Location;
 
     [JsonIgnore]
     public bool IsSingleLocation 
@@ -61,5 +61,5 @@ public class StuffListModel : IStuffModel
     public string? Id { get; set; }
     public string? Slug { get; set; }
     public string? Name { get; set; }
-    public ICollection<LocationBasicModel>? Locations { get; set; }
+    public ICollection<LocationListItem>? Locations { get; set; }
 }
