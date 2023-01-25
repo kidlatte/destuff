@@ -29,8 +29,8 @@
     <table class="table">
         <thead>
             <tr>
-                <th scope="col">Receipt Date</th>
-                <th scope="col">Name</th>
+                <th scope="col">Date</th>
+                <th scope="col">Supplier</th>
                 <th scope="col">Phone</th>
                 <th scope="col" style=""></th>
             </tr>
@@ -40,18 +40,26 @@
             {
                 <tr>
                     <td>
-                        @item.Receipt
+                        <a href="@($"/purchases/{item.Id}")">
+                            @((item.Received ?? item.Receipt)?.ToShortDateString())
+                        </a>
                     </td>
                     <td>
-                        <a href="@($"/purchases/{item.Supplier?.Id}")">@item.Supplier?.ShortName</a>
+                        @if (item.Supplier != null)
+                        {
+                            <a href="@($"/suppliers/{item.Supplier?.Slug}")">@item.Supplier?.ShortName</a>
+                        }
                     </td>
                     <td>
                         @*@item*@
                     </td>
                     <td>
-                        @*<button @onclick="() => delete?.Open(item)" class="btn btn-sm btn-outline-danger border border-0">
+                        <a href="@($"/purchases/{item.Id}")" class="btn btn-sm btn-outline-primary border border-0">
+                            <i class="bi-info-square"></i>
+                        </a>
+                        <button @onclick="() => delete?.Open(item)" class="btn btn-sm btn-outline-danger border border-0">
                             <i class="bi-trash"></i>
-                        </button>*@
+                        </button>
                     </td>
                 </tr>
             }
@@ -62,7 +70,7 @@
 }
 
 <CreateModal @ref="create" OnCreated="LoadData" />
-@*<DeleteModal @ref="delete" OnDeleted="LoadData" />*@
+<DeleteModal @ref="delete" OnDeleted="LoadData" />
 
 @code
 {
@@ -78,7 +86,7 @@
     PagedList<PurchaseListModel>? data { get; set; }
     
     CreateModal? create;
-    //DeleteModal? delete;
+    DeleteModal? delete;
 
     protected async override Task OnParametersSetAsync()
     {

@@ -1,4 +1,4 @@
-@page "/suppliers/{Slug}"
+@page "/purchases/{Id}"
 @attribute [Authorize]
 
 @inject IHttpService http
@@ -9,10 +9,10 @@
 {
     <div class="text-end">
         <a
-            href="/suppliers"
+            href="/purchases"
             class="btn btn-outline-secondary"
         >
-            Suppliers
+            Purchases
         </a>
         <button
             @onclick="() => update?.Open(model)"
@@ -28,35 +28,33 @@
         </button>
     </div>
 
-    <h1>@model.ShortName</h1>
+    <h1>Purchase</h1>
 
     <div class="mw-100" style="width: 600px; max-width: 100%;">
-        <dl class="row">
-            <dt class="col-sm-3">Name</dt>
-            <dd class="col-sm-9">@model.Name</dd>
-        </dl>
 
-        @if (!string.IsNullOrEmpty(model.Url))
+        @if (model.Supplier != null)
         {
             <dl class="row">
-                <dt class="col-sm-3">Url</dt>
-                <dd class="col-sm-9">@model.Url</dd>
+                <dt class="col-sm-3">Supplier</dt>
+                <dd class="col-sm-9">
+                    <a href="@($"/suppliers/{model.Supplier?.Slug}")">@model.Supplier?.Name</a>
+                </dd>
             </dl>
         }
 
-        @if (!string.IsNullOrEmpty(model.Phone))
+        @if (model.Receipt.HasValue)
         {
             <dl class="row">
-                <dt class="col-sm-3">Phone</dt>
-                <dd class="col-sm-9">@model.Phone</dd>
+                <dt class="col-sm-3">Receipt Date</dt>
+                <dd class="col-sm-9">@model.Receipt.Value.ToLongDateString()</dd>
             </dl>
         }
 
-        @if (!string.IsNullOrEmpty(model.Address))
+        @if (model.Received.HasValue)
         {
             <dl class="row">
-                <dt class="col-sm-3">Address</dt>
-                <dd class="col-sm-9">@model.Address</dd>
+                <dt class="col-sm-3">Received Date</dt>
+                <dd class="col-sm-9">@model.Received.Value.ToLongDateString()</dd>
             </dl>
         }
 
@@ -69,9 +67,9 @@
 
 @code {
     [Parameter]
-    public string? Slug { get; set; }
-
-    SupplierModel? model { get; set; }
+    public string? Id { get; set; }
+    
+    PurchaseModel? model { get; set; }
 
     UpdateModal? update;
     DeleteModal? delete;
@@ -86,21 +84,18 @@
     {
         try
         {
-            model = await http.GetAsync<SupplierModel>($"{ApiRoutes.SupplierSlug}/{Slug}");
+            model = await http.GetAsync<PurchaseModel>($"{ApiRoutes.Purchases}/{Id}");
         }
         catch (HttpRequestException ex)
         {
             if (ex.StatusCode == HttpStatusCode.NotFound)
-                nav.NavigateTo($"/suppliers");
+                nav.NavigateTo($"/purchases");
             else
                 throw;
         }
     }
 
-    async Task Updated (SupplierModel item) {
-        if (Slug != item.Slug)
-            nav.NavigateTo($"/suppliers/{item.Slug}");
-        else
-            await LoadData();
+    Task Updated (PurchaseModel item) {
+        return LoadData();
     }
 }

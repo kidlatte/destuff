@@ -1,0 +1,108 @@
+@inject IHttpService http
+
+@if (model != null)
+{
+    <div class="modal-backdrop fade show"></div>
+
+    <div class="modal fade show" tabindex="-1" role="dialog" style="display: block; overflow-y: auto;">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Purchase</h5>
+                    <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
+                </div>
+                <EditForm OnValidSubmit="OnSubmit" Model="model" autocomplete="off">
+                    <div class="modal-body">
+                        <DataAnnotationsValidator />
+
+                        <div class="form-floating mb-1">
+                            <SupplierSelect @bind-Value="model.SupplierId" Loading="loading" />
+                        </div>
+
+                        <div class="form-floating mb-1">
+                            <InputDate @bind-Value="model.Receipt" disable="@loading"
+                                       class="form-control" placeholder="Receipt Date" autocomplete="off" />
+                            <label>Receipt Date</label>
+                            <ValidationMessage For="@(() => model.Receipt)" />
+                        </div>
+
+                        <div class="form-floating mb-1">
+                            <InputDate @bind-Value="model.Received" disable="@loading"
+                                       class="form-control" placeholder="Received Date" autocomplete="off" />
+                            <label>Received Date</label>
+                            <ValidationMessage For="@(() => model.Received)" />
+                        </div>
+
+                        <div class="form-floating mb-1">
+                            <InputTextArea @bind-Value="model.Notes" disable="@loading"
+                                           class="form-control" style="height: 100px" placeholder="Notes" />
+                            <label>Notes</label>
+                            <ValidationMessage For="@(() => model.Notes)" />
+                        </div>
+
+                        <label class="text-danger">@error</label>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary" disabled="@loading">
+                            @(loading ? "Submitting..." : "Confirm")
+                        </button>
+                        <button @onclick="Close" type="button" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public EventCallback<PurchaseModel> OnUpdated { get; set; }
+
+
+    PurchaseCreateModel? model { get; set; }
+    
+    string? id { get; set; }
+
+    string error { get; set; } = "";
+    bool loading { get; set; } = false;
+
+    async Task OnSubmit()
+    {
+        if (model == null)
+            throw new NullReferenceException();
+
+        loading = true;
+
+        try
+        {
+            var result = await http.PutAsync<PurchaseModel>($"{ApiRoutes.Purchases}/{id}", model);
+
+            await OnUpdated.InvokeAsync(result);
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+
+        loading = false;
+
+        Close();
+    }
+
+
+    public void Open(PurchaseModel purchase)
+    {
+        id = purchase.Id;
+
+        model = purchase.ToCreate();
+
+        StateHasChanged();
+    }
+
+
+    void Close()
+    {
+        model = null;
+    }
+}

@@ -94,10 +94,10 @@ public class SuppliersController : BaseController<Supplier>
     [HttpPost]
     public async Task<ActionResult<SupplierModel>> Create([FromBody] SupplierCreateModel model)
     {
-        if (!ModelState.IsValid || model.Name == null)
+        if (!ModelState.IsValid || model.ShortName == null)
             return BadRequest(model);
 
-        var slug = model.Name.ToSlug();
+        var slug = model.ShortName.ToSlug();
         var exists = await Query.AnyAsync(x => x.Slug == slug);
         if (exists)
             return BadRequest("Name already exists.");
@@ -115,11 +115,11 @@ public class SuppliersController : BaseController<Supplier>
     [HttpPut("{hash}")]
     public async Task<ActionResult<SupplierModel>> Update(string hash, [FromBody] SupplierCreateModel model)
     {
-        if (!ModelState.IsValid || model.Name == null)
+        if (!ModelState.IsValid || model.ShortName == null)
             return BadRequest(model);
 
         int id = SupplierId.Decode(hash);
-        var slug = model.Name.ToSlug();
+        var slug = model.ShortName.ToSlug();
 
         var exists = await Query.AnyAsync(x => x.Id != id && x.Slug == slug);
         if (exists)

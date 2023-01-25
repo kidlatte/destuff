@@ -9,14 +9,14 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        Delete Supplier @model.Name
+                        Delete Purchase 
                     </h5>
                     <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
                 </div>
                 <EditForm OnValidSubmit="OnSubmit" Model="model" autocomplete="off">
                     <div class="modal-body">
                         <p class="mb-3 fw-normal">
-                            Are you sure you want to delete supplier <strong>@model.Name</strong>
+                            Are you sure you want to delete purchase?
                         </p>
 
                         <label class="text-danger">@error</label>
@@ -36,10 +36,10 @@
 @code {
 
     [Parameter]
-    public EventCallback<ISupplierModel> OnDeleted { get; set; }
+    public EventCallback<IPurchaseModel> OnDeleted { get; set; }
 
 
-    ISupplierModel? model { get; set; }
+    IPurchaseModel? model { get; set; }
     string error { get; set; } = "";
     bool loading { get; set; } = false;
 
@@ -52,7 +52,7 @@
 
         try
         {
-            var result = await http.DeleteAsync($"{ApiRoutes.Suppliers}/{model.Id}");
+            var result = await http.DeleteAsync($"{ApiRoutes.Purchases}/{model.Id}");
             result.EnsureSuccessStatusCode();
 
             await OnDeleted.InvokeAsync();
@@ -68,9 +68,9 @@
     }
 
 
-    public void Open(ISupplierModel supplier)
+    public void Open(IPurchaseModel stuff)
     {
-        model = supplier;
+        model = stuff;
 
         StateHasChanged();
     }
