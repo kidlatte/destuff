@@ -8,7 +8,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add PurchaseItem</h5>
+                    <h5 class="modal-title">Edit Item @name</h5>
                     <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
                 </div>
                 <EditForm OnValidSubmit="OnSubmit" Model="model" autocomplete="off">
@@ -29,14 +29,14 @@
 
                         <div class="form-floating mb-1">
                             <InputNumber @bind-Value="model.Cost" disable="@loading"
-                                class="form-control" placeholder="Cost" autocomplete="off" />
+                                         class="form-control" placeholder="Cost" autocomplete="off" />
                             <label>Cost</label>
                             <ValidationMessage For="@(() => model.Cost)" />
                         </div>
 
                         <div class="form-floating mb-1">
-                            <InputTextArea @bind-Value="model.Notes" disable="@loading"
-                                class="form-control" style="height: 100px" placeholder="Notes" />
+                            <InputTextArea @bind-Value="model.Notes" class="form-control" style="height: 100px"
+                                placeholder="Notes" disable="@loading" />
                             <label>Notes</label>
                             <ValidationMessage For="@(() => model.Notes)" />
                         </div>
@@ -56,18 +56,18 @@
 }
 
 @code {
+
     [Parameter]
-    public EventCallback<PurchaseItemModel> OnCreated { get; set; }
+    public EventCallback<PurchaseItemModel> OnUpdated { get; set; }
+
 
     PurchaseItemCreateModel? model { get; set; }
+    
+    string? id { get; set; }
+    string? name { get; set; }
 
     string error { get; set; } = "";
     bool loading { get; set; } = false;
-
-    protected override async Task OnInitializedAsync() 
-    {
-        await base.OnInitializedAsync();
-    }
 
     async Task OnSubmit()
     {
@@ -78,10 +78,9 @@
 
         try
         {
-            var result = await http.PostAsync<PurchaseItemModel>(ApiRoutes.PurchaseItems, model);
+            var result = await http.PutAsync<PurchaseItemModel>($"{ApiRoutes.PurchaseItems}/{id}", model);
 
-            Close();
-            await OnCreated.InvokeAsync(result);
+            await OnUpdated.InvokeAsync(result);
         }
         catch (Exception ex)
         {
@@ -89,15 +88,37 @@
         }
 
         loading = false;
+
+        Close();
     }
 
-    public void Open(string purchaseId)
+
+    public void Open(PurchaseItemModel purchaseItem)
     {
-        model = new PurchaseItemCreateModel { PurchaseId = purchaseId, Quantity = 1 };
+        id = purchaseItem.Id;
+        name = purchaseItem.Stuff.Name;
+
+        model = purchaseItem.ToCreate();
+
         StateHasChanged();
     }
 
-    public void Close()
+
+    public async Task Open(PurchaseItemListItem purchaseItem)
+    {
+        id = purchaseItem.Id;
+        name = purchaseItem.Stuff.Name;
+
+        var purchaseItemModel = await http.GetAsync<PurchaseItemModel>($"{ApiRoutes.PurchaseItems}/{id}");
+        if (purchaseItemModel == null)
+            throw new NullReferenceException();
+
+        model = purchaseItemModel.ToCreate();
+        StateHasChanged();
+    }
+
+
+    void Close()
     {
         model = null;
     }

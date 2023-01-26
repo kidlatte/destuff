@@ -16,17 +16,20 @@ namespace Destuff.Server.Controllers;
 [ApiController, Authorize]
 public class PurchaseItemsController : BaseController<PurchaseItem>
 {
+    private IPurchaseIdentifier PurchaseId { get; }
     private IPurchaseItemIdentifier PurchaseItemId { get; }
 
-    public PurchaseItemsController(ApplicationDbContext context, IMapper mapper, IPurchaseItemIdentifier supplierId) : base(context, mapper)
+    public PurchaseItemsController(ApplicationDbContext context, IMapper mapper, IPurchaseIdentifier purchaseId, IPurchaseItemIdentifier supplierId) : base(context, mapper)
     {
+        PurchaseId = purchaseId;
         PurchaseItemId = supplierId;
     }
 
     [HttpGet]
-    public async Task<PagedList<PurchaseItemListItem>> Get([FromQuery] GridQuery? grid)
+    public async Task<PagedList<PurchaseItemListItem>> Get([FromQuery(Name = "pid")] string purchaseId, [FromQuery] GridQuery? grid)
     {
-        var query = Query;
+        var pid = PurchaseId.Decode(purchaseId);
+        var query = Query.Where(x => x.PurchaseId == pid);
 
         grid ??= new GridQuery();
         if (!string.IsNullOrEmpty(grid.Search))
