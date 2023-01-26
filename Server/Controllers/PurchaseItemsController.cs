@@ -24,7 +24,7 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
     }
 
     [HttpGet]
-    public async Task<PagedList<PurchaseItemListModel>> Get([FromQuery] GridQuery? grid)
+    public async Task<PagedList<PurchaseItemListItem>> Get([FromQuery] GridQuery? grid)
     {
         var query = Query;
 
@@ -51,10 +51,10 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
         var count = await query.CountAsync();
         var list = await query
             .Skip(grid.Skip).Take(grid.Take)
-            .ProjectTo<PurchaseItemListModel>(Mapper.ConfigurationProvider)
+            .ProjectTo<PurchaseItemListItem>(Mapper.ConfigurationProvider)
             .ToListAsync();
 
-        return new PagedList<PurchaseItemListModel>(count, list);
+        return new PagedList<PurchaseItemListItem>(count, list);
     }
 
     [HttpGet("{hash}")]

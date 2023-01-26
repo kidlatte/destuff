@@ -78,7 +78,7 @@
 
     public int PageSize => 10;
 
-    PagedList<StuffListModel>? data { get; set; }
+    PagedList<StuffListItem>? data { get; set; }
     
     CreateBulkModal? bulk;
     CreateModal? create;
@@ -93,7 +93,7 @@
     async Task LoadData()
     {
         var query = new PagedQuery { Search = Search, Page = Page, PageSize = PageSize };
-        data = await http.GetAsync<PagedList<StuffListModel>>($"{ApiRoutes.Stuffs}?{query}");
+        data = await http.GetAsync<PagedList<StuffListItem>>($"{ApiRoutes.Stuffs}?{query}");
     }
 
     string GenerateLink(int page) => $"/stuffs?{new PagedQuery { Search = Search, Page = page }}";

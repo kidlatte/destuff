@@ -56,7 +56,7 @@ public class StuffModel : IStuffModel
     }
 }
 
-public class StuffListModel : IStuffModel
+public class StuffListItem : IStuffModel
 {
     public string? Id { get; set; }
     public string? Slug { get; set; }

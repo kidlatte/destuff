@@ -4,15 +4,15 @@ namespace Destuff.Shared.Models;
 
 public class PurchaseItemCreateModel
 {
-    public int Quantity { get; set; }
-    public decimal Cost { get; set; }
-
-    public DateTime DateTime { get; set; }
-    public int Count { get; set; }
-    public string? Summary { get; set; }
+    [Required]
+    public int? Quantity { get; set; }
+    
+    [Required]
+    public decimal? Cost { get; set; }
+    
     public string? Notes { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "Stuff is required.")]
     public string? StuffId { get; set; }
 
     [Required]
@@ -25,7 +25,7 @@ public class PurchaseItemModel : PurchaseItemCreateModel
     public StuffModel? Stuff { get; set; }
 }
 
-public class PurchaseItemListModel
+public class PurchaseItemListItem
 {
     public string? Id { get; set; }
     public StuffModel? Stuff { get; set; }

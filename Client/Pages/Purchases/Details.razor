@@ -60,10 +60,19 @@
 
         <div>@model.Notes</div>
     </div>
+
+    <div class="text-end">
+        <button @onclick="() => itemCreate?.Open(model)"
+                type="button" class="btn btn-outline-secondary">
+            Add Item
+        </button>
+    </div>
+
 }
 
 <UpdateModal @ref="update" OnUpdated="Updated" />
 <DeleteModal @ref="delete" OnDeleted="LoadData" />
+<Destuff.Client.Pages.Purchases.Items.CreateModal @ref="itemCreate" OnCreated="LoadData" />
 
 @code {
     [Parameter]
@@ -73,6 +82,7 @@
 
     UpdateModal? update;
     DeleteModal? delete;
+    Items.CreateModal? itemCreate;
 
 
     protected override Task OnParametersSetAsync()

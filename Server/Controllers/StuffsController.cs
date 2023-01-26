@@ -26,7 +26,7 @@ public class StuffsController : BaseController<Stuff>
     }
 
     [HttpGet]
-    public async Task<PagedList<StuffListModel>> Get([FromQuery] GridQuery? grid)
+    public async Task<PagedList<StuffListItem>> Get([FromQuery] GridQuery? grid)
     {
         var query = Query;
 
@@ -47,11 +47,17 @@ public class StuffsController : BaseController<Stuff>
         var count = await query.CountAsync();
         var list = await query
             .Skip(grid.Skip).Take(grid.Take)
-            .ProjectTo<StuffListModel>(Mapper.ConfigurationProvider)
+            .ProjectTo<StuffListItem>(Mapper.ConfigurationProvider)
             .ToListAsync();
 
-        return new PagedList<StuffListModel>(count, list);
+        return new PagedList<StuffListItem>(count, list);
     }
+
+
+    [Route(ApiRoutes.StuffLookup)]
+    [HttpGet]
+    public Task<List<StuffListItem>> GetLookup() => Query
+        .ProjectTo<StuffListItem>(Mapper.ConfigurationProvider).ToListAsync();
 
     [HttpGet("{hash}")]
     public async Task<ActionResult<StuffModel?>> Get(string hash)

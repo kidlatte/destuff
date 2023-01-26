@@ -33,7 +33,7 @@ public class PurchaseModel : PurchaseCreateModel, IPurchaseModel
     }
 }
 
-public class PurchaseListModel: IPurchaseModel
+public class PurchaseListItem: IPurchaseModel
 {
     public required string Id { get; set; }
     public DateTime? Receipt { get; set; }
