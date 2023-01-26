@@ -15,7 +15,7 @@ namespace Destuff.Server.Data.Migrations.Sqlite
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "6.0.9");
+            modelBuilder.HasAnnotation("ProductVersion", "7.0.2");
 
             modelBuilder.Entity("Destuff.Server.Data.Entities.ApplicationUser", b =>
                 {
@@ -85,11 +85,11 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                         {
                             Id = "fe73948a-1173-43ad-9473-2f014b39f7c3",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "6b8af8b0-0154-4702-9f8c-c120d1210f78",
+                            ConcurrencyStamp = "6a5fbdf3-62c3-49ec-93a8-a28299143644",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEFFRaQu/TSynC199ay8D8JaJtv24bErrHvWa8etrmriicx6FhxmsIn4LLUN6SScvaw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEG7lCEmSniYxOc0X1Z9Wfui7se3g/UhbACOlrXGD6tnPj92NVgg8uk0DZU17XpZ32Q==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "70effd01-76d5-4d56-85ac-6ddb5ffd3819",
                             TwoFactorEnabled = false,
@@ -161,6 +161,10 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Data")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("PathData");
+
                     b.Property<long>("Flags")
                         .HasColumnType("INTEGER");
 
@@ -177,9 +181,6 @@ namespace Destuff.Server.Data.Migrations.Sqlite
 
                     b.Property<int?>("ParentId")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("PathData")
-                        .HasColumnType("TEXT");
 
                     b.Property<string>("Slug")
                         .IsRequired()
@@ -202,13 +203,13 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2022, 10, 1, 6, 35, 44, 312, DateTimeKind.Utc).AddTicks(1833),
+                            Created = new DateTime(2023, 1, 22, 20, 42, 59, 318, DateTimeKind.Utc).AddTicks(9819),
                             CreatedBy = "admin",
                             Flags = 0L,
                             Name = "Storage",
                             Order = 0,
                             Slug = "storage",
-                            Updated = new DateTime(2022, 10, 1, 6, 35, 44, 312, DateTimeKind.Utc).AddTicks(1838)
+                            Updated = new DateTime(2023, 1, 22, 20, 42, 59, 318, DateTimeKind.Utc).AddTicks(9821)
                         });
                 });
 
@@ -400,10 +401,22 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("Updated")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Url")
+                        .HasMaxLength(1023)
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
 
                     b.ToTable("Suppliers");
                 });
@@ -427,6 +440,7 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Slug")
+                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
 

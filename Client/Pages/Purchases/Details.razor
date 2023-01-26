@@ -1,0 +1,103 @@
+@page "/purchases/{Id}"
+@attribute [Authorize]
+
+@inject IHttpService http
+@inject NavigationManager nav
+
+
+@if (model != null)
+{
+    <div class="text-end">
+        <a
+            href="/purchases"
+            class="btn btn-outline-secondary"
+        >
+            Purchases
+        </a>
+        <button
+            @onclick="() => update?.Open(model)"
+            type="button" class="btn btn-outline-primary"
+        >
+            Edit
+        </button>
+        <button
+            @onclick="() => delete?.Open(model)"
+            type="button" class="btn btn-outline-danger"
+        >
+            Delete
+        </button>
+    </div>
+
+    <h1>Purchase</h1>
+
+    <div class="mw-100" style="width: 600px; max-width: 100%;">
+
+        @if (model.Supplier != null)
+        {
+            <dl class="row">
+                <dt class="col-sm-3">Supplier</dt>
+                <dd class="col-sm-9">
+                    <a href="@($"/suppliers/{model.Supplier?.Slug}")">@model.Supplier?.Name</a>
+                </dd>
+            </dl>
+        }
+
+        @if (model.Receipt.HasValue)
+        {
+            <dl class="row">
+                <dt class="col-sm-3">Receipt Date</dt>
+                <dd class="col-sm-9">@model.Receipt.Value.ToLongDateString()</dd>
+            </dl>
+        }
+
+        @if (model.Received.HasValue)
+        {
+            <dl class="row">
+                <dt class="col-sm-3">Received Date</dt>
+                <dd class="col-sm-9">@model.Received.Value.ToLongDateString()</dd>
+            </dl>
+        }
+
+        <div>@model.Notes</div>
+    </div>
+}
+
+<UpdateModal @ref="update" OnUpdated="Updated" />
+<DeleteModal @ref="delete" OnDeleted="LoadData" />
+<Destuff.Client.Pages.Purchases.Items.Index @ref="items" PurchaseId="@Id" />
+
+@code {
+    [Parameter]
+    public string? Id { get; set; }
+    
+    PurchaseModel? model { get; set; }
+
+    UpdateModal? update;
+    DeleteModal? delete;
+    Items.Index? items;
+
+
+    protected override Task OnParametersSetAsync()
+    {
+        return LoadData();
+    }
+
+    async Task LoadData()
+    {
+        try
+        {
+            model = await http.GetAsync<PurchaseModel>($"{ApiRoutes.Purchases}/{Id}");
+        }
+        catch (HttpRequestException ex)
+        {
+            if (ex.StatusCode == HttpStatusCode.NotFound)
+                nav.NavigateTo($"/purchases");
+            else
+                throw;
+        }
+    }
+
+    Task Updated (PurchaseModel item) {
+        return LoadData();
+    }
+}

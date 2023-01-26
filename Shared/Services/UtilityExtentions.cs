@@ -8,14 +8,4 @@ public static class UtilityExtentions
 
     public static IEnumerable<(T Item, int Index)> ToIndex<T>(this IEnumerable<T>? models) => 
         models.OrEmpty().Select((x, i) => (x, i));
-
-    public static StuffCreateModel ToCreate(this StuffModel model) 
-    { 
-        return new StuffCreateModel
-        {
-            Name = model.Name,
-            Notes = model.Notes,
-            LocationId = model.IsSingleLocation ? model.FirstLocation?.Id : null
-        };
-    }
 }

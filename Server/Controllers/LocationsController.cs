@@ -75,8 +75,8 @@ public class LocationsController : BaseController<Location>
 
     [Route(ApiRoutes.LocationLookup)]
     [HttpGet]
-    public Task<List<LocationBasicModel>> GetLookup() => Query
-        .ProjectTo<LocationBasicModel>(Mapper.ConfigurationProvider).ToListAsync();
+    public Task<List<LocationListItem>> GetLookup() => Query
+        .ProjectTo<LocationListItem>(Mapper.ConfigurationProvider).ToListAsync();
 
     [HttpGet("{hash}")]
     public async Task<ActionResult<LocationModel?>> Get(string hash)
@@ -95,7 +95,7 @@ public class LocationsController : BaseController<Location>
     }
 
     [HttpGet(ApiRoutes.LocationSlug + "/{slug}")]
-    public async Task<ActionResult<LocationModel?>> GetLocationBySlug(string slug)
+    public async Task<ActionResult<LocationModel>> GetLocationBySlug(string slug)
     {
         var query = Query.Where(x => x.Slug == slug);
 
@@ -130,20 +130,20 @@ public class LocationsController : BaseController<Location>
         return Mapper.Map<LocationModel>(entity);
     }
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult<LocationModel>> Update(string id, [FromBody] LocationCreateModel model)
+    [HttpPut("{hash}")]
+    public async Task<ActionResult<LocationModel>> Update(string hash, [FromBody] LocationCreateModel model)
     {
         if (!ModelState.IsValid || model.Name == null)
             return BadRequest(model);
 
-        int actualId = LocationId.Decode(id);
+        int id = LocationId.Decode(hash);
         var slug = model.Name.ToSlug();
 
-        var exists = await Query.AnyAsync(x => x.Id != actualId && x.Slug == slug);
+        var exists = await Query.AnyAsync(x => x.Id != id && x.Slug == slug);
         if (exists)
             return BadRequest("Account name already exists.");
 
-        var entity = await Query.Where(x => x.Id == actualId).FirstOrDefaultAsync();
+        var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
         if (entity == null)
             return NotFound();
 
@@ -164,11 +164,11 @@ public class LocationsController : BaseController<Location>
         {
             var parent = item.Parent;
             if (parent == null)
-                item.Data = new LocationData { Path = new List<LocationBasicModel>() };
+                item.Data = new LocationData { Path = new List<LocationListItem>() };
             else if (parent.Data != null)
             {
-                var path = parent.Data.Path?.ToList() ?? new List<LocationBasicModel>();
-                path.Add(Mapper.Map<LocationBasicModel>(parent));
+                var path = parent.Data.Path?.ToList() ?? new List<LocationListItem>();
+                path.Add(Mapper.Map<LocationListItem>(parent));
                 item.Data = new LocationData { Path = path };
             }
         }

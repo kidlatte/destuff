@@ -10,13 +10,13 @@ public class Location: Entity
 {
     [Required]
     [MaxLength(255)]
-    public string Name { get; set; } = null!;
+    public required string Name { get; set; }
 
     public string? Notes { get; set; }
 
     [Required]
     [MaxLength(255)]
-    public string Slug { get; set; } = null!;
+    public required string Slug { get; set; }
 
     public LocationFlags Flags { get; set; }
 

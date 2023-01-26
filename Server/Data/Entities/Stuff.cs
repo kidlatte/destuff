@@ -8,11 +8,11 @@ public class Stuff: Entity
 {
     [Required]
     [MaxLength(255)]
-    public string Name { get; set; } = null!;
+    public required string Name { get; set; }
 
     [Required]
     [MaxLength(255)]
-    public string Slug { get; set; } = null!;
+    public required string Slug { get; set; }
 
     public string? Notes { get; set; }
 

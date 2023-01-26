@@ -1,0 +1,98 @@
+@page "/suppliers"
+
+@attribute [Authorize]
+@inject NavigationManager nav
+@inject IHttpService http
+
+<PageTitle>Suppliers | Destuff</PageTitle>
+
+<h1>Suppliers</h1>
+
+<div class="d-flex mb-3">
+    @if (data != null && data.Count > 0)
+    {
+        <form @onsubmit="OnSearch" class="mw-100 me-auto" style="width: 300px">
+            <div class="input-group">
+                <input @bind-value="search" type="text" class="form-control" placeholder="Search..." aria-label="Search...">
+                <button type="submit" class="btn btn-outline-secondary">
+                    <i class="bi-search"></i>
+                </button>
+            </div>
+        </form>
+    }
+
+    <button @onclick="() => create?.Open()" type="button" class="btn btn-primary ms-1">Add</button>
+</div>
+
+@if (data != null && data.Count > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Short Name</th>
+                <th scope="col">Name</th>
+                <th scope="col">Phone</th>
+                <th scope="col" style=""></th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider">
+            @foreach(var item in data.List)
+            {
+                <tr>
+                    <td>
+                        @item.ShortName
+                    </td>
+                    <td>
+                        <a href="@($"/suppliers/{item.Slug}")">@item.Name</a>
+                    </td>
+                    <td>
+                        @item.Phone
+                    </td>
+                    <td>
+                        <button @onclick="() => delete?.Open(item)" class="btn btn-sm btn-outline-danger border border-0">
+                            <i class="bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <Pager Count="data.Count" Page="Page" PageSize="PageSize" GenerateLink="GenerateLink" />
+}
+
+<CreateModal @ref="create" OnCreated="LoadData" />
+<DeleteModal @ref="delete" OnDeleted="LoadData" />
+
+@code
+{
+    [Parameter, SupplyParameterFromQuery(Name = "s")]
+    public string? Search { get; set; }
+    public string? search { get; set; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "p")]
+    public int Page { get; set; }
+
+    public int PageSize => 10;
+
+    PagedList<SupplierListItem>? data { get; set; }
+    
+    CreateModal? create;
+    DeleteModal? delete;
+
+    protected async override Task OnParametersSetAsync()
+    {
+        search = Search;
+        await LoadData();
+    }
+
+    async Task LoadData()
+    {
+        var query = new PagedQuery { Search = Search, Page = Page, PageSize = PageSize };
+        data = await http.GetAsync<PagedList<SupplierListItem>>($"{ApiRoutes.Suppliers}?{query}");
+    }
+
+    string GenerateLink(int page) => $"/suppliers?{new PagedQuery { Search = Search, Page = page }}";
+
+    void OnSearch() => nav.NavigateTo($"/suppliers?s={search}");
+}

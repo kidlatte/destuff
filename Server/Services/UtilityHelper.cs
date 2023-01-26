@@ -15,7 +15,12 @@ public static class UtilityHelper
         var configuration = builder.Configuration;
         var appSettingsSection = configuration.GetSection(nameof(AppSettings));
         builder.Services.Configure<AppSettings>(appSettingsSection);
-        return appSettingsSection.Get<AppSettings>();
+
+        var appSettings = appSettingsSection.Get<AppSettings>();
+        if (appSettings == null)
+            throw new Exception("AppSettings is missing.");
+
+        return appSettings;
     }
 
     public static string GetConfigPath(this IConfiguration configuration) => GetPath(configuration, "config");

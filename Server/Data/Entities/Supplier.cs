@@ -1,16 +1,22 @@
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
 namespace Destuff.Server.Data.Entities;
 
+[Index(nameof(Slug), IsUnique = true)]
 public class Supplier : Entity
 {
-    [Required]
-    [MaxLength(255)]
-    public string ShortName { get; set; } = null!;
+    [Required, MaxLength(255)]
+    public required string Slug { get; set; }
 
-    [Required]
-    [MaxLength(255)]
-    public string Name { get; set; } = null!;
+    [Required, MaxLength(255)]
+    public required string ShortName { get; set; }
+
+    [Required, MaxLength(255)]
+    public required string Name { get; set; }
+
+    [MaxLength(1023)]
+    public string? Url { get; set; }
 
     [MaxLength(255)]
     public string? Phone { get; set; }

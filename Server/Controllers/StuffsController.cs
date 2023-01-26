@@ -26,7 +26,7 @@ public class StuffsController : BaseController<Stuff>
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedList<StuffListModel>>> Get([FromQuery] GridQuery? grid)
+    public async Task<PagedList<StuffListItem>> Get([FromQuery] GridQuery? grid)
     {
         var query = Query;
 
@@ -38,7 +38,7 @@ public class StuffsController : BaseController<Stuff>
         {
             case "name":
                 query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
-            break;
+                break;
             default:
                 query = query.OrderByDescending(x => x.Created);
                 break;
@@ -47,17 +47,23 @@ public class StuffsController : BaseController<Stuff>
         var count = await query.CountAsync();
         var list = await query
             .Skip(grid.Skip).Take(grid.Take)
-            .ProjectTo<StuffListModel>(Mapper.ConfigurationProvider)
+            .ProjectTo<StuffListItem>(Mapper.ConfigurationProvider)
             .ToListAsync();
 
-        return new PagedList<StuffListModel>(count, list);
+        return new PagedList<StuffListItem>(count, list);
     }
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<StuffModel?>> Get(string id)
+
+    [Route(ApiRoutes.StuffLookup)]
+    [HttpGet]
+    public Task<List<StuffListItem>> GetLookup() => Query
+        .ProjectTo<StuffListItem>(Mapper.ConfigurationProvider).ToListAsync();
+
+    [HttpGet("{hash}")]
+    public async Task<ActionResult<StuffModel?>> Get(string hash)
     {
-        int actualId = StuffId.Decode(id);
-        var query = Query.Where(x => x.Id == actualId);
+        int id = StuffId.Decode(hash);
+        var query = Query.Where(x => x.Id == id);
 
         var model = await query
             .ProjectTo<StuffModel>(Mapper.ConfigurationProvider)
@@ -70,7 +76,7 @@ public class StuffsController : BaseController<Stuff>
     }
 
     [HttpGet(ApiRoutes.StuffSlug + "/{slug}")]
-    public async Task<ActionResult<StuffModel?>> GetStuffBySlug(string slug)
+    public async Task<ActionResult<StuffModel?>> GetBySlug(string slug)
     {
         var query = Query.Where(x => x.Slug == slug);
 
@@ -112,21 +118,21 @@ public class StuffsController : BaseController<Stuff>
         return Mapper.Map<StuffModel>(entity);
     }
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult<StuffModel>> Update(string id, [FromBody] StuffCreateModel model)
+    [HttpPut("{hash}")]
+    public async Task<ActionResult<StuffModel>> Update(string hash, [FromBody] StuffCreateModel model)
     {
         if (!ModelState.IsValid || model.Name == null)
             return BadRequest(model);
 
-        int actualId = StuffId.Decode(id);
+        int id = StuffId.Decode(hash);
         var slug = model.Name.ToSlug();
 
-        var exists = await Query.AnyAsync(x => x.Id != actualId && x.Slug == slug);
+        var exists = await Query.AnyAsync(x => x.Id != id && x.Slug == slug);
         if (exists)
             return BadRequest("Account name already exists.");
 
         var entity = await Query.Include(x => x.StuffLocations!.Take(2))
-            .Where(x => x.Id == actualId).FirstOrDefaultAsync();
+            .Where(x => x.Id == id).FirstOrDefaultAsync();
         if (entity == null)
             return NotFound();
 

@@ -7,7 +7,8 @@ namespace Destuff.Server.Services;
 
 public class MapperProfile : Profile
 {
-    public MapperProfile(ILocationIdentifier locationId, IStuffIdentifier stuffId, IUploadIdentifier uploadId)
+    public MapperProfile(ILocationIdentifier locationId, IStuffIdentifier stuffId, IUploadIdentifier uploadId, 
+        ISupplierIdentifier supplierId, IPurchaseIdentifier purchaseId, IPurchaseItemIdentifier purchaseItemId)
     {
         CreateMap<LocationCreateModel, Location>()
             .ForMember(e => e.ParentId, o => o.MapFrom(m => m.ParentId != null ? locationId.Decode(m.ParentId) :  default(int?)));
@@ -15,22 +16,47 @@ public class MapperProfile : Profile
             .ForMember(m => m.Id, o => o.MapFrom(e => locationId.Encode(e.Id)))
             .ForMember(m => m.ParentId, o => o.MapFrom(e => e.ParentId != null ? locationId.Encode(e.ParentId.Value) : null))
             .ForMember(m => m.Children, o => o.Ignore());
-        CreateMap<Location, LocationBasicModel>().IncludeAllDerived()
+        CreateMap<Location, LocationListItem>().IncludeAllDerived()
             .ForMember(m => m.Id, o => o.MapFrom(e => locationId.Encode(e.Id)));
         CreateMap<Location, LocationTreeModel>();
         CreateMap<Location, LocationDataModel>();
-        CreateMap<LocationBasicModel, LocationDataModel>();
+        CreateMap<LocationListItem, LocationDataModel>();
 
         CreateMap<StuffCreateModel, Stuff>();
         CreateMap<Stuff, StuffModel>().IncludeAllDerived()
             .ForMember(m => m.Id, o => o.MapFrom(e => stuffId.Encode(e.Id)));
-        CreateMap<Stuff, StuffListModel>().IncludeAllDerived()
+        CreateMap<Stuff, StuffListItem>().IncludeAllDerived()
             .ForMember(m => m.Id, o => o.MapFrom(e => stuffId.Encode(e.Id)));
 
         CreateMap<StuffLocationCreateModel, StuffLocation>()
             .ForMember(e => e.StuffId, o => o.MapFrom(m => m.StuffId != null ? stuffId.Decode(m.StuffId) :  default(int?)))
             .ForMember(e => e.LocationId, o => o.MapFrom(m => m.LocationId != null ? locationId.Decode(m.LocationId) :  default(int?)));
         CreateMap<StuffLocation, StuffLocationModel>();
+
+        CreateMap<SupplierCreateModel, Supplier>();
+        CreateMap<Supplier, SupplierModel>().IncludeAllDerived()
+            .ForMember(m => m.Id, o => o.MapFrom(e => supplierId.Encode(e.Id)));
+        CreateMap<Supplier, SupplierListItem>().IncludeAllDerived()
+            .ForMember(m => m.Id, o => o.MapFrom(e => supplierId.Encode(e.Id)));
+
+        CreateMap<PurchaseCreateModel, Purchase>()
+            .ForMember(e => e.SupplierId, o => o.MapFrom(m => m.SupplierId != null ? supplierId.Decode(m.SupplierId) :  default(int?)));
+        CreateMap<Purchase, PurchaseModel>().IncludeAllDerived()
+            .ForMember(m => m.Id, o => o.MapFrom(e => purchaseId.Encode(e.Id)))
+            .ForMember(m => m.SupplierId, o => o.MapFrom(e => e.SupplierId.HasValue ? supplierId.Encode(e.SupplierId.Value) : default));
+        CreateMap<Purchase, PurchaseListItem>().IncludeAllDerived()
+            .ForMember(m => m.Id, o => o.MapFrom(e => purchaseId.Encode(e.Id)));
+
+        CreateMap<PurchaseItemCreateModel, PurchaseItem>()
+            .ForMember(e => e.PurchaseId, o => o.MapFrom(m => purchaseId.Decode(m.PurchaseId)))
+            .ForMember(e => e.StuffId, o => o.MapFrom(m => m.StuffId != null ? stuffId.Decode(m.StuffId) :  default(int?)));
+        CreateMap<PurchaseItem, PurchaseItemModel>().IncludeAllDerived()
+            .ForMember(m => m.Id, o => o.MapFrom(e => purchaseItemId.Encode(e.Id)))
+            .ForMember(m => m.PurchaseId, o => o.MapFrom(e => purchaseId.Encode(e.PurchaseId)))
+            .ForMember(m => m.StuffId, o => o.MapFrom(e => stuffId.Encode(e.StuffId))); ;
+        CreateMap<PurchaseItem, PurchaseItemListItem>().IncludeAllDerived()
+            .ForMember(m => m.Id, o => o.MapFrom(e => purchaseItemId.Encode(e.Id)))
+            .ForMember(m => m.PurchaseId, o => o.MapFrom(e => purchaseId.Encode(e.PurchaseId)));
 
         CreateMap<Upload, UploadModel>().IncludeAllDerived()
             .ForMember(m => m.Id, o => o.MapFrom(e => uploadId.Encode(e.Id)));

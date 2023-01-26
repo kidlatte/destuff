@@ -33,7 +33,7 @@ public class StuffModel : IStuffModel
     public ICollection<StuffLocationModel>? StuffLocations { get; set; }
     public ICollection<UploadModel>? Uploads { get; set; }
 
-    public LocationBasicModel? FirstLocation => StuffLocations?.FirstOrDefault()?.Location;
+    public LocationListItem? FirstLocation => StuffLocations?.FirstOrDefault()?.Location;
 
     [JsonIgnore]
     public bool IsSingleLocation 
@@ -45,12 +45,21 @@ public class StuffModel : IStuffModel
         }
     }
 
+    public StuffCreateModel ToCreate()
+    {
+        return new StuffCreateModel
+        {
+            Name = Name,
+            Notes = Notes,
+            LocationId = IsSingleLocation ? FirstLocation?.Id : null
+        };
+    }
 }
 
-public class StuffListModel : IStuffModel
+public class StuffListItem : IStuffModel
 {
     public string? Id { get; set; }
     public string? Slug { get; set; }
     public string? Name { get; set; }
-    public ICollection<LocationBasicModel>? Locations { get; set; }
+    public ICollection<LocationListItem>? Locations { get; set; }
 }

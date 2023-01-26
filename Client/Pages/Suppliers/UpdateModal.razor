@@ -1,0 +1,120 @@
+@inject IHttpService http
+
+@if (model != null)
+{
+    <div class="modal-backdrop fade show"></div>
+
+    <div class="modal fade show" tabindex="-1" role="dialog" style="display: block; overflow-y: auto;">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Supplier @name</h5>
+                    <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
+                </div>
+                <EditForm OnValidSubmit="OnSubmit" Model="model" autocomplete="off">
+                    <div class="modal-body">
+                        <DataAnnotationsValidator />
+
+                        <div class="form-floating mb-1">
+                            <InputText @bind-Value="model.ShortName" disable="@loading"
+                                   class="form-control" placeholder="ShortName" autocomplete="off" />
+                            <label>ShortName</label>
+                            <ValidationMessage For="@(() => model.ShortName)" />
+                        </div>
+
+                        <div class="form-floating mb-1">
+                            <InputText @bind-Value="model.Name" disable="@loading"
+                                   class="form-control" placeholder="Name" autocomplete="off" />
+                            <label>Name</label>
+                            <ValidationMessage For="@(() => model.Name)" />
+                        </div>
+
+                        <div class="form-floating mb-1">
+                            <InputText @bind-Value="model.Phone" disable="@loading"
+                                   class="form-control" placeholder="Phone" autocomplete="off" />
+                            <label>Phone</label>
+                            <ValidationMessage For="@(() => model.Phone)" />
+                        </div>
+
+                        <div class="form-floating mb-1">
+                            <InputText @bind-Value="model.Address" disable="@loading"
+                                   class="form-control" placeholder="Address" autocomplete="off" />
+                            <label>Address</label>
+                            <ValidationMessage For="@(() => model.Address)" />
+                        </div>
+
+                        <div class="form-floating mb-1">
+                            <InputTextArea @bind-Value="model.Notes" class="form-control" style="height: 100px"
+                                placeholder="Notes" disable="@loading" />
+                            <label>Notes</label>
+                            <ValidationMessage For="@(() => model.Notes)" />
+                        </div>
+
+                        <label class="text-danger">@error</label>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary" disabled="@loading">
+                            @(loading ? "Submitting..." : "Confirm")
+                        </button>
+                        <button @onclick="Close" type="button" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public EventCallback<SupplierModel> OnUpdated { get; set; }
+
+
+    SupplierCreateModel? model { get; set; }
+    
+    string? id { get; set; }
+    string? name { get; set; }
+
+    string error { get; set; } = "";
+    bool loading { get; set; } = false;
+
+    async Task OnSubmit()
+    {
+        if (model == null)
+            throw new NullReferenceException();
+
+        loading = true;
+
+        try
+        {
+            var result = await http.PutAsync<SupplierModel>($"{ApiRoutes.Suppliers}/{id}", model);
+
+            await OnUpdated.InvokeAsync(result);
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+
+        loading = false;
+
+        Close();
+    }
+
+
+    public void Open(SupplierModel supplier)
+    {
+        id = supplier.Id;
+        name = supplier.Name;
+
+        model = supplier.ToCreate();
+
+        StateHasChanged();
+    }
+
+
+    void Close()
+    {
+        model = null;
+    }
+}

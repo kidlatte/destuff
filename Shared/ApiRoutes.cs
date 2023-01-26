@@ -16,9 +16,17 @@ public class ApiRoutes
 
     public const string Stuffs = "/api/stuffs";
     public const string StuffSlug = "/api/stuffs/s";
+    public const string StuffLookup = "/api/stuffs/lookup";
     public const string StuffLocations = "/api/stuff-locations";
 
     public const string Uploads = "/api/uploads";
     public const string UploadImage = "/api/uploads/i";
     public const string UploadFiles = "/files";
+
+    public const string Suppliers = "/api/suppliers";
+    public const string SupplierSlug = "/api/suppliers/s";
+    public const string SupplierLookup = "/api/suppliers/lookup";
+
+    public const string Purchases = "/api/purchases";
+    public const string PurchaseItems = "/api/purchase-items";
 }
