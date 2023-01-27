@@ -19,6 +19,7 @@ public class PurchaseCreateModel
 public class PurchaseModel : PurchaseCreateModel, IPurchaseModel
 {
     public required string Id { get; set; }
+    public decimal Price { get; set; }
     public SupplierModel? Supplier { get; set; }
 
     public PurchaseCreateModel ToCreate()
@@ -38,5 +39,6 @@ public class PurchaseListItem: IPurchaseModel
     public required string Id { get; set; }
     public DateTime? Receipt { get; set; }
     public DateTime? Received { get; set; }
+    public decimal Price { get; set; }
     public SupplierModel? Supplier { get; set; }
 }

@@ -40,10 +40,10 @@
             {
                 <tr>
                     <td>
-                        @item.ShortName
+                        <a href="@($"/suppliers/{item.Slug}")">@item.ShortName</a>
                     </td>
                     <td>
-                        <a href="@($"/suppliers/{item.Slug}")">@item.Name</a>
+                        @item.Name
                     </td>
                     <td>
                         @item.Phone

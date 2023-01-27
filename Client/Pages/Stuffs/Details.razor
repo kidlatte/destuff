@@ -130,7 +130,7 @@
     UpdateModal? update;
     LocationAddModal? locationAdd;
 
-    protected override Task OnInitializedAsync() => LoadData();
+    protected override Task OnParametersSetAsync() => LoadData();
 
     private async Task LoadData()
     {
@@ -151,12 +151,10 @@
 
     async Task OnUpdated(StuffModel stuff)
     {
-        var path = $"stuffs/{stuff.Slug}";
-
-        if (nav.ToBaseRelativePath(nav.Uri) == path)
-            await LoadData();
+        if (Slug != stuff.Slug) 
+            nav.NavigateTo($"stuffs/{stuff.Slug}");
         else
-            nav.NavigateTo(path);
+            await LoadData();
     }
 
     void OnDeleted() => nav.NavigateTo("/");

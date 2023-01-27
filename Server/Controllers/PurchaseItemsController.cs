@@ -57,7 +57,23 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
             .ProjectTo<PurchaseItemListItem>(Mapper.ConfigurationProvider)
             .ToListAsync();
 
+        await SyncPurchasePrice(pid, list);
+
         return new PagedList<PurchaseItemListItem>(count, list);
+    }
+
+    private async Task SyncPurchasePrice(int purchaseId, List<PurchaseItemListItem> list)
+    {
+        var price = await Context.Purchases.Where(x => x.Id == purchaseId).Select(x => x.Price).FirstOrDefaultAsync();
+        var computed = list.Sum(x => x.Quantity * x.Price ?? 0);
+
+        if (price != computed)
+        {
+            var purchase = new Purchase { Id = purchaseId, Price = price, };
+            Context.Attach(purchase);
+            purchase.Price = computed;
+            await Context.SaveChangesAsync();
+        }
     }
 
     [HttpGet("{hash}")]

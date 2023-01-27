@@ -31,7 +31,7 @@
             <tr>
                 <th scope="col">Date</th>
                 <th scope="col">Supplier</th>
-                <th scope="col">Phone</th>
+                <th scope="col">Price</th>
                 <th scope="col" style=""></th>
             </tr>
         </thead>
@@ -47,11 +47,11 @@
                     <td>
                         @if (item.Supplier != null)
                         {
-                            <a href="@($"/suppliers/{item.Supplier?.Slug}")">@item.Supplier?.ShortName</a>
+                            <a href="@($"/suppliers/{item.Supplier.Slug}")">@item.Supplier.ShortName</a>
                         }
                     </td>
                     <td>
-                        @*@item*@
+                        @item.Price.ToString("n2")
                     </td>
                     <td>
                         <a href="@($"/purchases/{item.Id}")" class="btn btn-sm btn-outline-primary border border-0">
