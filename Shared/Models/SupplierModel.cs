@@ -41,6 +41,7 @@ public class SupplierModel : SupplierCreateModel, ISupplierModel
         {
             ShortName = ShortName,
             Name = Name,
+            Url = Url,
             Phone = Phone,
             Address = Address,
             Notes = Notes,

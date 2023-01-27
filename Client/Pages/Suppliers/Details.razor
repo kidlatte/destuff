@@ -39,7 +39,7 @@
         @if (!string.IsNullOrEmpty(model.Url))
         {
             <dl class="row">
-                <dt class="col-sm-3">Url</dt>
+                <dt class="col-sm-3">URL</dt>
                 <dd class="col-sm-9">@model.Url</dd>
             </dl>
         }
@@ -64,8 +64,8 @@
     </div>
 }
 
-<UpdateModal @ref="update" OnUpdated="Updated" />
-<DeleteModal @ref="delete" OnDeleted="LoadData" />
+<UpdateModal @ref="update" OnUpdated="OnUpdated" />
+<DeleteModal @ref="delete" OnDeleted="OnDeleted" />
 
 @code {
     [Parameter]
@@ -77,10 +77,7 @@
     DeleteModal? delete;
 
 
-    protected override Task OnParametersSetAsync()
-    {
-        return LoadData();
-    }
+    protected override Task OnParametersSetAsync() => LoadData();
 
     async Task LoadData()
     {
@@ -97,10 +94,12 @@
         }
     }
 
-    async Task Updated (SupplierModel item) {
+    async Task OnUpdated (SupplierModel item) {
         if (Slug != item.Slug)
             nav.NavigateTo($"/suppliers/{item.Slug}");
         else
             await LoadData();
     }
+
+    void OnDeleted() => nav.NavigateTo("/suppliers");
 }

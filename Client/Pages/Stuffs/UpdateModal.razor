@@ -22,6 +22,13 @@
                             <ValidationMessage For="@(() => model.Name)" />
                         </div>
 
+                        <div class="form-floating mb-1">
+                            <InputText @bind-Value="model.Url" disable="@loading"
+                                       class="form-control" placeholder="URL" autocomplete="off" />
+                            <label>URL</label>
+                            <ValidationMessage For="@(() => model.Url)" />
+                        </div>
+
                         @if (singleLocation)
                         {
                             <div class="form-floating mb-1">

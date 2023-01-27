@@ -17,6 +17,8 @@ public class StuffCreateModel
     [StringLength(255)]
     public string? Name { get; set; }
 
+    public string? Url { get; set; }
+
     public string? Notes { get; set; }
 
     public string? LocationId { get; set; }
@@ -28,6 +30,7 @@ public class StuffModel : IStuffModel
     public string? Slug { get; set; }
 
     public string? Name { get; set; }
+    public string? Url { get; set; }
     public string? Notes { get; set; }
 
     public ICollection<StuffLocationModel>? StuffLocations { get; set; }
@@ -50,6 +53,7 @@ public class StuffModel : IStuffModel
         return new StuffCreateModel
         {
             Name = Name,
+            Url = Url,
             Notes = Notes,
             LocationId = IsSingleLocation ? FirstLocation?.Id : null
         };
