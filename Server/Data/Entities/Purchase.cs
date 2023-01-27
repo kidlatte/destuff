@@ -6,6 +6,7 @@ public class Purchase : Entity
 {
     public DateTime? Receipt { get; set; }
     public DateTime? Received { get; set; }
+    public decimal Price { get; set; }
     public string? Notes { get; set; }
 
     public int? SupplierId { get; set; }
@@ -19,8 +20,6 @@ public class PurchaseItem : EventItem
 {
     public int Quantity { get; set; }
     
-    // TODO: rename to Price in next migration
-    [Column("Cost")]
     public decimal Price { get; set; }
 
     public int PurchaseId { get; set; }

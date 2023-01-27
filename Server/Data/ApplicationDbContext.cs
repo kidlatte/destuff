@@ -74,8 +74,8 @@ internal static class DataSeeder
             Name = "Storage",
             Slug = "storage",
             CreatedBy = "admin",
-            Created = DateTime.UtcNow,
-            Updated = DateTime.UtcNow,
+            Created = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Unspecified),
+            Updated = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Unspecified),
         };
         builder.Entity<Location>().HasData(entity);
     }

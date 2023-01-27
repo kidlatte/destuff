@@ -22,8 +22,6 @@ public class Location: Entity
 
     public int Order { get; set; }
 
-    // TODO remove columnt attribute
-    [Column("PathData")]
     public LocationData? Data { get; set; }
 
     public int? ParentId { get; set; }
