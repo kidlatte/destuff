@@ -64,7 +64,7 @@
 }
 
 <CreateBulkModal @ref="bulk" OnCreated="LoadData" />
-<CreateModal @ref="create" OnCreated="LoadData" />
+<StuffCreateModal @ref="create" OnCreated="LoadData" />
 <DeleteModal @ref="delete" OnDeleted="LoadData" />
 
 @code
@@ -81,7 +81,7 @@
     PagedList<StuffListItem>? data { get; set; }
     
     CreateBulkModal? bulk;
-    CreateModal? create;
+    StuffCreateModal? create;
     DeleteModal? delete;
 
     protected async override Task OnParametersSetAsync()

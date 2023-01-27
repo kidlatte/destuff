@@ -17,7 +17,7 @@
         }
         @if (supplierName != supplier?.Name)
         {
-            <button @onclick="OnAddSupplier" type="button" class="list-group-item list-group-item-action">
+            <button @onclick="OnSupplierCreate" type="button" class="list-group-item list-group-item-action">
                 <em class="text-muted">Add Supplier @(string.IsNullOrEmpty(supplierName) ? "" : $"\"{supplierName}\"")</em>
             </button>
         }
@@ -53,7 +53,7 @@
 
     async Task OnSupplierBlur()
     {
-        await Task.Delay(500);
+        await Task.Delay(100);
         showSuppliers = false;
         supplierName = supplier?.Name;
     }
@@ -65,11 +65,11 @@
             await ValueChanged.InvokeAsync(model?.Id);
 
         supplier = model;
-        supplierName = model?.Name;
+        supplierName = supplier?.Name;
         showSuppliers = false;
     }
 
-    void OnAddSupplier()
+    void OnSupplierCreate()
     {
         showSuppliers = false;
         create?.Open(supplierName);

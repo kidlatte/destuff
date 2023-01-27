@@ -1,6 +1,6 @@
 @inject IHttpService http
 
-<input @bind-value="stuffName" bind-value:event="oninput" @onfocus ="() => OnStuffFocus()"  @onblur ="() => OnStuffBlur()"
+<input @bind-value="stuffName" @bind-value:event="oninput" @onfocus ="() => OnStuffFocus()"  @onblur ="() => OnStuffBlur()"
     class="form-control" placeholder="Stuff" disable="@Loading" autocomplete="off" />
 <label>Stuff</label>
 @if (showStuffs)
@@ -15,8 +15,16 @@
                 @item.Name
             </button>
         }
+        @if (stuffName != stuff?.Name)
+        {
+            <button @onclick="OnStuffCreate" type="button" class="list-group-item list-group-item-action">
+                <em class="text-muted">Add Stuff @(string.IsNullOrEmpty(stuffName) ? "" : $"\"{stuffName}\"")</em>
+            </button>
+        }
     </div>
 }
+
+<StuffCreateModal @ref="create" OnCreated="OnStuffCreated" />
 
 @code
 {
@@ -25,13 +33,17 @@
     [Parameter] public bool Loading { get; set; }
 
     List<StuffListItem>? stuffs { get; set; }
+    IStuffModel? stuff { get; set; }
     string? stuffName { get; set; }
     bool showStuffs { get; set; } = false;
+
+    StuffCreateModal? create;
 
     protected override async Task OnInitializedAsync() 
     {
         stuffs = await http.GetAsync<List<StuffListItem>>(ApiRoutes.StuffLookup);
-        stuffName = stuffs?.FirstOrDefault(x => x.Id == Value)?.Name;
+        stuff = stuffs?.FirstOrDefault(x => x.Id == Value);
+        stuffName = stuff?.Name;
     }        
 
     void OnStuffFocus()
@@ -41,16 +53,32 @@
 
     async Task OnStuffBlur()
     {
-        await Task.Delay(500);
+        await Task.Delay(100);
+        showStuffs = false;
+        stuffName = stuff?.Name;
+    }
+
+    async Task OnStuffClick(IStuffModel? model)
+    {
+        Value = model?.Id;
+        if (ValueChanged.HasDelegate)
+            await ValueChanged.InvokeAsync(model?.Id);
+
+        stuff = model;
+        stuffName = stuff?.Name;
         showStuffs = false;
     }
 
-    async Task OnStuffClick(IStuffModel? stuff)
+
+    void OnStuffCreate()
     {
-        Value = stuff?.Id;
-        if (ValueChanged.HasDelegate)
-            await ValueChanged.InvokeAsync(stuff?.Id);
-        stuffName = stuff?.Name;
         showStuffs = false;
+        create?.Open(stuffName);
+    }
+
+    async Task OnStuffCreated(StuffModel model)
+    {
+        await OnStuffClick(model);
+        stuffs = await http.GetAsync<List<StuffListItem>>(ApiRoutes.StuffLookup);
     }
 }
