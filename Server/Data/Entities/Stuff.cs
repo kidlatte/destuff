@@ -14,6 +14,8 @@ public class Stuff: Entity
     [MaxLength(255)]
     public required string Slug { get; set; }
 
+    //public string? Url { get; set; }
+
     public string? Notes { get; set; }
 
     public StuffFlags Flags { get; set; }

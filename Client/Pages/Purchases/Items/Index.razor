@@ -23,8 +23,9 @@
         <thead>
             <tr>
                 <th scope="col">Stuff</th>
-                <th scope="col">Quantity</th>
-                <th scope="col">Cost</th>
+                <th scope="col" class="text-center">Quantity</th>
+                <th scope="col" class="text-center">Price</th>
+                <th scope="col" class="text-center">Total</th>
                 <th scope="col" style=""></th>
             </tr>
         </thead>
@@ -33,13 +34,16 @@
             {
                 <tr>
                     <td>
-                        @item.Stuff.Name
+                        <a href="@($"/stuffs/{item.Stuff.Slug}")">@item.Stuff.Name</a>
                     </td>
-                    <td>
+                    <td class="text-center">
                         @item.Quantity
                     </td>
-                    <td>
-                        @item.Cost
+                    <td class="text-end">
+                        @(item.Price?.ToString("n2"))
+                    </td>
+                    <td class="text-end">
+                        @((item.Quantity * item.Price ?? 0).ToString("n2"))
                     </td>
                     <td>
                         <button @onclick="() => UpdateOpen(item)" class="btn btn-sm btn-outline-secondary border border-0">
@@ -52,6 +56,17 @@
                 </tr>
             }
         </tbody>
+        <tfoot class="table-group-divider">
+            <tr>
+                <td class="text-end" colspan="3">
+                    <em>Total (@data.List.Sum(x => x.Quantity) items)</em>
+                </td>
+                <td class="text-end">
+                    @data.List.Sum(x => x.Quantity * x.Price ?? 0).ToString("n2")
+                </td>
+                <td></td>
+            </tr>
+        </tfoot>
     </table>
 
     <Pager Count="data.Count" Page="Page" PageSize="PageSize" GenerateLink="GenerateLink" />

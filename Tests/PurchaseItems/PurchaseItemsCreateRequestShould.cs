@@ -16,7 +16,7 @@ public class PurchaseItemsCreateRequestShould : IntegrationTestBase
         var purchase = await AuthorizedSendAsync<PurchaseModel>(new PurchaseCreateModel(), HttpMethod.Post, ApiRoutes.Purchases);
         Assert.NotNull(purchase);
 
-        var model = new PurchaseItemCreateModel { PurchaseId = purchase.Id, StuffId = stuff.Id, Cost = 1 };
+        var model = new PurchaseItemCreateModel { PurchaseId = purchase.Id, StuffId = stuff.Id, Price = 1 };
 
         // Act
         var result = await AuthorizedSendAsync(model);

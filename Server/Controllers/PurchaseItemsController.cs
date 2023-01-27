@@ -41,7 +41,7 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
                 query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Quantity) : query.OrderBy(x => x.Quantity);
                 break;
             case "cost":
-                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Cost) : query.OrderBy(x => x.Cost);
+                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Price) : query.OrderBy(x => x.Price);
                 break;
             case "stuff":
                 query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Stuff) : query.OrderBy(x => x.Stuff);

@@ -8,7 +8,7 @@ public interface IPurchaseItemModel
     string PurchaseId { get; set; }
     StuffModel Stuff { get; set; }
     int Quantity { get; set; }
-    decimal? Cost { get; set; }
+    decimal? Price { get; set; }
 }
 
 public class PurchaseItemCreateModel
@@ -23,7 +23,7 @@ public class PurchaseItemCreateModel
     public int Quantity { get; set; }
     
     [Required]
-    public decimal? Cost { get; set; }
+    public decimal? Price { get; set; }
     
     public string? Notes { get; set; }
 }
@@ -40,7 +40,7 @@ public class PurchaseItemModel : PurchaseItemCreateModel, IPurchaseItemModel
             StuffId = StuffId,
             PurchaseId = PurchaseId,
             Quantity = Quantity,
-            Cost = Cost,
+            Price = Price,
             Notes = Notes,
         };
     }
@@ -52,5 +52,5 @@ public class PurchaseItemListItem: IPurchaseItemModel
     public required string PurchaseId { get; set; }
     public required StuffModel Stuff { get; set; }
     public int Quantity { get; set; }
-    public decimal? Cost { get; set; }
+    public decimal? Price { get; set; }
 }

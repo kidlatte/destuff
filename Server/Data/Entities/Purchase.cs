@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Destuff.Server.Data.Entities;
 
 public class Purchase : Entity
@@ -16,7 +18,10 @@ public class Purchase : Entity
 public class PurchaseItem : EventItem
 {
     public int Quantity { get; set; }
-    public decimal Cost { get; set; }
+    
+    // TODO: rename to Price in next migration
+    [Column("Cost")]
+    public decimal Price { get; set; }
 
     public int PurchaseId { get; set; }
     public Purchase? Purchase { get; set; }

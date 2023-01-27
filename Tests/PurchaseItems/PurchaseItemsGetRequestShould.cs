@@ -16,7 +16,7 @@ public class PurchaseItemsGetRequestShould : IntegrationTestBase
         var purchase = await AuthorizedSendAsync<PurchaseModel>(new PurchaseCreateModel(), HttpMethod.Post, ApiRoutes.Purchases);
         Assert.NotNull(purchase);
 
-        var model = new PurchaseItemCreateModel { PurchaseId = purchase.Id, StuffId = stuff.Id, Cost = 1 };
+        var model = new PurchaseItemCreateModel { PurchaseId = purchase.Id, StuffId = stuff.Id, Price = 1 };
         await AuthorizedSendAsync<PurchaseItemModel>(model, HttpMethod.Post);
 
         // Act
@@ -45,9 +45,9 @@ public class PurchaseItemsGetRequestShould : IntegrationTestBase
         var purchase = await AuthorizedSendAsync<PurchaseModel>(new PurchaseCreateModel(), HttpMethod.Post, ApiRoutes.Purchases);
         Assert.NotNull(purchase);
 
-        await AuthorizedSendAsync<PurchaseItemModel>(new PurchaseItemCreateModel { Quantity = 1, Cost = 1, PurchaseId = purchase.Id, StuffId = stuffA.Id }, HttpMethod.Post);
-        await AuthorizedSendAsync<PurchaseItemModel>(new PurchaseItemCreateModel { Quantity = 2, Cost = 5, PurchaseId = purchase.Id, StuffId = stuffA.Id }, HttpMethod.Post);
-        await AuthorizedSendAsync<PurchaseItemModel>(new PurchaseItemCreateModel { Quantity = 3, Cost = 3, PurchaseId = purchase.Id, StuffId = stuffB.Id }, HttpMethod.Post);
+        await AuthorizedSendAsync<PurchaseItemModel>(new PurchaseItemCreateModel { Quantity = 1, Price = 1, PurchaseId = purchase.Id, StuffId = stuffA.Id }, HttpMethod.Post);
+        await AuthorizedSendAsync<PurchaseItemModel>(new PurchaseItemCreateModel { Quantity = 2, Price = 5, PurchaseId = purchase.Id, StuffId = stuffA.Id }, HttpMethod.Post);
+        await AuthorizedSendAsync<PurchaseItemModel>(new PurchaseItemCreateModel { Quantity = 3, Price = 3, PurchaseId = purchase.Id, StuffId = stuffB.Id }, HttpMethod.Post);
 
         // Act
         var query = new PagedQuery 
