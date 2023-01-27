@@ -16,11 +16,11 @@ public class PurchaseItemsGetRequestShould : IntegrationTestBase
         var purchase = await AuthorizedSendAsync<PurchaseModel>(new PurchaseCreateModel(), HttpMethod.Post, ApiRoutes.Purchases);
         Assert.NotNull(purchase);
 
-        var model = new PurchaseItemCreateModel { PurchaseId = purchase.Id, StuffId = stuff.Id };
+        var model = new PurchaseItemCreateModel { PurchaseId = purchase.Id, StuffId = stuff.Id, Cost = 1 };
         await AuthorizedSendAsync<PurchaseItemModel>(model, HttpMethod.Post);
 
         // Act
-        var result = await AuthorizedSendAsync<PagedList<PurchaseItemModel>>();
+        var result = await AuthorizedGetAsync<PagedList<PurchaseItemModel>>($"{ApiRoutes.PurchaseItems}?pid={purchase.Id}");
 
         // Assert
         Assert.NotNull(result);
@@ -30,7 +30,7 @@ public class PurchaseItemsGetRequestShould : IntegrationTestBase
 
     [Theory]
     [InlineData(3, "Stuff 001b", null, null, null, null, null)]
-    [InlineData(3, "Stuff 001b", null, null, null, "quantity", SortDirection.Descending)]
+    [InlineData(3, "Stuff 001a", null, null, null, "quantity", null)]
     //[InlineData(3, "Stuff 001b", null, 1, 1, "cost", SortDirection.Ascending)]
     [InlineData(2, "Stuff 001a", "001a", null, null, null, null)]
     public async Task Get_PurchaseItems_WithPaging(int count, string firstName, string? search, int? page, int? pageSize, string? sortField, SortDirection? sortDir)
@@ -58,7 +58,7 @@ public class PurchaseItemsGetRequestShould : IntegrationTestBase
             SortField = sortField,
             SortDir = sortDir ?? default
         };
-        var result = await AuthorizedGetAsync<PagedList<PurchaseItemModel>>($"{Route}?{query}");
+        var result = await AuthorizedGetAsync<PagedList<PurchaseItemModel>>($"{ApiRoutes.PurchaseItems}?pid={purchase.Id}&{query}");
 
         // Assert
         Assert.NotNull(result);

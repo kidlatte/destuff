@@ -42,7 +42,7 @@
                         @item.Cost
                     </td>
                     <td>
-                        <button @onclick="() => update?.Open(item)" class="btn btn-sm btn-outline-secondary border border-0">
+                        <button @onclick="() => UpdateOpen(item)" class="btn btn-sm btn-outline-secondary border border-0">
                             <i class="bi-pencil-square"></i>
                         </button>
                         <button @onclick="() => delete?.Open(item)" class="btn btn-sm btn-outline-danger border border-0">
@@ -75,7 +75,7 @@
     public required string PurchaseId { get; set; }
 
     PagedList<PurchaseItemListItem>? data { get; set; }
-    
+
     CreateModal? create;
     UpdateModal? update;
     DeleteModal? delete;
@@ -91,6 +91,8 @@
         var query = new PagedQuery { Search = Search, Page = Page, PageSize = PageSize };
         data = await http.GetAsync<PagedList<PurchaseItemListItem>>($"{ApiRoutes.PurchaseItems}?pid={PurchaseId}&{query}");
     }
+
+    Task UpdateOpen(PurchaseItemListItem item) => update == null ? Task.CompletedTask : update.Open(item);
 
     string GenerateLink(int page) => $"/purchases/{PurchaseId}?{new PagedQuery { Search = Search, Page = page }}";
 

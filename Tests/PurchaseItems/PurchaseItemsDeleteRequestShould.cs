@@ -15,7 +15,7 @@ public class PurchaseItemsDeleteRequestShould : IntegrationTestBase
         var purchase = await AuthorizedSendAsync<PurchaseModel>(new PurchaseCreateModel(), HttpMethod.Post, ApiRoutes.Purchases);
         Assert.NotNull(purchase);
 
-        var create = new PurchaseItemCreateModel { PurchaseId = purchase.Id, StuffId = stuff.Id };
+        var create = new PurchaseItemCreateModel { PurchaseId = purchase.Id, StuffId = stuff.Id, Cost = 1 };
         var created = await AuthorizedSendAsync<PurchaseItemModel>(create, HttpMethod.Post);
         Assert.NotNull(created);
 
@@ -39,7 +39,7 @@ public class PurchaseItemsDeleteRequestShould : IntegrationTestBase
         var purchase = await AuthorizedSendAsync<PurchaseModel>(new PurchaseCreateModel(), HttpMethod.Post, ApiRoutes.Purchases);
         Assert.NotNull(purchase);
 
-        var create = new PurchaseItemCreateModel { PurchaseId = purchase.Id, StuffId = stuff.Id };
+        var create = new PurchaseItemCreateModel { PurchaseId = purchase.Id, StuffId = stuff.Id, Cost = 1 };
         var model = await AuthorizedSendAsync<PurchaseItemModel>(create, HttpMethod.Post);
         Assert.NotNull(model);
 
