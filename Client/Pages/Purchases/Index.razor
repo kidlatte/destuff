@@ -69,7 +69,7 @@
     <Pager Count="data.Count" Page="Page" PageSize="PageSize" GenerateLink="GenerateLink" />
 }
 
-<CreateModal @ref="create" OnCreated="LoadData" />
+<CreateModal @ref="create" OnCreated="OnCreated" />
 <DeleteModal @ref="delete" OnDeleted="LoadData" />
 
 
@@ -104,4 +104,5 @@
     string GenerateLink(int page) => $"/purchases?{new PagedQuery { Search = Search, Page = page }}";
 
     void OnSearch() => nav.NavigateTo($"/purchases?s={search}");
+    void OnCreated(PurchaseModel model) => nav.NavigateTo($"/purchases/{model.Id}");
 }

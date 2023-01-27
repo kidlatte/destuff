@@ -1,6 +1,6 @@
 @inject IHttpService http
 
-<input @bind-value="supplierName" bind-value:event="oninput" @onfocus ="() => OnSupplierFocus()"  @onblur ="() => OnSupplierBlur()"
+<input @bind-value="supplierName" @bind-value:event="oninput" @onfocus ="() => OnSupplierFocus()"  @onblur ="() => OnSupplierBlur()"
     class="form-control" placeholder="Supplier" disable="@Loading" autocomplete="off" />
 <label>Supplier</label>
 @if (showSuppliers)
@@ -15,8 +15,16 @@
                 @item.Name
             </button>
         }
+        @if (supplierName != supplier?.Name)
+        {
+            <button @onclick="OnAddSupplier" type="button" class="list-group-item list-group-item-action">
+                <em class="text-muted">Add Supplier @(string.IsNullOrEmpty(supplierName) ? "" : $"\"{supplierName}\"")</em>
+            </button>
+        }
     </div>
 }
+
+<SupplierCreateModal @ref="create" OnCreated="OnSupplierCreated" />
 
 @code
 {
@@ -25,14 +33,18 @@
     [Parameter] public bool Loading { get; set; }
 
     List<SupplierListItem>? suppliers { get; set; }
+    ISupplierModel? supplier { get; set; }
     string? supplierName { get; set; }
     bool showSuppliers { get; set; } = false;
+
+    SupplierCreateModal? create;
 
     protected override async Task OnInitializedAsync() 
     {
         suppliers = await http.GetAsync<List<SupplierListItem>>(ApiRoutes.SupplierLookup);
-        supplierName = suppliers?.FirstOrDefault(x => x.Id == Value)?.Name;
-    }        
+        supplier = suppliers?.FirstOrDefault(x => x.Id == Value);
+        supplierName = supplier?.Name;
+    }
 
     void OnSupplierFocus()
     {
@@ -43,14 +55,29 @@
     {
         await Task.Delay(500);
         showSuppliers = false;
+        supplierName = supplier?.Name;
     }
 
-    async Task OnSupplierClick(ISupplierModel? supplier)
+    async Task OnSupplierClick(ISupplierModel? model)
     {
-        Value = supplier?.Id;
+        Value = model?.Id;
         if (ValueChanged.HasDelegate)
-            await ValueChanged.InvokeAsync(supplier?.Id);
-        supplierName = supplier?.Name;
+            await ValueChanged.InvokeAsync(model?.Id);
+
+        supplier = model;
+        supplierName = model?.Name;
         showSuppliers = false;
+    }
+
+    void OnAddSupplier()
+    {
+        showSuppliers = false;
+        create?.Open(supplierName);
+    }
+
+    async Task OnSupplierCreated(SupplierModel model)
+    {
+        await OnSupplierClick(model);
+        suppliers = await http.GetAsync<List<SupplierListItem>>(ApiRoutes.SupplierLookup);
     }
 }

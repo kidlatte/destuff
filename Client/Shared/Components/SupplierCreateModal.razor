@@ -30,6 +30,13 @@
                         </div>
 
                         <div class="form-floating mb-1">
+                            <InputText @bind-Value="model.Url" disable="@loading"
+                                       class="form-control" placeholder="URL" autocomplete="off" />
+                            <label>URL</label>
+                            <ValidationMessage For="@(() => model.Url)" />
+                        </div>
+
+                        <div class="form-floating mb-1">
                             <InputText @bind-Value="model.Phone" disable="@loading"
                                    class="form-control" placeholder="Phone" autocomplete="off" />
                             <label>Phone</label>
@@ -100,9 +107,9 @@
         loading = false;
     }
 
-    public void Open()
+    public void Open(string? name = null)
     {
-        model = new SupplierCreateModel();
+        model = new SupplierCreateModel { ShortName = name, Name = name };
         StateHasChanged();
     }
 

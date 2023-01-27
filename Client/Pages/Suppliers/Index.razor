@@ -61,7 +61,7 @@
     <Pager Count="data.Count" Page="Page" PageSize="PageSize" GenerateLink="GenerateLink" />
 }
 
-<CreateModal @ref="create" OnCreated="LoadData" />
+<SupplierCreateModal @ref="create" OnCreated="LoadData" />
 <DeleteModal @ref="delete" OnDeleted="LoadData" />
 
 @code
@@ -77,7 +77,7 @@
 
     PagedList<SupplierListItem>? data { get; set; }
     
-    CreateModal? create;
+    SupplierCreateModal? create;
     DeleteModal? delete;
 
     protected async override Task OnParametersSetAsync()
