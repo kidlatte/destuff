@@ -1,30 +1,31 @@
 @inject IHttpService http
 
-<input @bind-value="stuffName" @bind-value:event="oninput" @onfocus ="() => OnStuffFocus()"  @onblur ="() => OnStuffBlur()"
+<input value="@text" @oninput="OnInput" @onfocus="OnFocus" @onblur="OnBlur"
     class="form-control" placeholder="Stuff" disable="@Loading" autocomplete="off" />
 <label>Stuff</label>
-@if (showStuffs)
+@if (showOptions)
 {
     <div class="autocomplete list-group">
-        <button @onclick="() => OnStuffClick(null)" type="button" class="list-group-item list-group-item-action">
+        <button @onclick="() => OnClick(null)" type="button" class="list-group-item list-group-item-action">
             <em class="text-muted">none</em>
         </button>
-        @foreach(var item in stuffs.OrEmpty())
+        @foreach(var item in list.OrEmpty())
         {
-            <button @onclick="() => OnStuffClick(item)" type="button" class="list-group-item list-group-item-action">
+            <button @onclick="() => OnClick(item)" type="button"
+                    class="list-group-item list-group-item-action @(item.Id == model?.Id ? "list-group-item-secondary" : "")">
                 @item.Name
             </button>
         }
-        @if (stuffName != stuff?.Name)
+        @if (text != model?.Name)
         {
-            <button @onclick="OnStuffCreate" type="button" class="list-group-item list-group-item-action">
-                <em class="text-muted">Add Stuff @(string.IsNullOrEmpty(stuffName) ? "" : $"\"{stuffName}\"")</em>
+            <button @onclick="OnCreate" type="button" class="list-group-item list-group-item-action">
+                <em class="text-muted">Add Stuff @(string.IsNullOrEmpty(text) ? "" : $"\"{text}\"")</em>
             </button>
         }
     </div>
 }
 
-<StuffCreateModal @ref="create" OnCreated="OnStuffCreated" />
+<StuffCreateModal @ref="create" OnCreated="OnCreated" />
 
 @code
 {
@@ -32,53 +33,76 @@
     [Parameter] public EventCallback<string?> ValueChanged { get; set; }
     [Parameter] public bool Loading { get; set; }
 
-    List<StuffListItem>? stuffs { get; set; }
-    IStuffModel? stuff { get; set; }
-    string? stuffName { get; set; }
-    bool showStuffs { get; set; } = false;
+    ICollection<IStuffModel>? list { get; set; }
+    IStuffModel? model { get; set; }
+    string? text { get; set; }
+    bool showOptions { get; set; } = false;
 
+    private Timer? timer;
     StuffCreateModal? create;
 
     protected override async Task OnInitializedAsync() 
     {
-        stuffs = await http.GetAsync<List<StuffListItem>>(ApiRoutes.StuffLookup);
-        stuff = stuffs?.FirstOrDefault(x => x.Id == Value);
-        stuffName = stuff?.Name;
-    }        
+        await LoadData();
+        if (Value != null)
+        {
+            model = await http.GetAsync<StuffModel>($"{ApiRoutes.Stuffs}/{Value}");
+            text = model?.Name;
 
-    void OnStuffFocus()
-    {
-        showStuffs = true;
+            if (model != null && list != null && list.All(x => x.Id != model.Id))
+                list = new[] { model }.Union(list).ToList();
+        }
+
+        timer = new Timer(async _ => await LoadData(), null, Timeout.Infinite, Timeout.Infinite);
     }
 
-    async Task OnStuffBlur()
+    void OnInput(ChangeEventArgs e)
+    {
+        text = e.Value?.ToString();
+        timer?.Change(500, Timeout.Infinite);
+    }
+
+    void OnFocus()
+    {
+        showOptions = true;
+    }
+
+    async Task OnBlur()
     {
         await Task.Delay(100);
-        showStuffs = false;
-        stuffName = stuff?.Name;
+        showOptions = false;
+        text = model?.Name;
     }
 
-    async Task OnStuffClick(IStuffModel? model)
+    async Task OnClick(IStuffModel? item)
     {
-        Value = model?.Id;
+        Value = item?.Id;
         if (ValueChanged.HasDelegate)
-            await ValueChanged.InvokeAsync(model?.Id);
+            await ValueChanged.InvokeAsync(item?.Id);
 
-        stuff = model;
-        stuffName = stuff?.Name;
-        showStuffs = false;
+        model = item;
+        text = item?.Name;
+        showOptions = false;
     }
 
 
-    void OnStuffCreate()
+    void OnCreate()
     {
-        showStuffs = false;
-        create?.Open(stuffName);
+        showOptions = false;
+        create?.Open(text);
     }
 
-    async Task OnStuffCreated(StuffModel model)
+    async Task OnCreated(StuffModel item)
     {
-        await OnStuffClick(model);
-        stuffs = await http.GetAsync<List<StuffListItem>>(ApiRoutes.StuffLookup);
+        await OnClick(item);
+        timer?.Change(0, Timeout.Infinite);
+    }
+
+    async Task LoadData()
+    {
+        var route = ApiRoutes.Stuffs + (string.IsNullOrEmpty(text) ? "" : $"?{new PagedQuery { Search = text }}");
+        var result = await http.GetAsync<PagedList<StuffListItem>>(route);
+        list = result?.List.Cast<IStuffModel>().ToList();
+        await InvokeAsync(StateHasChanged);
     }
 }

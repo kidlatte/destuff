@@ -55,11 +55,6 @@ public class SuppliersController : BaseController<Supplier>
         return new PagedList<SupplierListItem>(count, list);
     }
 
-    [Route(ApiRoutes.SupplierLookup)]
-    [HttpGet]
-    public Task<List<SupplierListItem>> GetLookup() => Query
-        .ProjectTo<SupplierListItem>(Mapper.ConfigurationProvider).ToListAsync();
-
     [HttpGet("{hash}")]
     public async Task<ActionResult<SupplierModel?>> Get(string hash)
     {

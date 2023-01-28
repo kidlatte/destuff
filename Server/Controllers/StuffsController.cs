@@ -53,12 +53,6 @@ public class StuffsController : BaseController<Stuff>
         return new PagedList<StuffListItem>(count, list);
     }
 
-
-    [Route(ApiRoutes.StuffLookup)]
-    [HttpGet]
-    public Task<List<StuffListItem>> GetLookup() => Query
-        .ProjectTo<StuffListItem>(Mapper.ConfigurationProvider).ToListAsync();
-
     [HttpGet("{hash}")]
     public async Task<ActionResult<StuffModel?>> Get(string hash)
     {
