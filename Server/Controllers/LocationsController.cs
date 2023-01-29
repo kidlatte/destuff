@@ -1,13 +1,14 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Destuff.Server.Data;
 using Destuff.Server.Data.Entities;
+using Destuff.Server.Models;
 using Destuff.Server.Services;
 using Destuff.Shared;
 using Destuff.Shared.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Destuff.Server.Controllers;
 
@@ -75,8 +76,32 @@ public class LocationsController : BaseController<Location>
 
     [Route(ApiRoutes.LocationLookup)]
     [HttpGet]
-    public Task<List<LocationListItem>> GetLookup() => Query
-        .ProjectTo<LocationListItem>(Mapper.ConfigurationProvider).ToListAsync();
+    public async Task<PagedList<LocationLookupItem>> GetLookup([FromQuery] GridQuery? grid)
+    {
+        var query = Query;
+
+        grid ??= new GridQuery();
+        if (!string.IsNullOrEmpty(grid.Search))
+            query = query.Where(x => x.Name.ToLower().Contains(grid.Search.ToLower()));
+
+        switch (grid.SortField)
+        {
+            case "name":
+                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
+                break;
+            default:
+                query = query.OrderByDescending(x => x.Created);
+                break;
+        }
+
+        var count = await query.CountAsync();
+        var list = await query
+            .Skip(grid.Skip).Take(grid.Take)
+            .ProjectTo<LocationLookupItem>(Mapper.ConfigurationProvider)
+            .ToListAsync();
+
+        return new PagedList<LocationLookupItem>(count, list);
+    }
 
     [HttpGet("{hash}")]
     public async Task<ActionResult<LocationModel?>> Get(string hash)
@@ -122,6 +147,7 @@ public class LocationsController : BaseController<Location>
 
         var entity = Mapper.Map<Location>(model);
         entity.Slug = slug;
+        entity.Data = await GenerateData(entity.ParentId);
         Audit(entity);
 
         Context.Add(entity);
@@ -155,6 +181,22 @@ public class LocationsController : BaseController<Location>
         return Mapper.Map<LocationModel>(entity);
     }
 
+    private async Task<LocationData> GenerateData(int? parentId)
+    {
+        if (parentId == null)
+            return new LocationData { Path = new List<LocationListItem>() };
+
+        var parent = await Context.Locations.Where(x => x.Id == parentId).FirstOrDefaultAsync();
+        if (parent == null)
+            return new LocationData { Path = new List<LocationListItem>() };
+
+        if (parent.Data == null)
+            return new LocationData { Path = new[] { Mapper.Map<LocationListItem>(parent) } };
+
+        var path = parent.Data.Path?.ToList() ?? new List<LocationListItem>();
+        path.Add(Mapper.Map<LocationListItem>(parent));
+        return new LocationData { Path = path };
+    }
 
     [HttpPut(ApiRoutes.LocationMap)]
     public async Task<IActionResult> MapPaths()

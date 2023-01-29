@@ -9,6 +9,11 @@ public interface ILocationModel
     string? Name { get; set; }
 }
 
+public interface ILocationDataModel : ILocationModel
+{
+    LocationData? Data { get; set; }
+}
+
 public class LocationCreateModel
 {
     [Required]
@@ -20,7 +25,7 @@ public class LocationCreateModel
     public string? ParentId { get; set; }
 }
 
-public class LocationModel: LocationCreateModel, ILocationModel
+public class LocationModel: LocationCreateModel, ILocationDataModel
 {
     public string? Id { get; set; }
     public string? Slug { get; set; }
@@ -41,7 +46,7 @@ public class LocationTreeModel : LocationListItem
     public List<LocationTreeModel>? Children { get; set; }
 }
 
-public class LocationDataModel : LocationListItem
+public class LocationLookupItem : LocationListItem, ILocationDataModel
 {
     public LocationData? Data { get; set; }
 }

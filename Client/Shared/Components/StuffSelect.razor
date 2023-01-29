@@ -38,7 +38,7 @@
     string? text { get; set; }
     bool showOptions { get; set; } = false;
 
-    private Timer? timer;
+    Timer? timer;
     StuffCreateModal? create;
 
     protected override async Task OnInitializedAsync() 
@@ -70,8 +70,8 @@
     async Task OnBlur()
     {
         await Task.Delay(300); // wait for onclick
-        showOptions = false;
         text = model?.Name;
+        showOptions = false;
     }
 
     async Task OnClick(IStuffModel? item)
@@ -85,7 +85,6 @@
         showOptions = false;
     }
 
-
     void OnCreate()
     {
         showOptions = false;
@@ -95,7 +94,7 @@
     async Task OnCreated(StuffModel item)
     {
         await OnClick(item);
-        timer?.Change(0, Timeout.Infinite);
+        await LoadData();
     }
 
     async Task LoadData()

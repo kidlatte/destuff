@@ -39,7 +39,7 @@ public class UploadsController : BaseController<Upload>
         var query = Query.Where(x => x.Id == actualId);
 
         var entity = await query.FirstOrDefaultAsync();
-        if (entity == null || entity.Path == null || entity.FileName != name)
+        if (entity == null || entity.Path == null || entity.FileName != name || !System.IO.File.Exists(entity.Path))
             return NotFound();
 
         var file = System.IO.File.OpenRead(entity.Path);

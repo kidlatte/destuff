@@ -104,6 +104,12 @@
         StateHasChanged();
     }
 
+    public void Open(string? name)
+    {
+        model = new LocationCreateModel { Name = name };
+        StateHasChanged();
+    }
+
     public void Close()
     {
         model = null;

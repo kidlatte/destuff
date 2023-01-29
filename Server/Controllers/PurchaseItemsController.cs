@@ -57,23 +57,7 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
             .ProjectTo<PurchaseItemListItem>(Mapper.ConfigurationProvider)
             .ToListAsync();
 
-        await SyncPurchasePrice(pid, list);
-
         return new PagedList<PurchaseItemListItem>(count, list);
-    }
-
-    private async Task SyncPurchasePrice(int purchaseId, List<PurchaseItemListItem> list)
-    {
-        var price = await Context.Purchases.Where(x => x.Id == purchaseId).Select(x => x.Price).FirstOrDefaultAsync();
-        var computed = list.Sum(x => x.Quantity * x.Price ?? 0);
-
-        if (price != computed)
-        {
-            var purchase = new Purchase { Id = purchaseId, Price = price, };
-            Context.Attach(purchase);
-            purchase.Price = computed;
-            await Context.SaveChangesAsync();
-        }
     }
 
     [HttpGet("{hash}")]
@@ -104,6 +88,8 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
         Context.Add(entity);
         await Context.SaveChangesAsync();
 
+        await ComputePurchasePrice(entity.PurchaseId);
+
         return Mapper.Map<PurchaseItemModel>(entity);
     }
 
@@ -123,6 +109,8 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
         Audit(entity);
         await Context.SaveChangesAsync();
 
+        await ComputePurchasePrice(entity.PurchaseId);
+
         return Mapper.Map<PurchaseItemModel>(entity);
     }
 
@@ -137,6 +125,25 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
         Context.Remove(entity);
         await Context.SaveChangesAsync();
 
+        await ComputePurchasePrice(entity.PurchaseId);
+
         return NoContent();
-    }    
+    }
+
+    private async Task ComputePurchasePrice(int purchaseId)
+    {
+        var result = await Context.Purchases.Where(x => x.Id == purchaseId).Select(x => new
+        {
+            x.Price,
+            Computed = x.Items!.Sum(x => x.Quantity * x.Price)
+        }).FirstOrDefaultAsync();
+
+        if (result != null && result.Price != result.Computed)
+        {
+            var purchase = new Purchase { Id = purchaseId, Price = result.Price, };
+            Context.Attach(purchase);
+            purchase.Price = result.Computed;
+            await Context.SaveChangesAsync();
+        }
+    }
 }

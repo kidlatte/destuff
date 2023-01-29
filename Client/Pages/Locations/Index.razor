@@ -23,7 +23,7 @@
     />
 </div>
 
-<CreateModal @ref="create" OnCreated="LoadData" />
+<LocationCreateModal @ref="create" OnCreated="LoadData" />
 <UpdateModal @ref="update" OnUpdated="LoadData" />
 <DeleteModal @ref="delete" OnDeleted="LoadData" />
 
@@ -32,7 +32,7 @@
     List<LocationModel>? items { get; set; }
     LocationModel? selected { get; set; }
 
-    CreateModal? create;
+    LocationCreateModal? create;
     UpdateModal? update;
     DeleteModal? delete;
 
