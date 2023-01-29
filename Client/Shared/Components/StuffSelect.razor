@@ -44,12 +44,12 @@
     protected override async Task OnInitializedAsync() 
     {
         await LoadData();
-        if (Value != null)
+        if (Value != null && list != null && list.All(x => x.Id != Value))
         {
             model = await http.GetAsync<StuffModel>($"{ApiRoutes.Stuffs}/{Value}");
             text = model?.Name;
 
-            if (model != null && list != null && list.All(x => x.Id != model.Id))
+            if (model != null)
                 list = new[] { model }.Union(list).ToList();
         }
 
@@ -69,7 +69,7 @@
 
     async Task OnBlur()
     {
-        await Task.Delay(100);
+        await Task.Delay(300); // wait for onclick
         showOptions = false;
         text = model?.Name;
     }

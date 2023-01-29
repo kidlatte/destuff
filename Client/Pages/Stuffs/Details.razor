@@ -65,6 +65,18 @@
                 <Thumbnails Items="uploads" />
             </div>
 
+            @if (!string.IsNullOrEmpty(model.Url))
+            {
+                <dl class="row">
+                    <dt class="col-sm-3">URL</dt>
+                    <dd class="col-sm-9 text-truncate">
+                        <a href="@model.Url" target="_blank">
+                            @model.Url
+                        </a>
+                    </dd>
+                </dl>
+            }
+
             @if (model.IsSingleLocation && model.FirstLocation != null)
             {
                 <dl class="row">
