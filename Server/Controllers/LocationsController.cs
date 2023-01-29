@@ -84,10 +84,14 @@ public class LocationsController : BaseController<Location>
         if (!string.IsNullOrEmpty(grid.Search))
             query = query.Where(x => x.Name.ToLower().Contains(grid.Search.ToLower()));
 
+        var desc = SortDirection.Descending;
         switch (grid.SortField)
         {
+            case nameof(Location.Id):
+                query = grid.SortDir == desc ? query.OrderByDescending(x => x.Id) : query.OrderBy(x => x.Id);
+                break;
             case "name":
-                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
+                query = grid.SortDir == desc ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
                 break;
             default:
                 query = query.OrderByDescending(x => x.Created);

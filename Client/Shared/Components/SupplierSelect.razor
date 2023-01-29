@@ -44,13 +44,12 @@
     protected override async Task OnInitializedAsync() 
     {
         await LoadData();
-        if (Value != null && list != null && list.All(x => x.Id != Value))
-        {
-            model = await http.GetAsync<SupplierModel>($"{ApiRoutes.Suppliers}/{Value}");
-            text = model?.Name;
 
-            if (model != null)
-                list = new[] { model }.Union(list).ToList();
+        if (Value != null && list != null)
+        {
+            model = list.Where(x => x.Id == Value).FirstOrDefault() ??
+                await http.GetAsync<SupplierModel>($"{ApiRoutes.Suppliers}/{Value}");
+            text = model?.Name;
         }
 
         timer = new Timer(async _ => await LoadData(), null, Timeout.Infinite, Timeout.Infinite);
