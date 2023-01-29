@@ -31,7 +31,7 @@ public class PurchaseItemsGetRequestShould : IntegrationTestBase
     [Theory]
     [InlineData(3, "Stuff 001b", null, null, null, null, null)]
     [InlineData(3, "Stuff 001a", null, null, null, "quantity", null)]
-    //[InlineData(3, "Stuff 001b", null, 1, 1, "cost", SortDirection.Ascending)]
+    [InlineData(3, "Stuff 001b", null, 1, 1, "cost", SortDirection.Ascending)]
     [InlineData(2, "Stuff 001a", "001a", null, null, null, null)]
     public async Task Get_PurchaseItems_WithPaging(int count, string firstName, string? search, int? page, int? pageSize, string? sortField, SortDirection? sortDir)
     {

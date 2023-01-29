@@ -1,8 +1,8 @@
+using Destuff.Server.Data.Entities;
+using Destuff.Server.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Destuff.Server.Data.Entities;
-using Destuff.Server.Services;
 
 namespace Destuff.Server.Data;
 
@@ -45,6 +45,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<Location>()
             .Property(x => x.Data).HasJsonConversion();
 
+        builder.Entity<Purchase>()
+            .Property(e => e.Price).HasConversion<double>();
+
+        builder.Entity<PurchaseItem>()
+            .Property(e => e.Price).HasConversion<double>();
+
         builder.SeedUsers();
         builder.SeedLocations();
     }
@@ -62,6 +68,7 @@ internal static class DataSeeder
             NormalizedUserName = "ADMIN",
             PasswordHash = hasher.HashPassword(null!, "adminadmin"),
             SecurityStamp = "70effd01-76d5-4d56-85ac-6ddb5ffd3819",
+            ConcurrencyStamp = "4ed21d28-faa4-4948-ae7a-e945cb3b75a9"
         };
         builder.Entity<ApplicationUser>().HasData(adminUser);
     }
