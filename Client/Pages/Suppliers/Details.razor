@@ -41,7 +41,11 @@
         {
             <dl class="row">
                 <dt class="col-sm-3">URL</dt>
-                <dd class="col-sm-9">@model.Url</dd>
+                <dd class="col-sm-9 text-truncate">
+                    <a href="@model.Url" target="_blank">
+                        @model.Url
+                    </a>
+                </dd>
             </dl>
         }
 

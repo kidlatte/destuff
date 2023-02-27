@@ -109,7 +109,7 @@
 
     async Task LoadData()
     {
-        var query = new PagedQuery { Search = text, SortField = nameof(LocationModel.Id) };
+        var query = new PagedQuery { Search = text, PageSize = 10, SortField = nameof(LocationModel.Id) };
         var result = await http.GetAsync<PagedList<LocationLookupItem>>($"{ApiRoutes.LocationLookup}?{query}");
         list = result?.List.Cast<ILocationDataModel>().ToList();
         await InvokeAsync(StateHasChanged);

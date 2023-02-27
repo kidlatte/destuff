@@ -100,8 +100,8 @@
 
     async Task LoadData()
     {
-        var route = ApiRoutes.Suppliers + (string.IsNullOrEmpty(text) ? "" : $"?{new PagedQuery { Search = text }}");
-        var result = await http.GetAsync<PagedList<SupplierListItem>>(route);
+        var query = new PagedQuery { Search = text, PageSize = 10 };
+        var result = await http.GetAsync<PagedList<SupplierListItem>>($"{ApiRoutes.Suppliers}?{query}");
         list = result?.List.Cast<ISupplierModel>().ToList();
         await InvokeAsync(StateHasChanged);
     }

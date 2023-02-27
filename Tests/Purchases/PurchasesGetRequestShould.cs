@@ -25,10 +25,10 @@ public class PurchasesGetRequestShould : IntegrationTestBase
     }
 
     [Theory]
-    [InlineData(3, null, null, null, null, null, null)]
-    [InlineData(3, "Supplier 01a", null, null, null, "receipt", SortDirection.Descending)]
-    [InlineData(3, "Supplier 01a", null, 2, 1, "received", SortDirection.Ascending)]
-    [InlineData(2, "Supplier 01b", "supplier", null, null, null, null)]
+    [InlineData(3, "Supplier 01a", null, null, null, null, null)]
+    [InlineData(3, null, null, null, null, "receipt", null)]
+    [InlineData(3, "Supplier 01b", null, 2, 1, "received", SortDirection.Descending)]
+    [InlineData(2, "Supplier 01b", "supplier", null, null, "received", null)]
     public async Task Get_Purchases_WithPaging(int count, string? supplierName, string? search, int? page, int? pageSize, string? sortField, SortDirection? sortDir)
     {
         // Arrange

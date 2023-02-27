@@ -46,7 +46,7 @@ public class PurchasesController : BaseController<Purchase>
                 query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Supplier!.ShortName) : query.OrderBy(x => x.Supplier!.ShortName);
                 break;
             default:
-                query = query.OrderByDescending(x => x.Created);
+                query = query.OrderByDescending(x => x.Received ?? x.Receipt);
                 break;
         }
 
