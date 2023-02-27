@@ -51,7 +51,7 @@
 
         try
         {
-            await http.DeleteAsync($"{ApiRoutes.Auth}/{UserName}");
+            await http.DeleteAsync($"{ApiRoutes.Users}/{UserName}");
             Close();
             await OnUserDeleted.InvokeAsync();
         }
