@@ -10,12 +10,12 @@ public class PurchasesUpdateRequestShould : IntegrationTestBase
     public async Task Update_Purchase()
     {
         // Arrange
-        var create = new PurchaseCreateModel { Receipt = new DateTime(2000, 1, 1) };
+        var create = new PurchaseRequest { Receipt = new DateTime(2000, 1, 1) };
         var model = await AuthorizedSendAsync<PurchaseModel>(create, HttpMethod.Post);
         Assert.NotNull(model);
 
         // Act
-        var update = new PurchaseCreateModel { Receipt = new DateTime(2020, 1, 1) };
+        var update = new PurchaseRequest { Receipt = new DateTime(2020, 1, 1) };
         var result = await AuthorizedPutAsync<PurchaseModel>(model?.Id!, update);
 
         // Assert
@@ -27,12 +27,12 @@ public class PurchasesUpdateRequestShould : IntegrationTestBase
     public async Task Fail_Unauthorized_Update_Purchase()
     {
         // Arrange
-        var create = new PurchaseCreateModel();
+        var create = new PurchaseRequest();
         var model = await AuthorizedSendAsync<PurchaseModel>(create, HttpMethod.Post);
         Assert.NotNull(model);
 
         // Act
-        var update = new PurchaseCreateModel();
+        var update = new PurchaseRequest();
         var result = await SendAsync(update, HttpMethod.Put, $"{ApiRoutes.Purchases}/{model?.Id}");
 
         // Assert

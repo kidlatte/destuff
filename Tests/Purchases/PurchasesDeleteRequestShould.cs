@@ -9,7 +9,7 @@ public class PurchasesDeleteRequestShould : IntegrationTestBase
     [Fact]
     public async Task Delete_Purchase()
     {
-        var create = new PurchaseCreateModel();
+        var create = new PurchaseRequest();
         var created = await AuthorizedSendAsync<PurchaseModel>(create, HttpMethod.Post);
         Assert.NotNull(created);
 
@@ -27,7 +27,7 @@ public class PurchasesDeleteRequestShould : IntegrationTestBase
     public async Task Fail_Unauthorized_Delete_Purchase()
     {
         // Arrange
-        var create = new PurchaseCreateModel();
+        var create = new PurchaseRequest();
         var model = await AuthorizedSendAsync<PurchaseModel>(create, HttpMethod.Post);
         Assert.NotNull(model);
 

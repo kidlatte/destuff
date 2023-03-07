@@ -52,7 +52,7 @@
     [Parameter]
     public EventCallback OnUserCreated { get; set; }
 
-    RegisterModel model { get; set; } = new RegisterModel();
+    RegisterRequest model { get; set; } = new RegisterRequest();
     string error { get; set; } = "";
     bool loading { get; set; } = false;
     bool showModal { get; set; } = false;

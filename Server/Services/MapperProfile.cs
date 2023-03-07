@@ -10,7 +10,7 @@ public class MapperProfile : Profile
     public MapperProfile(ILocationIdentifier locationId, IStuffIdentifier stuffId, IUploadIdentifier uploadId, 
         ISupplierIdentifier supplierId, IPurchaseIdentifier purchaseId, IPurchaseItemIdentifier purchaseItemId)
     {
-        CreateMap<LocationCreateModel, Location>()
+        CreateMap<LocationRequest, Location>()
             .ForMember(e => e.ParentId, o => o.MapFrom(m => m.ParentId != null ? locationId.Decode(m.ParentId) :  default(int?)));
         CreateMap<Location, LocationModel>().IncludeAllDerived()
             .ForMember(m => m.Id, o => o.MapFrom(e => locationId.Encode(e.Id)))
@@ -22,24 +22,24 @@ public class MapperProfile : Profile
         CreateMap<Location, LocationLookupItem>();
         CreateMap<LocationListItem, LocationLookupItem>();
 
-        CreateMap<StuffCreateModel, Stuff>();
+        CreateMap<StuffRequest, Stuff>();
         CreateMap<Stuff, StuffModel>().IncludeAllDerived()
             .ForMember(m => m.Id, o => o.MapFrom(e => stuffId.Encode(e.Id)));
         CreateMap<Stuff, StuffListItem>().IncludeAllDerived()
             .ForMember(m => m.Id, o => o.MapFrom(e => stuffId.Encode(e.Id)));
 
-        CreateMap<StuffLocationCreateModel, StuffLocation>()
+        CreateMap<StuffLocationRequest, StuffLocation>()
             .ForMember(e => e.StuffId, o => o.MapFrom(m => m.StuffId != null ? stuffId.Decode(m.StuffId) :  default(int?)))
             .ForMember(e => e.LocationId, o => o.MapFrom(m => m.LocationId != null ? locationId.Decode(m.LocationId) :  default(int?)));
         CreateMap<StuffLocation, StuffLocationModel>();
 
-        CreateMap<SupplierCreateModel, Supplier>();
+        CreateMap<SupplierRequest, Supplier>();
         CreateMap<Supplier, SupplierModel>().IncludeAllDerived()
             .ForMember(m => m.Id, o => o.MapFrom(e => supplierId.Encode(e.Id)));
         CreateMap<Supplier, SupplierListItem>().IncludeAllDerived()
             .ForMember(m => m.Id, o => o.MapFrom(e => supplierId.Encode(e.Id)));
 
-        CreateMap<PurchaseCreateModel, Purchase>()
+        CreateMap<PurchaseRequest, Purchase>()
             .ForMember(e => e.SupplierId, o => o.MapFrom(m => m.SupplierId != null ? supplierId.Decode(m.SupplierId) :  default(int?)));
         CreateMap<Purchase, PurchaseModel>().IncludeAllDerived()
             .ForMember(m => m.Id, o => o.MapFrom(e => purchaseId.Encode(e.Id)))
@@ -47,7 +47,7 @@ public class MapperProfile : Profile
         CreateMap<Purchase, PurchaseListItem>().IncludeAllDerived()
             .ForMember(m => m.Id, o => o.MapFrom(e => purchaseId.Encode(e.Id)));
 
-        CreateMap<PurchaseItemCreateModel, PurchaseItem>()
+        CreateMap<PurchaseItemRequest, PurchaseItem>()
             .ForMember(e => e.PurchaseId, o => o.MapFrom(m => purchaseId.Decode(m.PurchaseId)))
             .ForMember(e => e.StuffId, o => o.MapFrom(m => m.StuffId != null ? stuffId.Decode(m.StuffId) :  default(int?)));
         CreateMap<PurchaseItem, PurchaseItemModel>().IncludeAllDerived()

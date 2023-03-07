@@ -75,7 +75,7 @@
     [Parameter]
     public EventCallback<SupplierModel> OnCreated { get; set; }
 
-    SupplierCreateModel? model { get; set; }
+    SupplierRequest? model { get; set; }
 
     string error { get; set; } = "";
     bool loading { get; set; } = false;
@@ -109,7 +109,7 @@
 
     public void Open(string? name = null)
     {
-        model = new SupplierCreateModel { ShortName = name, Name = name };
+        model = new SupplierRequest { ShortName = name, Name = name };
         StateHasChanged();
     }
 

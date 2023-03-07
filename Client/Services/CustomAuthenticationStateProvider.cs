@@ -29,9 +29,9 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
         return new AuthenticationState(new ClaimsPrincipal(identity));
     }
 
-    public async Task LoginAsync(LoginModel login)
+    public async Task LoginAsync(LoginRequest login)
     {
-        var model = await _http.PostAsync<AuthTokenModel>(ApiRoutes.AuthLogin, login);
+        var model = await _http.PostAsync<AuthModel>(ApiRoutes.AuthLogin, login);
         if (model == null)
             throw new Exception("No auth token.");
         

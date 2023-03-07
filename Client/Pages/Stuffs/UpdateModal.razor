@@ -63,7 +63,7 @@
     public EventCallback<StuffModel> OnUpdated { get; set; }
 
 
-    StuffCreateModel? model { get; set; }
+    StuffRequest? model { get; set; }
     
     string? id { get; set; }
     string? name { get; set; }
@@ -102,7 +102,7 @@
         name = stuff.Name;
         singleLocation = stuff.IsSingleLocation;
 
-        model = stuff.ToCreate();
+        model = stuff.ToRequest();
 
         StateHasChanged();
     }

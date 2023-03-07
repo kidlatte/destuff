@@ -14,7 +14,7 @@ public interface ILocationDataModel : ILocationModel
     LocationData? Data { get; set; }
 }
 
-public class LocationCreateModel
+public class LocationRequest
 {
     [Required]
     [StringLength(255)]
@@ -25,7 +25,7 @@ public class LocationCreateModel
     public string? ParentId { get; set; }
 }
 
-public class LocationModel: LocationCreateModel, ILocationDataModel
+public class LocationModel: LocationRequest, ILocationDataModel
 {
     public string? Id { get; set; }
     public string? Slug { get; set; }

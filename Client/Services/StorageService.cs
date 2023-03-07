@@ -6,8 +6,8 @@ namespace Destuff.Client.Services;
 
 public interface IStorageService 
 {
-    ValueTask<AuthTokenModel> GetUserAsync();
-    ValueTask SetUserAsync(AuthTokenModel model);
+    ValueTask<AuthModel> GetUserAsync();
+    ValueTask SetUserAsync(AuthModel model);
     ValueTask ClearUserAsync();
 }
 
@@ -22,6 +22,6 @@ public class StorageService : IStorageService
 
     private readonly string currentUserKey = "current-user";
     public ValueTask ClearUserAsync() => _localStorage.RemoveItemAsync(currentUserKey);
-    public ValueTask<AuthTokenModel> GetUserAsync() => _localStorage.GetItemAsync<AuthTokenModel>(currentUserKey);
-    public ValueTask SetUserAsync(AuthTokenModel model) => _localStorage.SetItemAsync(currentUserKey, model);
+    public ValueTask<AuthModel> GetUserAsync() => _localStorage.GetItemAsync<AuthModel>(currentUserKey);
+    public ValueTask SetUserAsync(AuthModel model) => _localStorage.SetItemAsync(currentUserKey, model);
 }

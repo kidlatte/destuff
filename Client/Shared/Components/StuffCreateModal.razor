@@ -58,7 +58,7 @@
     [Parameter]
     public EventCallback<StuffModel> OnCreated { get; set; }
 
-    StuffCreateModel? model { get; set; }
+    StuffRequest? model { get; set; }
 
     string error { get; set; } = "";
     bool loading { get; set; } = false;
@@ -92,7 +92,7 @@
 
     public void Open(string? name = null)
     {
-        model = new StuffCreateModel { Name = name };
+        model = new StuffRequest { Name = name };
         StateHasChanged();
     }
 

@@ -32,8 +32,10 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
         var query = Query.Where(x => x.PurchaseId == pid);
 
         grid ??= new GridQuery();
-        if (!string.IsNullOrEmpty(grid.Search))
-            query = query.Where(x => x.Stuff!.Name.ToLower().Contains(grid.Search.ToLower()));
+        if (!string.IsNullOrEmpty(grid.Search)) {
+            var search = grid.Search.ToLower();
+            query = query.Where(x => x.Stuff!.Name.ToLower().Contains(search));
+        }
 
         switch (grid.SortField)
         {
@@ -77,7 +79,7 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
     }
 
     [HttpPost]
-    public async Task<ActionResult<PurchaseItemModel>> Create([FromBody] PurchaseItemCreateModel model)
+    public async Task<ActionResult<PurchaseItemModel>> Create([FromBody] PurchaseItemRequest model)
     {
         if (!ModelState.IsValid)
             return BadRequest(model);
@@ -94,7 +96,7 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
     }
 
     [HttpPut("{hash}")]
-    public async Task<ActionResult<PurchaseItemModel>> Update(string hash, [FromBody] PurchaseItemCreateModel model)
+    public async Task<ActionResult<PurchaseItemModel>> Update(string hash, [FromBody] PurchaseItemRequest model)
     {
         if (!ModelState.IsValid)
             return BadRequest(model);

@@ -47,7 +47,7 @@ public class HttpService : IHttpService
         var user = await _storage.GetUserAsync();
         var isApiUrl = request.RequestUri?.OriginalString.StartsWith("/api") ?? default;
         if (user != null && isApiUrl)
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", user.AuthToken);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", user.Token);
 
         return await _http.SendAsync(request);
     }

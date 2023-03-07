@@ -51,7 +51,7 @@
     public EventCallback<LocationModel> OnUpdated { get; set; }
 
 
-    LocationCreateModel? model { get; set; }
+    LocationRequest? model { get; set; }
     
     string? id { get; set; }
     string? name { get; set; }
@@ -87,7 +87,7 @@
         id = location.Id;
         name = location.Name;
 
-        model = new LocationCreateModel 
+        model = new LocationRequest 
         {
             ParentId = location.ParentId,
             Name = location.Name,

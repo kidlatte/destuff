@@ -8,7 +8,7 @@ public interface ISupplierModel
     string? Name { get; set; }
 }
 
-public class SupplierCreateModel
+public class SupplierRequest
 {
     [Required]
     [MaxLength(255)]
@@ -30,14 +30,14 @@ public class SupplierCreateModel
     public string? Notes { get; set; }
 }
 
-public class SupplierModel : SupplierCreateModel, ISupplierModel
+public class SupplierModel : SupplierRequest, ISupplierModel
 {
     public required string Id { get; set; }
     public required string Slug { get; set; }
 
-    public SupplierCreateModel ToCreate()
+    public SupplierRequest ToRequest()
     {
-        return new SupplierCreateModel
+        return new SupplierRequest
         {
             ShortName = ShortName,
             Name = Name,
@@ -56,5 +56,6 @@ public class SupplierListItem: ISupplierModel
 
     public string? ShortName { get; set; }
     public string? Name { get; set; }
+    public string? Url { get; set; }
     public string? Phone { get; set; }
 }

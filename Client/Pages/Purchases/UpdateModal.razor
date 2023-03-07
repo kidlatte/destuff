@@ -60,7 +60,7 @@
     public EventCallback<PurchaseModel> OnUpdated { get; set; }
 
 
-    PurchaseCreateModel? model { get; set; }
+    PurchaseRequest? model { get; set; }
     
     string? id { get; set; }
 
@@ -95,7 +95,7 @@
     {
         id = purchase.Id;
 
-        model = purchase.ToCreate();
+        model = purchase.ToRequest();
 
         StateHasChanged();
     }

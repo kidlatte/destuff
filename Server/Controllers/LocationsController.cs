@@ -139,7 +139,7 @@ public class LocationsController : BaseController<Location>
     }
 
     [HttpPost]
-    public async Task<ActionResult<LocationModel>> Create([FromBody] LocationCreateModel model)
+    public async Task<ActionResult<LocationModel>> Create([FromBody] LocationRequest model)
     {
         if (!ModelState.IsValid || model.Name == null)
             return BadRequest(model);
@@ -161,7 +161,7 @@ public class LocationsController : BaseController<Location>
     }
 
     [HttpPut("{hash}")]
-    public async Task<ActionResult<LocationModel>> Update(string hash, [FromBody] LocationCreateModel model)
+    public async Task<ActionResult<LocationModel>> Update(string hash, [FromBody] LocationRequest model)
     {
         if (!ModelState.IsValid || model.Name == null)
             return BadRequest(model);

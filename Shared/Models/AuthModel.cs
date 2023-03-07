@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Destuff.Shared.Models;
 
-public class RegisterModel
+public class RegisterRequest
 {
     [Required]
     public string? UserName { get; set; }
@@ -11,14 +11,7 @@ public class RegisterModel
     public string? Password { get; set; }
 }
 
-
-public class IdentityResultModel
-{
-    public bool Succeeded { get; set; } = false;
-    public IList<string> Errors { get; set; } = new List<string>();
-}
-
-public class LoginModel
+public class LoginRequest
 {
     [Required]
     public string? UserName { get; set; }
@@ -29,20 +22,26 @@ public class LoginModel
     public bool Remember { get; set; }
 }
 
-public class AuthTokenModel
-{
-    public string? UserName { get; set; }
-    public string? AuthToken { get; set; }
-    public DateTime? Expires { get; set; }
-}
-
-public class PasswordChangeModel
+public class PasswordRequest
 {
     [Required]
     public string? UserName { get; set; }
 
     [Required]
     public string? Password { get; set; }
+}
+
+public class IdentityResultModel
+{
+    public bool Succeeded { get; set; } = false;
+    public IList<string> Errors { get; set; } = new List<string>();
+}
+
+public class AuthModel
+{
+    public string? UserName { get; set; }
+    public string? Token { get; set; }
+    public DateTime? Expires { get; set; }
 }
 
 public class UserModel

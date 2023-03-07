@@ -20,7 +20,7 @@ public class LocationsSlugRequestShould : IntegrationTestBase
     public async Task Get_Location_By_Slug()
     {
         // Arrange
-        var create = new LocationCreateModel { Name = "Location Slug" };
+        var create = new LocationRequest { Name = "Location Slug" };
         var model = await AuthorizedSendAsync<LocationModel>(create, HttpMethod.Post, ApiRoutes.Locations);
 
         // Act
@@ -45,7 +45,7 @@ public class LocationsSlugRequestShould : IntegrationTestBase
     public async Task Fail_Unauthorized_Location_By_Slug()
     {
         // Arrange
-        var create = new LocationCreateModel { Name = "Unauthorized Slug" };
+        var create = new LocationRequest { Name = "Unauthorized Slug" };
         var model = await AuthorizedSendAsync<LocationModel>(create, HttpMethod.Post, ApiRoutes.Locations);
 
         // Act

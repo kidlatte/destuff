@@ -10,13 +10,13 @@ public class PurchaseItemsCreateRequestShould : IntegrationTestBase
     public async Task Create_PurchaseItem()
     {
         // Arrange
-        var stuff = await AuthorizedSendAsync<StuffModel>(new StuffCreateModel { Name = "Stuff 001" }, HttpMethod.Post, ApiRoutes.Stuffs);
+        var stuff = await AuthorizedSendAsync<StuffModel>(new StuffRequest { Name = "Stuff 001" }, HttpMethod.Post, ApiRoutes.Stuffs);
         Assert.NotNull(stuff);
 
-        var purchase = await AuthorizedSendAsync<PurchaseModel>(new PurchaseCreateModel(), HttpMethod.Post, ApiRoutes.Purchases);
+        var purchase = await AuthorizedSendAsync<PurchaseModel>(new PurchaseRequest(), HttpMethod.Post, ApiRoutes.Purchases);
         Assert.NotNull(purchase);
 
-        var model = new PurchaseItemCreateModel { PurchaseId = purchase.Id, StuffId = stuff.Id, Price = 1 };
+        var model = new PurchaseItemRequest { PurchaseId = purchase.Id, StuffId = stuff.Id, Price = 1 };
 
         // Act
         var result = await AuthorizedSendAsync(model);
@@ -29,10 +29,10 @@ public class PurchaseItemsCreateRequestShould : IntegrationTestBase
     public async Task Fail_Null_Stuff_Create_PurchaseItem()
     {
         // Arrange
-        var purchase = await AuthorizedSendAsync<PurchaseModel>(new PurchaseCreateModel(), HttpMethod.Post, ApiRoutes.Purchases);
+        var purchase = await AuthorizedSendAsync<PurchaseModel>(new PurchaseRequest(), HttpMethod.Post, ApiRoutes.Purchases);
         Assert.NotNull(purchase);
 
-        var model = new PurchaseItemCreateModel { PurchaseId = purchase.Id };
+        var model = new PurchaseItemRequest { PurchaseId = purchase.Id };
 
         // Act
         var result = await AuthorizedSendAsync(model);
@@ -45,10 +45,10 @@ public class PurchaseItemsCreateRequestShould : IntegrationTestBase
     public async Task Fail_Unauthorized_Create_PurchaseItem()
     {
         // Arrange
-        var purchase = await AuthorizedSendAsync<PurchaseModel>(new PurchaseCreateModel(), HttpMethod.Post, ApiRoutes.Purchases);
+        var purchase = await AuthorizedSendAsync<PurchaseModel>(new PurchaseRequest(), HttpMethod.Post, ApiRoutes.Purchases);
         Assert.NotNull(purchase);
 
-        var model = new PurchaseItemCreateModel { PurchaseId = purchase.Id };
+        var model = new PurchaseItemRequest { PurchaseId = purchase.Id };
 
         // Act
         var result = await SendAsync(model);

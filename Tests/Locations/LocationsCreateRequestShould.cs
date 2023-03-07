@@ -17,7 +17,7 @@ public class LocationsCreateRequestShould : IntegrationTestBase
     public async Task Create_Root_Location()
     {
         // Arrange
-        var model = new LocationCreateModel { Name = "Root Location" };
+        var model = new LocationRequest { Name = "Root Location" };
 
         // Act
         var result = await AuthorizedSendAsync<LocationModel>(model);
@@ -31,11 +31,11 @@ public class LocationsCreateRequestShould : IntegrationTestBase
     public async Task Create_Child_Location()
     {
         // Arrange
-        var parentCreate = new LocationCreateModel { Name = "Parent01" };
+        var parentCreate = new LocationRequest { Name = "Parent01" };
         var parent = await AuthorizedSendAsync<LocationModel>(parentCreate);
 
         // Act
-        var model = new LocationCreateModel { Name = "Child01", ParentId = parent?.Id };
+        var model = new LocationRequest { Name = "Child01", ParentId = parent?.Id };
         var result = await AuthorizedSendAsync<LocationModel>(model);
 
         // Assert
@@ -52,7 +52,7 @@ public class LocationsCreateRequestShould : IntegrationTestBase
     public async Task Create_Location_Slugs(string name, string slug)
     {
         // Arrange
-        var create = new LocationCreateModel { Name = name };
+        var create = new LocationRequest { Name = name };
 
         // Act
         var result = await AuthorizedSendAsync<LocationModel>(create);
@@ -65,12 +65,12 @@ public class LocationsCreateRequestShould : IntegrationTestBase
     public async Task Fail_Existing_Slug_Create_Location()
     {
         // Arrange
-        var create = new LocationCreateModel { Name = "Existing Slug" };
+        var create = new LocationRequest { Name = "Existing Slug" };
         var created = await AuthorizedSendAsync(create);
         Assert.True(created?.IsSuccessStatusCode);
 
         // Act
-        var sameSlug = new LocationCreateModel { Name = "existing - slug" };
+        var sameSlug = new LocationRequest { Name = "existing - slug" };
         var result = await AuthorizedSendAsync(sameSlug);
 
         // Assert
@@ -81,7 +81,7 @@ public class LocationsCreateRequestShould : IntegrationTestBase
     public async Task Fail_Null_Name_Create_Location()
     {
         // Arrange
-        var model = new LocationCreateModel();
+        var model = new LocationRequest();
 
         // Act
         var result = await AuthorizedSendAsync(model);
@@ -94,7 +94,7 @@ public class LocationsCreateRequestShould : IntegrationTestBase
     public async Task Fail_Unauthorized_Create_Location()
     {
         // Arrange
-        var model = new LocationCreateModel { Name = "Unauthorized" };
+        var model = new LocationRequest { Name = "Unauthorized" };
 
         // Act
         var result = await SendAsync(model);

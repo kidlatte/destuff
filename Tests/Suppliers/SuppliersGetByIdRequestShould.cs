@@ -10,7 +10,7 @@ public class SuppliersGetByIdRequestShould : IntegrationTestBase
     public async Task Get_Supplier_Details()
     {
         // Arrange
-        var create = new SupplierCreateModel { ShortName = "supplier", Name = "Supplier 001" };
+        var create = new SupplierRequest { ShortName = "supplier", Name = "Supplier 001" };
         var model = await AuthorizedSendAsync<SupplierModel>(create, HttpMethod.Post);
 
         // Act

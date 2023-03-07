@@ -20,11 +20,11 @@ public class LocationsTreeRequestShould : IntegrationTestBase
     public async Task Get_Location_Tree()
     {
         // Arrange
-        var create01 = new LocationCreateModel { Name = "Layer01" };
+        var create01 = new LocationRequest { Name = "Layer01" };
         var layer01 = await AuthorizedSendAsync<LocationModel>(create01, HttpMethod.Post, ApiRoutes.Locations);
-        var create02 = new LocationCreateModel { Name = "Layer02", ParentId = layer01?.Id };
+        var create02 = new LocationRequest { Name = "Layer02", ParentId = layer01?.Id };
         var layer02 = await AuthorizedSendAsync<LocationModel>(create02, HttpMethod.Post, ApiRoutes.Locations);
-        var create03 = new LocationCreateModel { Name = "Layer03", ParentId = layer02?.Id };
+        var create03 = new LocationRequest { Name = "Layer03", ParentId = layer02?.Id };
         var layer03 = await AuthorizedSendAsync<LocationModel>(create03, HttpMethod.Post, ApiRoutes.Locations);
         Assert.NotNull(layer03?.Id);
 
@@ -47,7 +47,7 @@ public class LocationsTreeRequestShould : IntegrationTestBase
     public async Task Fail_Unauthorized_Location_Tree()
     {
         // Arrange
-        var create = new LocationCreateModel { Name = "Unauthorized Tree" };
+        var create = new LocationRequest { Name = "Unauthorized Tree" };
         var model = await AuthorizedSendAsync<LocationModel>(create, HttpMethod.Post, ApiRoutes.Locations);
 
         // Act

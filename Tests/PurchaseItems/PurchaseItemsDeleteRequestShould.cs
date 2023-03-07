@@ -9,13 +9,13 @@ public class PurchaseItemsDeleteRequestShould : IntegrationTestBase
     [Fact]
     public async Task Delete_PurchaseItem()
     {
-        var stuff = await AuthorizedSendAsync<StuffModel>(new StuffCreateModel { Name = "Stuff 001" }, HttpMethod.Post, ApiRoutes.Stuffs);
+        var stuff = await AuthorizedSendAsync<StuffModel>(new StuffRequest { Name = "Stuff 001" }, HttpMethod.Post, ApiRoutes.Stuffs);
         Assert.NotNull(stuff);
 
-        var purchase = await AuthorizedSendAsync<PurchaseModel>(new PurchaseCreateModel(), HttpMethod.Post, ApiRoutes.Purchases);
+        var purchase = await AuthorizedSendAsync<PurchaseModel>(new PurchaseRequest(), HttpMethod.Post, ApiRoutes.Purchases);
         Assert.NotNull(purchase);
 
-        var create = new PurchaseItemCreateModel { PurchaseId = purchase.Id, StuffId = stuff.Id, Price = 1 };
+        var create = new PurchaseItemRequest { PurchaseId = purchase.Id, StuffId = stuff.Id, Price = 1 };
         var created = await AuthorizedSendAsync<PurchaseItemModel>(create, HttpMethod.Post);
         Assert.NotNull(created);
 
@@ -33,13 +33,13 @@ public class PurchaseItemsDeleteRequestShould : IntegrationTestBase
     public async Task Fail_Unauthorized_Delete_PurchaseItem()
     {
         // Arrange
-        var stuff = await AuthorizedSendAsync<StuffModel>(new StuffCreateModel { Name = "Stuff 001" }, HttpMethod.Post, ApiRoutes.Stuffs);
+        var stuff = await AuthorizedSendAsync<StuffModel>(new StuffRequest { Name = "Stuff 001" }, HttpMethod.Post, ApiRoutes.Stuffs);
         Assert.NotNull(stuff);
 
-        var purchase = await AuthorizedSendAsync<PurchaseModel>(new PurchaseCreateModel(), HttpMethod.Post, ApiRoutes.Purchases);
+        var purchase = await AuthorizedSendAsync<PurchaseModel>(new PurchaseRequest(), HttpMethod.Post, ApiRoutes.Purchases);
         Assert.NotNull(purchase);
 
-        var create = new PurchaseItemCreateModel { PurchaseId = purchase.Id, StuffId = stuff.Id, Price = 1 };
+        var create = new PurchaseItemRequest { PurchaseId = purchase.Id, StuffId = stuff.Id, Price = 1 };
         var model = await AuthorizedSendAsync<PurchaseItemModel>(create, HttpMethod.Post);
         Assert.NotNull(model);
 

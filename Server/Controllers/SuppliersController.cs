@@ -29,9 +29,13 @@ public class SuppliersController : BaseController<Supplier>
         var query = Query;
 
         grid ??= new GridQuery();
-        if (!string.IsNullOrEmpty(grid.Search))
-            query = query.Where(x => x.ShortName.ToLower().Contains(grid.Search.ToLower()) ||
-                x.Name.ToLower().Contains(grid.Search.ToLower()));
+        if (!string.IsNullOrEmpty(grid.Search)) {
+            var search = grid.Search.ToLower();
+            query = query.Where(x => x.ShortName.ToLower().Contains(search) ||
+                x.Name.ToLower().Contains(search) ||
+                x.Url!.ToLower().Contains(search) ||
+                x.Notes!.ToLower().Contains(search));
+        }
 
         switch (grid.SortField)
         {
@@ -87,7 +91,7 @@ public class SuppliersController : BaseController<Supplier>
     }
 
     [HttpPost]
-    public async Task<ActionResult<SupplierModel>> Create([FromBody] SupplierCreateModel model)
+    public async Task<ActionResult<SupplierModel>> Create([FromBody] SupplierRequest model)
     {
         if (!ModelState.IsValid || model.ShortName == null)
             return BadRequest(model);
@@ -108,7 +112,7 @@ public class SuppliersController : BaseController<Supplier>
     }
 
     [HttpPut("{hash}")]
-    public async Task<ActionResult<SupplierModel>> Update(string hash, [FromBody] SupplierCreateModel model)
+    public async Task<ActionResult<SupplierModel>> Update(string hash, [FromBody] SupplierRequest model)
     {
         if (!ModelState.IsValid || model.ShortName == null)
             return BadRequest(model);

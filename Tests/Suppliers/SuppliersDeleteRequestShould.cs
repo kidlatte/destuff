@@ -9,7 +9,7 @@ public class SuppliersDeleteRequestShould : IntegrationTestBase
     [Fact]
     public async Task Delete_Supplier()
     {
-        var create = new SupplierCreateModel { ShortName = "supplier01", Name = "Supplier 001" };
+        var create = new SupplierRequest { ShortName = "supplier01", Name = "Supplier 001" };
         var created = await AuthorizedSendAsync<SupplierModel>(create, HttpMethod.Post);
         Assert.NotNull(created);
 
@@ -27,7 +27,7 @@ public class SuppliersDeleteRequestShould : IntegrationTestBase
     public async Task Fail_Unauthorized_Delete_Supplier()
     {
         // Arrange
-        var create = new SupplierCreateModel { ShortName = "supplier02", Name = "Supplier 002" };
+        var create = new SupplierRequest { ShortName = "supplier02", Name = "Supplier 002" };
         var model = await AuthorizedSendAsync<SupplierModel>(create, HttpMethod.Post);
         Assert.NotNull(model);
 

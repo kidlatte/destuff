@@ -10,7 +10,7 @@ public class SuppliersCreateRequestShould : IntegrationTestBase
     public async Task Create_Supplier()
     {
         // Arrange
-        var model = new SupplierCreateModel { ShortName = "supplier01", Name = "Supplier 001" };
+        var model = new SupplierRequest { ShortName = "supplier01", Name = "Supplier 001" };
 
         // Act
         var result = await AuthorizedSendAsync(model);
@@ -23,7 +23,7 @@ public class SuppliersCreateRequestShould : IntegrationTestBase
     public async Task Fail_Null_Name_Create_Supplier()
     {
         // Arrange
-        var model = new SupplierCreateModel();
+        var model = new SupplierRequest();
 
         // Act
         var result = await AuthorizedSendAsync(model);
@@ -36,7 +36,7 @@ public class SuppliersCreateRequestShould : IntegrationTestBase
     public async Task Fail_Unauthorized_Create_Supplier()
     {
         // Arrange
-        var model = new SupplierCreateModel { ShortName = "unauth", Name = "Unauthorized" };
+        var model = new SupplierRequest { ShortName = "unauth", Name = "Unauthorized" };
 
         // Act
         var result = await SendAsync(model);

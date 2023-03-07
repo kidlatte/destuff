@@ -17,17 +17,17 @@ public class AuthChangePasswordRequestShould: IntegrationTestBase
     [Fact]
     public async Task Change_Password_Success()
     {
-        var register = new RegisterModel { UserName = "user01", Password = "Qwer1234!" };
+        var register = new RegisterRequest { UserName = "user01", Password = "Qwer1234!" };
         await SendAsync(register, HttpMethod.Post, ApiRoutes.AuthRegister);
 
-        var model = new PasswordChangeModel { UserName = "user01", Password = "Xwer1234!" };
+        var model = new PasswordRequest { UserName = "user01", Password = "Xwer1234!" };
         await AuthorizedSendAsync<IdentityResultModel>(model);
 
-        var login = new LoginModel { UserName = "user01", Password = "Xwer1234!" };
-        var auth = await SendAsync<AuthTokenModel>(login, HttpMethod.Post, ApiRoutes.AuthLogin);
+        var login = new LoginRequest { UserName = "user01", Password = "Xwer1234!" };
+        var auth = await SendAsync<AuthModel>(login, HttpMethod.Post, ApiRoutes.AuthLogin);
 
         // Assert
-        Assert.NotNull(auth?.AuthToken);
+        Assert.NotNull(auth?.Token);
     }
 
 
@@ -35,11 +35,11 @@ public class AuthChangePasswordRequestShould: IntegrationTestBase
     public async Task Fail_Unauthorized_Password_Change()
     {
         // Arrange
-        var register = new RegisterModel { UserName = "user01", Password = "Qwer1234!" };
+        var register = new RegisterRequest { UserName = "user01", Password = "Qwer1234!" };
         await SendAsync(register, HttpMethod.Post, ApiRoutes.AuthRegister);
 
         // Act
-        var model = new PasswordChangeModel { UserName = "user01", Password = "Xwer1234!" };
+        var model = new PasswordRequest { UserName = "user01", Password = "Xwer1234!" };
         var result = await SendAsync(model);
 
         // Assert
@@ -54,12 +54,12 @@ public class AuthChangePasswordRequestShould: IntegrationTestBase
     public async Task Fail_Weak_Password(string password)
     {
         // Arrange
-        var register = new RegisterModel { UserName = "user01", Password = "Qwer1234!" };
+        var register = new RegisterRequest { UserName = "user01", Password = "Qwer1234!" };
         await SendAsync(register, HttpMethod.Post, ApiRoutes.AuthRegister);
 
 
         // Act
-        var model = new PasswordChangeModel { UserName = "user01", Password = password };
+        var model = new PasswordRequest { UserName = "user01", Password = password };
         var result = await AuthorizedSendAsync<IdentityResultModel>(model);
 
         // Assert

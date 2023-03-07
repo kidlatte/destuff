@@ -8,7 +8,7 @@ public interface IPurchaseModel
     SupplierModel? Supplier { get; set; }
 }
 
-public class PurchaseCreateModel
+public class PurchaseRequest
 {
     public string? SupplierId { get; set; }
     public DateTime? Receipt { get; set; }
@@ -16,15 +16,15 @@ public class PurchaseCreateModel
     public string? Notes { get; set; }
 }
 
-public class PurchaseModel : PurchaseCreateModel, IPurchaseModel
+public class PurchaseModel : PurchaseRequest, IPurchaseModel
 {
     public required string Id { get; set; }
     public decimal Price { get; set; }
     public SupplierModel? Supplier { get; set; }
 
-    public PurchaseCreateModel ToCreate()
+    public PurchaseRequest ToRequest()
     {
-        return new PurchaseCreateModel
+        return new PurchaseRequest
         {
             SupplierId = SupplierId,
             Receipt = Receipt,

@@ -20,7 +20,7 @@ public class LocationsDetailsRequestShould : IntegrationTestBase
     public async Task Get_Location_Details()
     {
         // Arrange
-        var create = new LocationCreateModel { Name = "New Loaction" };
+        var create = new LocationRequest { Name = "New Loaction" };
         var model = await AuthorizedSendAsync<LocationModel>(create, HttpMethod.Post);
 
         // Act

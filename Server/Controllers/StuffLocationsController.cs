@@ -40,7 +40,7 @@ public class StuffLocationsController : BaseController
     }
 
     [HttpPost]
-    public async Task<ActionResult<StuffLocationModel>> Create([FromBody] StuffLocationCreateModel model)
+    public async Task<ActionResult<StuffLocationModel>> Create([FromBody] StuffLocationRequest model)
     {
         if (!ModelState.IsValid || model.StuffId == null || model.LocationId == null)
             return BadRequest(model);

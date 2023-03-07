@@ -16,7 +16,7 @@ public class AuthRegisterRequestShould : IntegrationTestBase
     public async Task Create_New_User()
     {
         // Arrange
-        var model = new RegisterModel { UserName = "user01", Password = "Qwer1234!" };
+        var model = new RegisterRequest { UserName = "user01", Password = "Qwer1234!" };
 
         // Act
         var result = await SendAsync<IdentityResultModel>(model);
@@ -33,7 +33,7 @@ public class AuthRegisterRequestShould : IntegrationTestBase
     public async Task Fail_Weak_Password(string password)
     {
         // Arrange
-        var model = new RegisterModel { UserName = "user01", Password = password };
+        var model = new RegisterRequest { UserName = "user01", Password = password };
 
         // Act
         var result = await SendAsync<IdentityResultModel>(model);
@@ -46,7 +46,7 @@ public class AuthRegisterRequestShould : IntegrationTestBase
     public async Task Fail_Existing_User()
     {
         // Arrange
-        var model = new RegisterModel { UserName = "user01", Password = "Qwer1234!" };
+        var model = new RegisterRequest { UserName = "user01", Password = "Qwer1234!" };
         await SendAsync(model); // register once
 
         // Act

@@ -59,7 +59,7 @@
         var names = (bulk.BatchNames ?? "").Split("\n", StringSplitOptions.RemoveEmptyEntries).ToList();
         foreach (var name in names)
         {
-            var model = new StuffCreateModel
+            var model = new StuffRequest
             {
                 Name = name,
                 LocationId = bulk.LocationId

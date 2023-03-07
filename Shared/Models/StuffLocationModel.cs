@@ -1,7 +1,7 @@
 
 namespace Destuff.Shared.Models;
 
-public class StuffLocationCreateModel
+public class StuffLocationRequest
 {
     public string? StuffId { get; set; }
     public string? LocationId { get; set; }

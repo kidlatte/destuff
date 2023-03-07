@@ -34,7 +34,7 @@ public class AuthController : ControllerBase
     
 
     [HttpPost, Route(ApiRoutes.AuthLogin)]
-    public async Task<ActionResult<AuthTokenModel>> Login([FromBody] LoginModel model)
+    public async Task<ActionResult<AuthModel>> Login([FromBody] LoginRequest model)
     {
         _logger.LogInformation("Login: {User}", model.UserName);
 
@@ -67,16 +67,16 @@ public class AuthController : ControllerBase
         var token = tokenHandler.CreateToken(tokenDescriptor);
         var tokenString = tokenHandler.WriteToken(token);
 
-        return Ok(new AuthTokenModel
+        return Ok(new AuthModel
         {
             UserName = user.UserName,
-            AuthToken = tokenString,
+            Token = tokenString,
             Expires = tokenDescriptor.Expires
         });
     }
 
     [HttpPost("register")]
-    public async Task<ActionResult<IdentityResultModel>> Register([FromBody] LoginModel model)
+    public async Task<ActionResult<IdentityResultModel>> Register([FromBody] LoginRequest model)
     {
         if (!ModelState.IsValid || string.IsNullOrEmpty(model.UserName) || string.IsNullOrEmpty(model.Password))
             return BadRequest();
@@ -100,7 +100,7 @@ public class AuthController : ControllerBase
 
     [Authorize]
     [HttpPut, Route(ApiRoutes.AuthChangePassword)]
-    public async Task<IActionResult> ChangePassword([FromBody] PasswordChangeModel model)
+    public async Task<IActionResult> ChangePassword([FromBody] PasswordRequest model)
     {
 
         if (!ModelState.IsValid || string.IsNullOrEmpty(model.UserName) || string.IsNullOrEmpty(model.Password))

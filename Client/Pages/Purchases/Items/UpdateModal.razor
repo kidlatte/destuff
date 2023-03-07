@@ -61,7 +61,7 @@
     public EventCallback<PurchaseItemModel> OnUpdated { get; set; }
 
 
-    PurchaseItemCreateModel? model { get; set; }
+    PurchaseItemRequest? model { get; set; }
     
     string? id { get; set; }
     string? name { get; set; }
@@ -98,7 +98,7 @@
         id = purchaseItem.Id;
         name = purchaseItem.Stuff.Name;
 
-        model = purchaseItem.ToCreate();
+        model = purchaseItem.ToRequest();
 
         StateHasChanged();
     }
@@ -113,7 +113,7 @@
         if (purchaseItemModel == null)
             throw new NullReferenceException();
 
-        model = purchaseItemModel.ToCreate();
+        model = purchaseItemModel.ToRequest();
         StateHasChanged();
     }
 

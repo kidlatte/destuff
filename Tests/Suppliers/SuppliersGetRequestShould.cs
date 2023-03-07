@@ -10,7 +10,7 @@ public class SuppliersGetRequestShould : IntegrationTestBase
     public async Task Get_Suppliers()
     {
         // Arrange
-        var model = new SupplierCreateModel { ShortName = "supplier01", Name = "Supplier 001" };
+        var model = new SupplierRequest { ShortName = "supplier01", Name = "Supplier 001" };
         await AuthorizedSendAsync<SupplierModel>(model, HttpMethod.Post);
 
         // Act
@@ -30,9 +30,9 @@ public class SuppliersGetRequestShould : IntegrationTestBase
     public async Task Get_Suppliers_WithPaging(int count, string firstName, string? search, int? page, int? pageSize, string? sortField, SortDirection? sortDir)
     {
         // Arrange
-        await AuthorizedSendAsync<SupplierModel>(new SupplierCreateModel { ShortName = "supplier", Name = "Supplier Name" }, HttpMethod.Post);
-        await AuthorizedSendAsync<SupplierModel>(new SupplierCreateModel { ShortName = "search01", Name = "Search 01" }, HttpMethod.Post);
-        await AuthorizedSendAsync<SupplierModel>(new SupplierCreateModel { ShortName = "search02", Name = "Search 02" }, HttpMethod.Post);
+        await AuthorizedSendAsync<SupplierModel>(new SupplierRequest { ShortName = "supplier", Name = "Supplier Name" }, HttpMethod.Post);
+        await AuthorizedSendAsync<SupplierModel>(new SupplierRequest { ShortName = "search01", Name = "Search 01" }, HttpMethod.Post);
+        await AuthorizedSendAsync<SupplierModel>(new SupplierRequest { ShortName = "search02", Name = "Search 02" }, HttpMethod.Post);
 
         // Act
         var query = new PagedQuery 

@@ -17,7 +17,7 @@ public class StuffsDeleteRequestShould : IntegrationTestBase
     [Fact]
     public async Task Delete_Stuff()
     {
-        var create = new StuffCreateModel { Name = "Created Stuff" };
+        var create = new StuffRequest { Name = "Created Stuff" };
         var created = await AuthorizedSendAsync<StuffModel>(create, HttpMethod.Post);
         Assert.NotNull(created);
 
@@ -35,7 +35,7 @@ public class StuffsDeleteRequestShould : IntegrationTestBase
     public async Task Fail_Unauthorized_Delete_Stuff()
     {
         // Arrange
-        var create = new StuffCreateModel { Name = "Created Stuff" };
+        var create = new StuffRequest { Name = "Created Stuff" };
         var model = await AuthorizedSendAsync<StuffModel>(create, HttpMethod.Post);
         Assert.NotNull(model);
 

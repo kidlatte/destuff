@@ -20,7 +20,7 @@ public class StuffsGetBySlugRequestShould : IntegrationTestBase
     public async Task Get_Stuff_By_Slug()
     {
         // Arrange
-        var create = new StuffCreateModel { Name = "Stuff Slug" };
+        var create = new StuffRequest { Name = "Stuff Slug" };
         var model = await AuthorizedSendAsync<StuffModel>(create, HttpMethod.Post, ApiRoutes.Stuffs);
 
         // Act
@@ -45,7 +45,7 @@ public class StuffsGetBySlugRequestShould : IntegrationTestBase
     public async Task Fail_Unauthorized_Stuff_By_Slug()
     {
         // Arrange
-        var create = new StuffCreateModel { Name = "Unauthorized Slug" };
+        var create = new StuffRequest { Name = "Unauthorized Slug" };
         var model = await AuthorizedSendAsync<StuffModel>(create, HttpMethod.Post, ApiRoutes.Stuffs);
 
         // Act

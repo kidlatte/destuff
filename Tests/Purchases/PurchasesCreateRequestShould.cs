@@ -10,7 +10,7 @@ public class PurchasesCreateRequestShould : IntegrationTestBase
     public async Task Create_Purchase()
     {
         // Arrange
-        var model = new PurchaseCreateModel();
+        var model = new PurchaseRequest();
 
         // Act
         var result = await AuthorizedSendAsync(model);
@@ -23,7 +23,7 @@ public class PurchasesCreateRequestShould : IntegrationTestBase
     public async Task Fail_Unauthorized_Create_Purchase()
     {
         // Arrange
-        var model = new PurchaseCreateModel();
+        var model = new PurchaseRequest();
 
         // Act
         var result = await SendAsync(model);

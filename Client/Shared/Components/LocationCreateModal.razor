@@ -68,7 +68,7 @@
     [Parameter]
     public EventCallback<LocationModel> OnCreated { get; set; }
 
-    LocationCreateModel? model { get; set; }
+    LocationRequest? model { get; set; }
 
     string? parentName { get; set; }
     string error { get; set; } = "";
@@ -100,7 +100,7 @@
     {
         parentName = parent?.Name;
 
-        model = new LocationCreateModel 
+        model = new LocationRequest 
         {
             ParentId = parent?.Id
         };
@@ -110,7 +110,7 @@
 
     public void Open(string? name)
     {
-        model = new LocationCreateModel { Name = name };
+        model = new LocationRequest { Name = name };
         StateHasChanged();
     }
 

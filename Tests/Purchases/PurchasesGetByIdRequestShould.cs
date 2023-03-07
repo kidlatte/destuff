@@ -10,7 +10,7 @@ public class PurchasesGetByIdRequestShould : IntegrationTestBase
     public async Task Get_Purchase_Details()
     {
         // Arrange
-        var create = new PurchaseCreateModel();
+        var create = new PurchaseRequest();
         var model = await AuthorizedSendAsync<PurchaseModel>(create, HttpMethod.Post);
 
         // Act

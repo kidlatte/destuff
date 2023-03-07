@@ -17,12 +17,12 @@ public class AuthLoginRequestShould: IntegrationTestBase
     public async Task Login_Registered_User()
     {
         // Arrange
-        var register = new RegisterModel { UserName = "user01", Password = "Qwer1234!" };
+        var register = new RegisterRequest { UserName = "user01", Password = "Qwer1234!" };
         await SendAsync(register, HttpMethod.Post, ApiRoutes.AuthRegister);
 
         // Act
-        var model = new LoginModel { UserName = "user01", Password = "Qwer1234!" };
-        var result = await SendAsync<AuthTokenModel>(model);
+        var model = new LoginRequest { UserName = "user01", Password = "Qwer1234!" };
+        var result = await SendAsync<AuthModel>(model);
 
         // Assert
         Assert.Equal(model.UserName, result?.UserName);
@@ -32,7 +32,7 @@ public class AuthLoginRequestShould: IntegrationTestBase
     public async Task Fail_Unregistered_User()
     {
         // Arrange
-        var model = new LoginModel { UserName = "user01", Password = "Qwer1234!" };
+        var model = new LoginRequest { UserName = "user01", Password = "Qwer1234!" };
 
         // Act
         var result = await SendAsync(model);
@@ -45,11 +45,11 @@ public class AuthLoginRequestShould: IntegrationTestBase
     public async Task Fail_Incorrect_Password()
     {
         // Arrange
-        var register = new RegisterModel { UserName = "user01", Password = "Qwer1234!" };
+        var register = new RegisterRequest { UserName = "user01", Password = "Qwer1234!" };
         await SendAsync(register, HttpMethod.Post, ApiRoutes.AuthRegister);
 
         // Act
-        var model = new LoginModel { UserName = "user01", Password = "Xwer1234!" };
+        var model = new LoginRequest { UserName = "user01", Password = "Xwer1234!" };
         var result = await SendAsync(model);
 
         // Assert

@@ -65,7 +65,7 @@ public class UploadsPostRequestShould : IntegrationTestBase
     public async Task Create_StuffUpload()
     {
         // Arrange
-        var stuffCreate = new StuffCreateModel { Name = "Stuff 001" };
+        var stuffCreate = new StuffRequest { Name = "Stuff 001" };
         var stuff = await AuthorizedSendAsync<StuffModel>(stuffCreate, HttpMethod.Post, ApiRoutes.Stuffs);
         Assert.NotNull(stuff?.Id);
 

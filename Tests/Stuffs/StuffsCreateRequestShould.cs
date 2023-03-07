@@ -17,7 +17,7 @@ public class StuffsCreateRequestShould : IntegrationTestBase
     public async Task Create_Stuff()
     {
         // Arrange
-        var model = new StuffCreateModel { Name = "Stuff 001" };
+        var model = new StuffRequest { Name = "Stuff 001" };
 
         // Act
         var result = await AuthorizedSendAsync(model);
@@ -35,7 +35,7 @@ public class StuffsCreateRequestShould : IntegrationTestBase
     public async Task Create_Stuff_Slugs(string name, string slug)
     {
         // Arrange
-        var create = new StuffCreateModel { Name = name };
+        var create = new StuffRequest { Name = name };
 
         // Act
         var result = await AuthorizedSendAsync<StuffModel>(create);
@@ -48,12 +48,12 @@ public class StuffsCreateRequestShould : IntegrationTestBase
     public async Task Fail_Existing_Slug_Create_Stuff()
     {
         // Arrange
-        var create = new StuffCreateModel { Name = "Existing Slug" };
+        var create = new StuffRequest { Name = "Existing Slug" };
         var created = await AuthorizedSendAsync(create);
         Assert.True(created?.IsSuccessStatusCode);
 
         // Act
-        var sameSlug = new StuffCreateModel { Name = "existing - slug" };
+        var sameSlug = new StuffRequest { Name = "existing - slug" };
         var result = await AuthorizedSendAsync(sameSlug);
 
         // Assert
@@ -64,7 +64,7 @@ public class StuffsCreateRequestShould : IntegrationTestBase
     public async Task Fail_Null_Name_Create_Stuff()
     {
         // Arrange
-        var model = new StuffCreateModel();
+        var model = new StuffRequest();
 
         // Act
         var result = await AuthorizedSendAsync(model);
@@ -77,7 +77,7 @@ public class StuffsCreateRequestShould : IntegrationTestBase
     public async Task Fail_Unauthorized_Create_Stuff()
     {
         // Arrange
-        var model = new StuffCreateModel { Name = "Unauthorized" };
+        var model = new StuffRequest { Name = "Unauthorized" };
 
         // Act
         var result = await SendAsync(model);

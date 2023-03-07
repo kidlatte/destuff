@@ -59,7 +59,7 @@
     [Parameter]
     public EventCallback<PurchaseModel> OnCreated { get; set; }
 
-    PurchaseCreateModel? model { get; set; }
+    PurchaseRequest? model { get; set; }
 
     string error { get; set; } = "";
     bool loading { get; set; } = false;
@@ -93,7 +93,7 @@
 
     public void Open()
     {
-        model = new PurchaseCreateModel { Receipt = DateTime.Now };
+        model = new PurchaseRequest { Receipt = DateTime.Now };
         StateHasChanged();
     }
 

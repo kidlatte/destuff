@@ -10,11 +10,11 @@ public class LocationsMapPathsRequestShould : IntegrationTestBase
     public async Task Update_Location()
     {
         // Arrange
-        var parentCreate = new LocationCreateModel { Name = "Parent Location" };
+        var parentCreate = new LocationRequest { Name = "Parent Location" };
         var parent = await AuthorizedSendAsync<LocationModel>(parentCreate, HttpMethod.Post, ApiRoutes.Locations);
         Assert.NotNull(parent);
 
-        var childCreate = new LocationCreateModel { ParentId = parent.Id, Name = "Child Location" };
+        var childCreate = new LocationRequest { ParentId = parent.Id, Name = "Child Location" };
         var child = await AuthorizedSendAsync<LocationModel>(childCreate, HttpMethod.Post, ApiRoutes.Locations);
         Assert.NotNull(child);
 

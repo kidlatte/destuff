@@ -11,7 +11,7 @@ public interface IPurchaseItemModel
     decimal? Price { get; set; }
 }
 
-public class PurchaseItemCreateModel
+public class PurchaseItemRequest
 {
     [Required]
     public required string PurchaseId { get; set; }
@@ -28,14 +28,14 @@ public class PurchaseItemCreateModel
     public string? Notes { get; set; }
 }
 
-public class PurchaseItemModel : PurchaseItemCreateModel, IPurchaseItemModel
+public class PurchaseItemModel : PurchaseItemRequest, IPurchaseItemModel
 {
     public required string Id { get; set; }
     public required StuffModel Stuff { get; set; }
 
-    public PurchaseItemCreateModel ToCreate()
+    public PurchaseItemRequest ToRequest()
     {
-        return new PurchaseItemCreateModel
+        return new PurchaseItemRequest
         {
             StuffId = StuffId,
             PurchaseId = PurchaseId,

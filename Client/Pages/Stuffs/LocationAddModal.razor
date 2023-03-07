@@ -54,7 +54,7 @@
     [Parameter]
     public IStuffModel? Model { get; set; }
 
-    StuffLocationCreateModel? model { get; set; }
+    StuffLocationRequest? model { get; set; }
 
     string error { get; set; } = "";
     bool loading { get; set; } = false;
@@ -84,7 +84,7 @@
     public void Open()
     {
         if (Model != null)
-            model = new StuffLocationCreateModel { StuffId = Model.Id, Count = 1 };
+            model = new StuffLocationRequest { StuffId = Model.Id, Count = 1 };
         StateHasChanged();
     }
 

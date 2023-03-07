@@ -11,7 +11,7 @@ public interface IStuffModel
     public string? Name { get; set; }
 }
 
-public class StuffCreateModel
+public class StuffRequest
 {
     [Required]
     [StringLength(255)]
@@ -48,9 +48,9 @@ public class StuffModel : IStuffModel
         }
     }
 
-    public StuffCreateModel ToCreate()
+    public StuffRequest ToRequest()
     {
-        return new StuffCreateModel
+        return new StuffRequest
         {
             Name = Name,
             Url = Url,

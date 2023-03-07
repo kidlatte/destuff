@@ -77,10 +77,10 @@ public abstract class IntegrationTestBase: IDisposable
     {
         if (AuthToken == null)
         {
-            var user = new RegisterModel { UserName = "TokenUser", Password = "Qwer1234!" };
+            var user = new RegisterRequest { UserName = "TokenUser", Password = "Qwer1234!" };
             await SendAsync(user, HttpMethod.Post, ApiRoutes.AuthRegister);
-            var token = await SendAsync<AuthTokenModel>(user, HttpMethod.Post, ApiRoutes.AuthLogin);
-            AuthToken = token?.AuthToken;
+            var token = await SendAsync<AuthModel>(user, HttpMethod.Post, ApiRoutes.AuthLogin);
+            AuthToken = token?.Token;
         }
 
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AuthToken);

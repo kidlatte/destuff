@@ -18,12 +18,12 @@ public class StuffsUpdateRequestShould : IntegrationTestBase
     public async Task Update_Stuff()
     {
         // Arrange
-        var create = new StuffCreateModel { Name = "Created Stuff" };
+        var create = new StuffRequest { Name = "Created Stuff" };
         var model = await AuthorizedSendAsync<StuffModel>(create, HttpMethod.Post);
         Assert.NotNull(model);
 
         // Act
-        var update = new StuffCreateModel { Name = "Updated Stuff" };
+        var update = new StuffRequest { Name = "Updated Stuff" };
         var result = await AuthorizedPutAsync<StuffModel>(model?.Id!, update);
 
         // Assert
@@ -35,16 +35,16 @@ public class StuffsUpdateRequestShould : IntegrationTestBase
     public async Task Fail_Existing_Slug_Create_Stuff()
     {
         // Arrange
-        var create = new StuffCreateModel { Name = "Existing Slug" };
+        var create = new StuffRequest { Name = "Existing Slug" };
         var created = await AuthorizedSendAsync(create, HttpMethod.Post);
         Assert.True(created?.IsSuccessStatusCode);
 
-        var newSlug = new StuffCreateModel { Name = "New Slug" };
+        var newSlug = new StuffRequest { Name = "New Slug" };
         var model = await AuthorizedSendAsync<StuffModel>(newSlug, HttpMethod.Post);
         Assert.NotNull(model?.Id);
 
         // Act
-        var sameSlug = new StuffCreateModel { Name = "existing - slug" };
+        var sameSlug = new StuffRequest { Name = "existing - slug" };
         var result = await AuthorizedPutAsync(model?.Id!, sameSlug);
 
         // Assert
@@ -55,12 +55,12 @@ public class StuffsUpdateRequestShould : IntegrationTestBase
     public async Task Fail_Null_Name_Update_Stuff()
     {
        // Arrange
-        var create = new StuffCreateModel { Name = "Created Stuff" };
+        var create = new StuffRequest { Name = "Created Stuff" };
         var model = await AuthorizedSendAsync<StuffModel>(create, HttpMethod.Post);
         Assert.NotNull(model);
 
         // Act
-        var update = new StuffCreateModel { Name = null };
+        var update = new StuffRequest { Name = null };
         var result = await AuthorizedPutAsync(model?.Id!, update);
 
         // Assert
@@ -71,12 +71,12 @@ public class StuffsUpdateRequestShould : IntegrationTestBase
     public async Task Fail_Unauthorized_Update_Stuff()
     {
         // Arrange
-        var create = new StuffCreateModel { Name = "Created Stuff" };
+        var create = new StuffRequest { Name = "Created Stuff" };
         var model = await AuthorizedSendAsync<StuffModel>(create, HttpMethod.Post);
         Assert.NotNull(model);
 
         // Act
-        var update = new StuffCreateModel { Name = "Updated Stuff" };
+        var update = new StuffRequest { Name = "Updated Stuff" };
         var result = await SendAsync(update, HttpMethod.Put, $"{ApiRoutes.Stuffs}/{model?.Id}");
 
         // Assert

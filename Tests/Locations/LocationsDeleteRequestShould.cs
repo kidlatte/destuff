@@ -17,7 +17,7 @@ public class LocationsDeleteRequestShould : IntegrationTestBase
     [Fact]
     public async Task Delete_Location()
     {
-        var create = new LocationCreateModel { Name = "Created Location" };
+        var create = new LocationRequest { Name = "Created Location" };
         var created = await AuthorizedSendAsync<LocationModel>(create, HttpMethod.Post);
         Assert.NotNull(created);
 
@@ -35,7 +35,7 @@ public class LocationsDeleteRequestShould : IntegrationTestBase
     public async Task Fail_Unauthorized_Delete_Location()
     {
         // Arrange
-        var create = new LocationCreateModel { Name = "Created Location" };
+        var create = new LocationRequest { Name = "Created Location" };
         var model = await AuthorizedSendAsync<LocationModel>(create, HttpMethod.Post);
         Assert.NotNull(model);
 

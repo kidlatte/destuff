@@ -12,7 +12,7 @@ public class PurchasesGetRequestShould : IntegrationTestBase
     public async Task Get_Purchases()
     {
         // Arrange
-        var model = new PurchaseCreateModel();
+        var model = new PurchaseRequest();
         await AuthorizedSendAsync<PurchaseModel>(model, HttpMethod.Post);
 
         // Act
@@ -32,15 +32,15 @@ public class PurchasesGetRequestShould : IntegrationTestBase
     public async Task Get_Purchases_WithPaging(int count, string? supplierName, string? search, int? page, int? pageSize, string? sortField, SortDirection? sortDir)
     {
         // Arrange
-        var supplierA = await AuthorizedSendAsync<SupplierModel>(new SupplierCreateModel { ShortName = "supplier01a", Name = "Supplier 01a" }, HttpMethod.Post, ApiRoutes.Suppliers);
+        var supplierA = await AuthorizedSendAsync<SupplierModel>(new SupplierRequest { ShortName = "supplier01a", Name = "Supplier 01a" }, HttpMethod.Post, ApiRoutes.Suppliers);
         Assert.NotNull(supplierA);
 
-        var supplierB = await AuthorizedSendAsync<SupplierModel>(new SupplierCreateModel { ShortName = "supplier01b", Name = "Supplier 01b" }, HttpMethod.Post, ApiRoutes.Suppliers);
+        var supplierB = await AuthorizedSendAsync<SupplierModel>(new SupplierRequest { ShortName = "supplier01b", Name = "Supplier 01b" }, HttpMethod.Post, ApiRoutes.Suppliers);
         Assert.NotNull(supplierB);
 
-        await AuthorizedSendAsync<PurchaseModel>(new PurchaseCreateModel { Receipt = DateTime.UtcNow.AddHours(-1), Received = DateTime.UtcNow.AddHours(-1), SupplierId = supplierA.Id }, HttpMethod.Post);
-        await AuthorizedSendAsync<PurchaseModel>(new PurchaseCreateModel { Receipt = DateTime.UtcNow.AddHours(-2), Received = DateTime.UtcNow.AddHours(-5), SupplierId = supplierB.Id }, HttpMethod.Post);
-        await AuthorizedSendAsync<PurchaseModel>(new PurchaseCreateModel { Receipt = DateTime.UtcNow.AddHours(-3), Received = DateTime.UtcNow.AddHours(-3) }, HttpMethod.Post);
+        await AuthorizedSendAsync<PurchaseModel>(new PurchaseRequest { Receipt = DateTime.UtcNow.AddHours(-1), Received = DateTime.UtcNow.AddHours(-1), SupplierId = supplierA.Id }, HttpMethod.Post);
+        await AuthorizedSendAsync<PurchaseModel>(new PurchaseRequest { Receipt = DateTime.UtcNow.AddHours(-2), Received = DateTime.UtcNow.AddHours(-5), SupplierId = supplierB.Id }, HttpMethod.Post);
+        await AuthorizedSendAsync<PurchaseModel>(new PurchaseRequest { Receipt = DateTime.UtcNow.AddHours(-3), Received = DateTime.UtcNow.AddHours(-3) }, HttpMethod.Post);
 
         // Act
         var query = new PagedQuery 

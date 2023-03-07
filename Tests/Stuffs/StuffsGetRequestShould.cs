@@ -18,7 +18,7 @@ public class StuffsGetRequestShould : IntegrationTestBase
     public async Task Get_Stuffs()
     {
         // Arrange
-        var model = new StuffCreateModel { Name = "Stuff Name" };
+        var model = new StuffRequest { Name = "Stuff Name" };
         await AuthorizedSendAsync<StuffModel>(model, HttpMethod.Post);
 
         // Act
@@ -38,9 +38,9 @@ public class StuffsGetRequestShould : IntegrationTestBase
     public async Task Get_Stuffs_WithPaging(int count, string firstName, string? search, int? page, int? pageSize, string? sortField, SortDirection? sortDir)
     {
         // Arrange
-        await AuthorizedSendAsync<StuffModel>(new StuffCreateModel { Name = "Stuff Name" }, HttpMethod.Post);
-        await AuthorizedSendAsync<StuffModel>(new StuffCreateModel { Name = "Search 01" }, HttpMethod.Post);
-        await AuthorizedSendAsync<StuffModel>(new StuffCreateModel { Name = "Search 02" }, HttpMethod.Post);
+        await AuthorizedSendAsync<StuffModel>(new StuffRequest { Name = "Stuff Name" }, HttpMethod.Post);
+        await AuthorizedSendAsync<StuffModel>(new StuffRequest { Name = "Search 01" }, HttpMethod.Post);
+        await AuthorizedSendAsync<StuffModel>(new StuffRequest { Name = "Search 02" }, HttpMethod.Post);
 
         // Act
         var query = new PagedQuery 

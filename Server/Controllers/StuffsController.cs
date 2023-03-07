@@ -32,7 +32,9 @@ public class StuffsController : BaseController<Stuff>
 
         grid ??= new GridQuery();
         if (!string.IsNullOrEmpty(grid.Search))
-            query = query.Where(x => x.Name.ToLower().Contains(grid.Search.ToLower()));
+            query = query.Where(x => x.Name.ToLower().Contains(grid.Search.ToLower()) ||
+                x.Url!.ToLower().Contains(grid.Search.ToLower()) ||
+                x.Notes!.ToLower().Contains(grid.Search.ToLower()));
 
         switch (grid.SortField)
         {
@@ -85,7 +87,7 @@ public class StuffsController : BaseController<Stuff>
     }
 
     [HttpPost]
-    public async Task<ActionResult<StuffModel>> Create([FromBody] StuffCreateModel model)
+    public async Task<ActionResult<StuffModel>> Create([FromBody] StuffRequest model)
     {
         if (!ModelState.IsValid || model.Name == null)
             return BadRequest(model);
@@ -113,7 +115,7 @@ public class StuffsController : BaseController<Stuff>
     }
 
     [HttpPut("{hash}")]
-    public async Task<ActionResult<StuffModel>> Update(string hash, [FromBody] StuffCreateModel model)
+    public async Task<ActionResult<StuffModel>> Update(string hash, [FromBody] StuffRequest model)
     {
         if (!ModelState.IsValid || model.Name == null)
             return BadRequest(model);
