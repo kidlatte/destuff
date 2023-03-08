@@ -45,7 +45,7 @@
                     <td class="text-end">
                         @((item.Quantity * item.Price ?? 0).ToString("n2"))
                     </td>
-                    <td>
+                    <td class="text-nowrap">
                         <button @onclick="() => UpdateOpen(item)" class="btn btn-sm btn-outline-secondary border border-0">
                             <i class="bi-pencil-square"></i>
                         </button>

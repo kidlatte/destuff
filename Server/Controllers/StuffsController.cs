@@ -31,10 +31,12 @@ public class StuffsController : BaseController<Stuff>
         var query = Query;
 
         grid ??= new GridQuery();
-        if (!string.IsNullOrEmpty(grid.Search))
-            query = query.Where(x => x.Name.ToLower().Contains(grid.Search.ToLower()) ||
-                x.Url!.ToLower().Contains(grid.Search.ToLower()) ||
-                x.Notes!.ToLower().Contains(grid.Search.ToLower()));
+        if (!string.IsNullOrEmpty(grid.Search)) {
+            var search = grid.Search.ToLower();
+            query = query.Where(x => x.Name.ToLower().Contains(search) ||
+                x.Url!.ToLower().Contains(search) ||
+                x.Notes!.ToLower().Contains(search));
+        }
 
         switch (grid.SortField)
         {

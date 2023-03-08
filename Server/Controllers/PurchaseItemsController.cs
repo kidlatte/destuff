@@ -34,7 +34,8 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
         grid ??= new GridQuery();
         if (!string.IsNullOrEmpty(grid.Search)) {
             var search = grid.Search.ToLower();
-            query = query.Where(x => x.Stuff!.Name.ToLower().Contains(search));
+            query = query.Where(x => x.Stuff!.Name.ToLower().Contains(search) ||
+                x.Notes!.ToLower().Contains(search));
         }
 
         switch (grid.SortField)
