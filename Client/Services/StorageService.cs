@@ -6,22 +6,29 @@ namespace Destuff.Client.Services;
 
 public interface IStorageService 
 {
-    ValueTask<AuthModel> GetUserAsync();
-    ValueTask SetUserAsync(AuthModel model);
-    ValueTask ClearUserAsync();
+    ValueTask<AuthModel> GetAuth();
+    ValueTask SetAuth(AuthModel model);
+    ValueTask ClearAuth();
+    ValueTask SetDarkTheme(bool value);
+    ValueTask<bool> GetDarkTheme();
 }
 
 public class StorageService : IStorageService
 {
-    public ILocalStorageService _localStorage { get; }
+    public ILocalStorageService LocalStorage { get; }
 
     public StorageService(ILocalStorageService localStorage)
     {
-        _localStorage = localStorage;
+        LocalStorage = localStorage;
     }
 
     private readonly string currentUserKey = "current-user";
-    public ValueTask ClearUserAsync() => _localStorage.RemoveItemAsync(currentUserKey);
-    public ValueTask<AuthModel> GetUserAsync() => _localStorage.GetItemAsync<AuthModel>(currentUserKey);
-    public ValueTask SetUserAsync(AuthModel model) => _localStorage.SetItemAsync(currentUserKey, model);
+    public ValueTask ClearAuth() => LocalStorage.RemoveItemAsync(currentUserKey);
+    public ValueTask<AuthModel> GetAuth() => LocalStorage.GetItemAsync<AuthModel>(currentUserKey);
+    public ValueTask SetAuth(AuthModel model) => LocalStorage.SetItemAsync(currentUserKey, model);
+
+    private readonly string darkThemeKey = "dark-theme";
+    public ValueTask<bool> GetDarkTheme() => LocalStorage.GetItemAsync<bool>(darkThemeKey);
+    public ValueTask SetDarkTheme(bool value) => LocalStorage.SetItemAsync(darkThemeKey, value);
+
 }

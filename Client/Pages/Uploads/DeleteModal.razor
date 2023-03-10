@@ -52,9 +52,7 @@
 
         try
         {
-            var result = await http.DeleteAsync($"{ApiRoutes.Uploads}/{Model.Id}");
-            result.EnsureSuccessStatusCode();
-
+            await http.DeleteAsync($"{ApiRoutes.Uploads}/{Model.Id}");
             await OnDeleted.InvokeAsync(Model);
         }
         catch (Exception ex)

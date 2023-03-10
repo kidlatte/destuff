@@ -56,9 +56,7 @@
 
         try
         {
-            var result = await http.DeleteAsync($"{ApiRoutes.StuffLocations}/{Stuff.Id}/{Location.Id}");
-            result.EnsureSuccessStatusCode();
-
+            await http.DeleteAsync($"{ApiRoutes.StuffLocations}/{Stuff.Id}/{Location.Id}");
             await OnDeleted.InvokeAsync(Location);
         }
         catch (Exception ex)

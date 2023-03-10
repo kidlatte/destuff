@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Components;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 
@@ -9,50 +9,92 @@ namespace Destuff.Client.Services;
 
 public interface IHttpService
 {
+    event EventHandler<bool>? LoadingStateChanged;
+    event EventHandler<bool>? OnlineStateChanged;
+    event EventHandler<HttpRequestError>? OnError;
+
+    Task<HttpResponseMessage> SendAsync(HttpRequestMessage request);
+    Task<T?> SendAsync<T>(HttpRequestMessage request) where T : class;
+    Task<HttpResponseMessage> SendAsync(HttpMethod method, string uri, object? value);
+    Task<T?> SendAsync<T>(HttpMethod method, string uri, object? value = null) where T : class;
     Task<T?> GetAsync<T>(string uri) where T : class;
     Task<T?> PostAsync<T>(string uri, object value) where T : class;
     Task<T?> PutAsync<T>(string uri, object value) where T : class;
-    Task<HttpResponseMessage> DeleteAsync(string uri);
-    Task<HttpResponseMessage> SendAsync(HttpRequestMessage request);
+    Task DeleteAsync(string uri);
+    void InvokeError(string message, HttpStatusCode? statusCode);
 }
 
 public class HttpService : IHttpService
 {
-    private IStorageService _storage;
-    private HttpClient _http;
-    private NavigationManager _navigation;
-    
-    public HttpService(
-        HttpClient httpClient,
-        NavigationManager navigation,
-        IStorageService storage
-    )
+    public event EventHandler<bool>? LoadingStateChanged;
+    public event EventHandler<bool>? OnlineStateChanged;
+    public event EventHandler<HttpRequestError>? OnError;
+
+    private readonly HttpClient Http;
+    private readonly IStorageService Storage;
+    private int LoadingCounter = 0;
+
+    public HttpService(HttpClient http, IStorageService storage)
     {
-        _http = httpClient;
-        _navigation = navigation;
-        _storage = storage;
+        Http = http;
+        Storage = storage;
+        System.Diagnostics.Debug.WriteLine($"HttpService instantiated");
     }
-
-    public Task<T?> GetAsync<T>(string uri) where T : class => sendRequest<T>(HttpMethod.Get, uri);
-
-    public Task<T?> PostAsync<T>(string uri, object value) where T : class => sendRequest<T>(HttpMethod.Post, uri, value);
-
-    public Task<T?> PutAsync<T>(string uri, object value) where T : class => sendRequest<T>(HttpMethod.Put, uri, value);
-
-    public Task<HttpResponseMessage> DeleteAsync(string uri) => sendRequest(HttpMethod.Delete, uri);
 
     public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request)
     {
         // add jwt auth header if user is logged in and request is to the api url
-        var user = await _storage.GetUserAsync();
+        var auth = await Storage.GetAuth();
         var isApiUrl = request.RequestUri?.OriginalString.StartsWith("/api") ?? default;
-        if (user != null && isApiUrl)
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", user.Token);
+        if (auth != null && isApiUrl)
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.Token);
+        try {
+            SetLoadingState(true);
 
-        return await _http.SendAsync(request);
+            var result = await Http.SendAsync(request);
+            SetOnlineState(true);
+            return result;
+        }
+        catch (HttpRequestException ex) {
+            InvokeError(ex.Message, ex.StatusCode);
+
+            if (ex.InnerException != null && ex.InnerException is SocketException exception) {
+                var inner = exception;
+                if (inner.SocketErrorCode == SocketError.ConnectionRefused)
+                    SetOnlineState(false);
+            }
+
+            if (ex.Message.Contains("NetworkError"))
+                SetOnlineState(false);
+
+            throw;
+        }
+        catch (Exception ex) {
+            Console.WriteLine(ex.Message);
+            throw;
+        }
+        finally {
+            SetLoadingState(false);
+        }
     }
 
-    private Task<HttpResponseMessage> sendRequest(HttpMethod method, string uri, object? value = null)
+    public async Task<T?> SendAsync<T>(HttpRequestMessage request) where T : class
+    {
+        var response = await SendAsync(request);
+
+        // invoke error on error response
+        if (!response.IsSuccessStatusCode) {
+            InvokeError(response.ReasonPhrase ?? response.StatusCode.ToString(), response.StatusCode);
+            response.EnsureSuccessStatusCode();
+        }
+
+        if (response.StatusCode == HttpStatusCode.NoContent)
+            return null;
+
+        return await response.Content.ReadFromJsonAsync<T>();
+    }
+
+    public Task<HttpResponseMessage> SendAsync(HttpMethod method, string uri, object? value = null)
     {
         var request = new HttpRequestMessage(method, uri);
         if (value != null)
@@ -61,23 +103,50 @@ public class HttpService : IHttpService
         return SendAsync(request);
     }
 
-    private async Task<T?> sendRequest<T>(HttpMethod method, string uri, object? value = null) where T : class
+    public Task<T?> SendAsync<T>(HttpMethod method, string uri, object? value = null) where T : class
     {
-        var response = await sendRequest(method, uri, value);
+        var request = new HttpRequestMessage(method, uri);
+        if (value != null)
+            request.Content = new StringContent(JsonSerializer.Serialize(value), Encoding.UTF8, "application/json");
 
-        // auto logout on 401 response
-        if (response.StatusCode == HttpStatusCode.Unauthorized)
-        {
-            _navigation.NavigateTo("/login");
-            return default;
-        }
-
-        if (response.StatusCode == HttpStatusCode.NoContent)
-            return null;
-
-        response.EnsureSuccessStatusCode();
-
-        return await response.Content.ReadFromJsonAsync<T>();
+        return SendAsync<T>(request);
     }
-    
+
+    public Task<T?> GetAsync<T>(string uri) where T : class => SendAsync<T>(HttpMethod.Get, uri);
+    public Task<T?> PostAsync<T>(string uri, object value) where T : class => SendAsync<T>(HttpMethod.Post, uri, value);
+    public Task<T?> PutAsync<T>(string uri, object value) where T : class => SendAsync<T>(HttpMethod.Put, uri, value);
+    public Task DeleteAsync(string uri) => SendAsync<object>(HttpMethod.Delete, uri);
+
+    void SetLoadingState(bool isLoading)
+    {
+        LoadingCounter += isLoading ? 1 : -1;
+        LoadingCounter = Math.Max(LoadingCounter, 0);
+        LoadingStateChanged?.Invoke(this, LoadingCounter > 0);
+    }
+
+    void SetOnlineState(bool online) => OnlineStateChanged?.Invoke(this, online);
+
+    public void InvokeError(string message, HttpStatusCode? statusCode) => OnError?.Invoke(this, new HttpRequestError(message, statusCode));
+}
+
+public class HttpRequestError
+{
+    public string Message { get; set; }
+    public HttpStatusCode? StatusCode { get; set; }
+
+    public HttpRequestError(string message, HttpStatusCode? statusCode = null)
+    {
+        Message = message;
+        StatusCode = statusCode;
+    }
+}
+
+public class ConflictException<T> : Exception where T : class
+{
+    public T Content { get; set; }
+
+    public ConflictException(T content)
+    {
+        Content = content;
+    }
 }

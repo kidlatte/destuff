@@ -1,27 +1,100 @@
-﻿@using Destuff.Client.Shared.Components
-@inherits LayoutComponentBase
+﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
+@inject IStorageService storage
+@inject IHttpService http
+@inject ISnackbar snackbar
+@inject AuthenticationService auth
+@inject NavigationManager nav
+
+<MudThemeProvider @bind-IsDarkMode="@darkMode" Theme="theme" />
+<MudDialogProvider CloseOnEscapeKey="true" CloseButton="true" />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="0">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudSpacer />
+
+        <MudToggleIconButton Toggled="@darkMode" ToggledChanged="DarkThemeChanged"
+            Icon="@Icons.Material.Outlined.DarkMode" Color="@Color.Inherit" Title="Switch to Dark Theme"
+            ToggledIcon="@Icons.Material.Outlined.LightMode" ToggledColor="@Color.Warning" ToggledTitle="Switch to Light Theme" />
+        
+        @if (loading)
+        {
+            <div class="px-3 d-flex align-center">
+                <MudProgressCircular Color="Color.Primary" Size="Size.Small" StrokeWidth="5" Indeterminate="true" />
+            </div>
+        }
+        else if (!online)
+        {
+            <div class="px-3 d-flex align-center">
+                <MudIcon Title="Offline" Color="Color.Error" Icon="@Icons.Material.Outlined.SignalWifiStatusbarConnectedNoInternet4" />
+            </div>
+        }
+        else
+        {
+            <Logout />
+        }
+
+    </MudAppBar>
+    <MudDrawer @bind-Open="drawerOpen" Elevation="1">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.h6">Destuff</MudText>
+        </MudDrawerHeader>
         <NavMenu />
-    </div>
+    </MudDrawer>
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.False" Class="my-2">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
 
-    <main>
-        <div class="top-row px-4">
-            <LogoutLink />
-        </div>
+@code {
+    MudTheme theme = new MudTheme()
+    {
+        Typography = new Typography()
+        {
+            H3 = new H3() { FontWeight = 100 },
+            H6 = new H6() { FontWeight = 100 },
+        }
+    };
 
-        <article class="content px-4">
-            <CascadingValue Value="@Toast">
-                @Body
-            </CascadingValue>
-        </article>
-    </main>
-</div>
+    bool drawerOpen = true;
+    bool darkMode = false;
+    bool loading = false;   
+    bool online = true;
 
-<Toast @ref="Toast" />
+    protected override async Task OnInitializedAsync()
+    {
 
-@code
-{
-    private Toast? Toast { get; set; }
+        darkMode = await storage.GetDarkTheme();
+
+        http.LoadingStateChanged += async (s, isLoading) => 
+        {
+            loading = isLoading;
+            await InvokeAsync(StateHasChanged);
+        };
+        
+        http.OnlineStateChanged += (s, isOnline) => online = isOnline;
+        http.OnError += (s, args) =>
+        {
+            Console.WriteLine($"http: {args.StatusCode}");
+            if (args.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                nav.NavigateTo("/login");
+            else
+                snackbar.Add(args.Message, Severity.Error);
+        };
+    }
+
+    void DrawerToggle()
+    {
+        drawerOpen = !drawerOpen;
+    }
+
+    async Task DarkThemeChanged()
+    {
+        darkMode = !darkMode;
+        await storage.SetDarkTheme(darkMode);
+    }
 }

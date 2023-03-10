@@ -7,12 +7,12 @@ using Destuff.Shared.Models;
 
 namespace Destuff.Client.Services;
 
-public class CustomAuthenticationStateProvider : AuthenticationStateProvider
+public class AuthenticationService : AuthenticationStateProvider
 {
     IHttpService _http { get; }
     IStorageService _storage { get; }
 
-    public CustomAuthenticationStateProvider(IHttpService http, IStorageService storage)
+    public AuthenticationService(IHttpService http, IStorageService storage)
     {
         _http = http;
         _storage = storage;
@@ -20,7 +20,7 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        var currentUser = await _storage.GetUserAsync();
+        var currentUser = await _storage.GetAuth();
         if (currentUser?.UserName == null)
             return new AuthenticationState(new ClaimsPrincipal());
 
@@ -35,14 +35,14 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
         if (model == null)
             throw new Exception("No auth token.");
         
-        await _storage.SetUserAsync(model);
+        await _storage.SetAuth(model);
 
         NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }
 
     public async Task LogoutAsync()
     {
-        await _storage.ClearUserAsync();
+        await _storage.ClearAuth();
         NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }
 }
