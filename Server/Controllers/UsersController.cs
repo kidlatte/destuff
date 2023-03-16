@@ -1,13 +1,10 @@
 ﻿using AutoMapper;
 using BlazorGrid.Abstractions;
-using BlazorGrid.Abstractions.Extensions;
 using Destuff.Server.Data;
 using Destuff.Server.Services;
 using Destuff.Shared;
 using Destuff.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

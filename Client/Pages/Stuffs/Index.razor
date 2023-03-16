@@ -1,4 +1,4 @@
-@page "/"
+﻿@page "/"
 @page "/stuffs"
 
 @attribute [Authorize]
@@ -7,11 +7,45 @@
 
 <PageTitle>Stuffs | Destuff</PageTitle>
 
-<h1>Stuffs</h1>
+<div class="my-5">
+    <MudText Typo="Typo.h1">Stuffs</MudText>
+</div>
+
+<MudDataGrid @ref="grid" T="StuffListItem" ServerData="LoadServerData" CurrentPage="gridPage" RowsPerPage="PageSize" SortMode="SortMode.Single">
+    <ToolBarContent>
+        <form @onsubmit="OnSearch" class="mw-100 me-auto" style="width: 300px">
+            <MudTextField @bind-Value="search" Placeholder="Search" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense"
+                Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"></MudTextField>
+        </form>
+        <MudSpacer />
+    </ToolBarContent>
+    <Columns>
+        <Column T="StuffListItem" Field="Name" />
+        <Column T="StuffListItem" Field="Locations">
+            <CellTemplate>
+                @foreach (var (location, i) in context.Item.Locations.ToIndex()) {
+                    @if (i > 0) {
+                        <text>, </text>
+                    }
+                    <a href="@($"/locations/{location.Slug}")">@location.Name</a>
+                }
+            </CellTemplate>
+        </Column>
+        <Column T="StuffListItem" Title="">
+            <CellTemplate>
+                <MudIconButton OnClick="_ => delete?.Open(context.Item)" Icon="@Icons.Material.Filled.Delete" aria-label="delete"></MudIconButton>
+            </CellTemplate>
+        </Column>
+    </Columns>
+    <PagerContent>
+        <div class="py-5 d-flex justify-center">
+            <MudPagination Count="PageCount" Selected="pagerPage" SelectedChanged="PageChanged" Color="Color.Primary" />
+        </div>
+    </PagerContent>
+</MudDataGrid>
 
 <div class="d-flex mb-3">
-    @if (data != null && data.Count > 0)
-    {
+    @if (data != null && data.Count > 0) {
         <form @onsubmit="OnSearch" class="mw-100 me-auto" style="width: 300px">
             <div class="input-group">
                 <input @bind-value="search" type="text" class="form-control" placeholder="Search..." aria-label="Search...">
@@ -26,8 +60,7 @@
     <button @onclick="() => bulk?.Open()" type="button" class="btn btn-secondary ms-1">Bulk</button>
 </div>
 
-@if (data != null && data.Count > 0)
-{
+@if (data != null && data.Count > 0) {
     <table class="table">
         <thead>
             <tr>
@@ -37,16 +70,16 @@
             </tr>
         </thead>
         <tbody class="table-group-divider">
-            @foreach(var item in data.List)
-            {
+            @foreach (var item in data.List) {
                 <tr>
                     <td>
                         <a href="@($"/stuffs/{item.Slug}")">@item.Name</a>
                     </td>
                     <td>
-                        @foreach(var (location, i) in item.Locations.ToIndex())
-                        {
-                            @if (i > 0) {<text>, </text>}
+                        @foreach (var (location, i) in item.Locations.ToIndex()) {
+                            @if (i > 0) {
+                                <text>, </text>
+                            }
                             <a href="@($"/locations/{location.Slug}")">@location.Name</a>
                         }
                     </td>
@@ -60,7 +93,7 @@
         </tbody>
     </table>
 
-    <Pager Count="data.Count" Page="Page" PageSize="PageSize" GenerateLink="GenerateLink" />
+    <Pager Count="data.Count" Page="pagerPage" PageSize="PageSize" GenerateLink="GenerateLink" />
 }
 
 <CreateBulkModal @ref="bulk" OnCreated="LoadData" />
@@ -71,29 +104,66 @@
 {
     [Parameter, SupplyParameterFromQuery(Name = "s")]
     public string? Search { get; set; }
-    public string? search { get; set; }
+    string? search { get; set; }
 
     [Parameter, SupplyParameterFromQuery(Name = "p")]
-    public int Page { get; set; }
+    public int? Page { get; set; } = 1;
+    int gridPage => (Page ?? 1) - 1;
+    int pagerPage = 1;
 
     public int PageSize => 10;
+    public int PageCount;
 
     PagedList<StuffListItem>? data { get; set; }
-    
+
+    MudDataGrid<StuffListItem>? grid;
     CreateBulkModal? bulk;
     StuffCreateModal? create;
     DeleteModal? delete;
 
-    protected async override Task OnParametersSetAsync()
+    protected override void OnInitialized() => PageCount = gridPage + 1;
+
+    protected override async Task OnParametersSetAsync()
     {
         search = Search;
-        await LoadData();
+        pagerPage = Page ?? 1;
+        if (grid != null)
+            await grid.ReloadServerData();
     }
 
     async Task LoadData()
     {
         var query = new PagedQuery { Search = Search, Page = Page, PageSize = PageSize };
         data = await http.GetAsync<PagedList<StuffListItem>>($"{ApiRoutes.Stuffs}?{query}");
+    }
+
+    async Task<GridData<StuffListItem>> LoadServerData(GridState<StuffListItem> state)
+    {
+        var sort = state.SortDefinitions.FirstOrDefault();
+        var query = new PagedQuery
+        {
+            Search = Search,
+            Page = gridPage, // state returns wrong page on first load.
+            PageSize = state.PageSize,
+            SortField = sort?.SortBy,
+            SortDir = sort?.Descending == true ? DestuffDirection.Descending : DestuffDirection.Ascending
+        };
+        var result = await http.GetAsync<PagedList<StuffListItem>>($"{ApiRoutes.Stuffs}?{query}");
+        if (result == null)
+            throw new Exception("Result is null");
+
+        PageCount = (result.Count - 1) / PageSize + 1;
+        return new() {
+            Items = result.List,
+            TotalItems = result.Count
+        };
+    }
+
+    void PageChanged(int i)
+    {
+        if (pagerPage != i)
+            nav.NavigateTo($"/stuffs?p={i}");
+        pagerPage = i;
     }
 
     string GenerateLink(int page) => $"/stuffs?{new PagedQuery { Search = Search, Page = page }}";

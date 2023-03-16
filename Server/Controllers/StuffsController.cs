@@ -38,13 +38,13 @@ public class StuffsController : BaseController<Stuff>
                 x.Notes!.ToLower().Contains(search));
         }
 
-        switch (grid.SortField)
-        {
-            case "name":
-                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
+        var sortField = grid.SortField ?? nameof(Entity.Created);
+        switch (grid.SortField) {
+            case "Locations":
+                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Locations!.First().Name) : query.OrderBy(x => x.Locations!.First().Name);
                 break;
             default:
-                query = query.OrderByDescending(x => x.Created);
+                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField);
                 break;
         }
 

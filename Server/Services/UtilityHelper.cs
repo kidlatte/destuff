@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Destuff.Server.Models;
+using System.Linq.Expressions;
 
 namespace Destuff.Server.Services;
 
@@ -64,5 +65,24 @@ public static class UtilityHelper
                 ValidateAudience = false
             };
         });
+    }
+
+    public static IOrderedQueryable<T> OrderBy<T>(this IQueryable<T> source, string propertyName)
+    {
+        return source.OrderBy(ToLambda<T>(propertyName));
+    }
+
+    public static IOrderedQueryable<T> OrderByDescending<T>(this IQueryable<T> source, string propertyName)
+    {
+        return source.OrderByDescending(ToLambda<T>(propertyName));
+    }
+
+    private static Expression<Func<T, object>> ToLambda<T>(string propertyName)
+    {
+        var parameter = Expression.Parameter(typeof(T));
+        var property = Expression.Property(parameter, propertyName);
+        var propAsObject = Expression.Convert(property, typeof(object));
+
+        return Expression.Lambda<Func<T, object>>(propAsObject, parameter);
     }
 }

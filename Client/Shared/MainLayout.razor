@@ -16,23 +16,20 @@
         <MudSpacer />
 
         <MudToggleIconButton Toggled="@darkMode" ToggledChanged="DarkThemeChanged"
-            Icon="@Icons.Material.Outlined.DarkMode" Color="@Color.Inherit" Title="Switch to Dark Theme"
-            ToggledIcon="@Icons.Material.Outlined.LightMode" ToggledColor="@Color.Warning" ToggledTitle="Switch to Light Theme" />
-        
-        @if (loading)
-        {
+                             Icon="@Icons.Material.Outlined.DarkMode" Color="@Color.Inherit" Title="Switch to Dark Theme"
+                             ToggledIcon="@Icons.Material.Outlined.LightMode" ToggledColor="@Color.Warning" ToggledTitle="Switch to Light Theme" />
+
+        @if (loading) {
             <div class="px-3 d-flex align-center">
                 <MudProgressCircular Color="Color.Primary" Size="Size.Small" StrokeWidth="5" Indeterminate="true" />
             </div>
         }
-        else if (!online)
-        {
+        else if (!online) {
             <div class="px-3 d-flex align-center">
                 <MudIcon Title="Offline" Color="Color.Error" Icon="@Icons.Material.Outlined.SignalWifiStatusbarConnectedNoInternet4" />
             </div>
         }
-        else
-        {
+        else {
             <Logout />
         }
 
@@ -51,18 +48,17 @@
 </MudLayout>
 
 @code {
-    MudTheme theme = new MudTheme()
-    {
-        Typography = new Typography()
-        {
-            H3 = new H3() { FontWeight = 100 },
-            H6 = new H6() { FontWeight = 100 },
-        }
-    };
+    MudTheme theme = new MudTheme() {
+            Typography = new Typography() {
+                H1 = new() { FontWeight = 100, FontSize = "48px" },
+                H3 = new() { FontWeight = 100 },
+                H6 = new() { FontWeight = 100 },
+            }
+        };
 
     bool drawerOpen = true;
     bool darkMode = false;
-    bool loading = false;   
+    bool loading = false;
     bool online = true;
 
     protected override async Task OnInitializedAsync()
@@ -70,15 +66,13 @@
 
         darkMode = await storage.GetDarkTheme();
 
-        http.LoadingStateChanged += async (s, isLoading) => 
-        {
+        http.LoadingStateChanged += async (s, isLoading) => {
             loading = isLoading;
             await InvokeAsync(StateHasChanged);
         };
-        
+
         http.OnlineStateChanged += (s, isOnline) => online = isOnline;
-        http.OnError += (s, args) =>
-        {
+        http.OnError += (s, args) => {
             Console.WriteLine($"http: {args.StatusCode}");
             if (args.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 nav.NavigateTo("/login");
