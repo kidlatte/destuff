@@ -13,11 +13,12 @@
 
 <MudDataGrid @ref="grid" T="StuffListItem" ServerData="LoadServerData" CurrentPage="gridPage" RowsPerPage="PageSize" SortMode="SortMode.Single">
     <ToolBarContent>
-        <form @onsubmit="OnSearch" class="mw-100 me-auto" style="width: 300px">
-            <MudTextField @bind-Value="search" Placeholder="Search" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense"
-                Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"></MudTextField>
-        </form>
+        <MudTextField T="string" Value="search" ValueChanged="OnSearch" Placeholder="Search"
+                      Style="max-width: 300px" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense"
+                      Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"></MudTextField>
         <MudSpacer />
+        <MudButton OnClick="() => create?.Open()" Variant="Variant.Filled" Color="Color.Primary" Class="mr-2">Add</MudButton>
+        <MudButton OnClick="() => bulk?.Open()" Variant="Variant.Filled" Color="Color.Secondary">Bulk</MudButton>
     </ToolBarContent>
     <Columns>
         <Column T="StuffListItem" Field="Name" />
@@ -43,22 +44,6 @@
         </div>
     </PagerContent>
 </MudDataGrid>
-
-<div class="d-flex mb-3">
-    @if (data != null && data.Count > 0) {
-        <form @onsubmit="OnSearch" class="mw-100 me-auto" style="width: 300px">
-            <div class="input-group">
-                <input @bind-value="search" type="text" class="form-control" placeholder="Search..." aria-label="Search...">
-                <button type="submit" class="btn btn-outline-secondary">
-                    <i class="bi-search"></i>
-                </button>
-            </div>
-        </form>
-    }
-
-    <button @onclick="() => create?.Open()" type="button" class="btn btn-primary ms-1">Add</button>
-    <button @onclick="() => bulk?.Open()" type="button" class="btn btn-secondary ms-1">Bulk</button>
-</div>
 
 @if (data != null && data.Count > 0) {
     <table class="table">
@@ -125,9 +110,10 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        await Task.CompletedTask;
         search = Search;
         pagerPage = Page ?? 1;
-        if (grid != null)
+        if (grid != null && Page == null) // BUG: server data doesn't auto reload
             await grid.ReloadServerData();
     }
 
@@ -140,10 +126,9 @@
     async Task<GridData<StuffListItem>> LoadServerData(GridState<StuffListItem> state)
     {
         var sort = state.SortDefinitions.FirstOrDefault();
-        var query = new PagedQuery
-        {
+        var query = new PagedQuery {
             Search = Search,
-            Page = gridPage, // state returns wrong page on first load.
+            Page = gridPage, // BUG: state returns wrong page on first load.
             PageSize = state.PageSize,
             SortField = sort?.SortBy,
             SortDir = sort?.Descending == true ? DestuffDirection.Descending : DestuffDirection.Ascending
@@ -162,11 +147,15 @@
     void PageChanged(int i)
     {
         if (pagerPage != i)
-            nav.NavigateTo($"/stuffs?p={i}");
+            nav.NavigateTo($"/stuffs?{new PagedQuery { Search = Search, Page = i }}");
         pagerPage = i;
     }
 
     string GenerateLink(int page) => $"/stuffs?{new PagedQuery { Search = Search, Page = page }}";
 
-    void OnSearch() => nav.NavigateTo($"/stuffs?s={search}");
+    void OnSearch(string value)
+    {
+        search = value;
+        nav.NavigateTo(string.IsNullOrEmpty(search) ? $"/stuffs" : $"/stuffs?s={search}");
+    }
 }
