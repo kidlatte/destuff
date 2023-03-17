@@ -38,8 +38,11 @@ public class StuffsController : BaseController<Stuff>
                 x.Notes!.ToLower().Contains(search));
         }
 
-        var sortField = grid.SortField ?? nameof(Entity.Created);
-        switch (grid.SortField) {
+        var sortField = grid.SortField ?? "";
+        switch (sortField) {
+            case "":
+                query = query.OrderByDescending(x => x.Created);
+                break;
             case "Locations":
                 query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Locations!.First().Name) : query.OrderBy(x => x.Locations!.First().Name);
                 break;

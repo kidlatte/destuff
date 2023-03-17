@@ -4,6 +4,7 @@
 @attribute [Authorize]
 @inject NavigationManager nav
 @inject IHttpService http
+@inject IDialogService dialog
 
 <PageTitle>Stuffs | Destuff</PageTitle>
 
@@ -17,7 +18,7 @@
                       Style="max-width: 300px" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense"
                       Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"></MudTextField>
         <MudSpacer />
-        <MudButton OnClick="() => create?.Open()" Variant="Variant.Filled" Color="Color.Primary" Class="mr-2">Add</MudButton>
+        <MudButton OnClick="OnAddClick" Variant="Variant.Filled" Color="Color.Primary" Class="mr-2">Add</MudButton>
         <MudButton OnClick="() => bulk?.Open()" Variant="Variant.Filled" Color="Color.Secondary">Bulk</MudButton>
     </ToolBarContent>
     <Columns>
@@ -34,13 +35,16 @@
         </Column>
         <Column T="StuffListItem" Title="">
             <CellTemplate>
-                <MudIconButton OnClick="_ => delete?.Open(context.Item)" Icon="@Icons.Material.Filled.Delete" aria-label="delete"></MudIconButton>
+                <MudIconButton OnClick="_ => OnDelete(context.Item)" Icon="@Icons.Material.Filled.Delete" aria-label="delete"></MudIconButton>
             </CellTemplate>
         </Column>
     </Columns>
     <PagerContent>
         <div class="py-5 d-flex justify-center">
-            <MudPagination Count="PageCount" Selected="pagerPage" SelectedChanged="PageChanged" Color="Color.Primary" />
+            @if (PageCount > 1)
+            {
+                <MudPagination Count="PageCount" Selected="pagerPage" SelectedChanged="PageChanged" Color="Color.Primary" />
+            }
         </div>
     </PagerContent>
 </MudDataGrid>
@@ -82,7 +86,6 @@
 }
 
 <CreateBulkModal @ref="bulk" OnCreated="LoadData" />
-<StuffCreateModal @ref="create" OnCreated="LoadData" />
 <DeleteModal @ref="delete" OnDeleted="LoadData" />
 
 @code
@@ -103,7 +106,6 @@
 
     MudDataGrid<StuffListItem>? grid;
     CreateBulkModal? bulk;
-    StuffCreateModal? create;
     DeleteModal? delete;
 
     protected override void OnInitialized() => PageCount = gridPage + 1;
@@ -119,8 +121,8 @@
 
     async Task LoadData()
     {
-        var query = new PagedQuery { Search = Search, Page = Page, PageSize = PageSize };
-        data = await http.GetAsync<PagedList<StuffListItem>>($"{ApiRoutes.Stuffs}?{query}");
+        if (grid != null && Page == null) // BUG: server data doesn't auto reload
+            await grid.ReloadServerData();
     }
 
     async Task<GridData<StuffListItem>> LoadServerData(GridState<StuffListItem> state)
@@ -157,5 +159,21 @@
     {
         search = value;
         nav.NavigateTo(string.IsNullOrEmpty(search) ? $"/stuffs" : $"/stuffs?s={search}");
+    }
+
+    async void OnAddClick()
+    {
+        var dref = await dialog.ShowAsync<StuffCreateModal>();
+        var result = dref.Result;
+    }
+
+    async void OnDelete(StuffListItem item)
+    {
+        bool? result = await dialog.ShowMessageBox(
+            $"Delete {item.Name}",
+            $"Are you sure you want to delete stuff \"{item.Name}\".",
+            yesText: "Delete", cancelText: "Cancel");
+
+        StateHasChanged();
     }
 }

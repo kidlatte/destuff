@@ -2,59 +2,41 @@
 
 @if (model != null)
 {
-    <div class="modal-backdrop fade show"></div>
+    <EditForm OnValidSubmit="OnSubmit" Model="model" autocomplete="off">
+        <MudDialog>
+            <TitleContent>
+                <MudText Typo="Typo.h6">Add Stuff</MudText>
+            </TitleContent>   
+            <DialogContent>
+                <DataAnnotationsValidator />
 
-    <div class="modal fade show" tabindex="-1" role="dialog" style="display: block; overflow-y: auto;">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add Stuff</h5>
-                    <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
+                <MudTextField @bind-Value="model.Name" For="@(() => model.Name)" Disabled="loading"
+                          Label="Name" Variant="Variant.Outlined" />
+
+                <MudTextField @bind-Value="model.Url" For="@(() => model.Url)" Disabled="loading"
+                          Label="Product details webpage" Variant="Variant.Outlined" />
+                <div class="form-floating mb-1">
+                    <LocationSelect @bind-Value="model.LocationId" Loading="loading" />
                 </div>
-                <EditForm OnValidSubmit="OnSubmit" Model="model" autocomplete="off">
-                    <div class="modal-body">
-                        <DataAnnotationsValidator />
+                <MudTextField @bind-Value="model.Notes" For="@(() => model.Notes)" Disabled="loading"
+                          Label="Notes" Variant="Variant.Outlined" Lines="3" />
 
-                        <div class="form-floating mb-1">
-                            <InputText @bind-Value="model.Name" disable="@loading"
-                                class="form-control" placeholder="Name" autocomplete="off" />
-                            <label>Name</label>
-                            <ValidationMessage For="@(() => model.Name)" />
-                        </div>
-
-                        <div class="form-floating mb-1">
-                            <InputText @bind-Value="model.Url" disable="@loading"
-                                       class="form-control" placeholder="URL" autocomplete="off" />
-                            <label>URL</label>
-                            <ValidationMessage For="@(() => model.Url)" />
-                        </div>
-
-                        <div class="form-floating mb-1">
-                            <LocationSelect @bind-Value="model.LocationId" Loading="loading" />
-                        </div>
-
-                        <div class="form-floating mb-1">
-                            <InputTextArea @bind-Value="model.Notes" disable="@loading"
-                                class="form-control" style="height: 100px" placeholder="Notes" />
-                            <label>Notes</label>
-                            <ValidationMessage For="@(() => model.Notes)" />
-                        </div>
-
-                        <label class="text-danger">@error</label>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary" disabled="@loading">
-                            @(loading ? "Submitting..." : "Confirm")
-                        </button>
-                        <button @onclick="Close" type="button" class="btn btn-secondary">Cancel</button>
-                    </div>
-                </EditForm>
-            </div>
-        </div>
-    </div>
+                <MudText Color="@Color.Error">@error</MudText>
+            </DialogContent>
+            <DialogActions>
+                <LoadingButton Loading="loading" />
+                <MudButton OnClick="Close" Disabled="loading" Color="Color.Default">
+                    Cancel
+                </MudButton>
+            </DialogActions>
+        </MudDialog>
+    </EditForm>
 }
 
 @code {
+    [CascadingParameter] 
+    MudDialogInstance? dialog { get; set; }
+
     [Parameter]
     public EventCallback<StuffModel> OnCreated { get; set; }
 
@@ -66,6 +48,7 @@
     protected override async Task OnInitializedAsync() 
     {
         await base.OnInitializedAsync();
+        model = new StuffRequest();
     }
 
     async Task OnSubmit()
@@ -78,9 +61,9 @@
         try
         {
             var result = await http.PostAsync<StuffModel>(ApiRoutes.Stuffs, model);
-
-            Close();
             await OnCreated.InvokeAsync(result);
+            
+            dialog?.Close(DialogResult.Ok(result));
         }
         catch (Exception ex)
         {
@@ -99,5 +82,6 @@
     public void Close()
     {
         model = null;
+        dialog?.Cancel();
     }
 }
