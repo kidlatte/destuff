@@ -61,8 +61,6 @@
         try
         {
             var result = await http.PostAsync<StuffModel>(ApiRoutes.Stuffs, model);
-            await OnCreated.InvokeAsync(result);
-            
             dialog?.Close(DialogResult.Ok(result));
         }
         catch (Exception ex)

@@ -8,9 +8,7 @@
 
 <PageTitle>Stuffs | Destuff</PageTitle>
 
-<div class="my-5">
-    <MudText Typo="Typo.h1">Stuffs</MudText>
-</div>
+<MudText Typo="Typo.h1" Class="my-5">Stuffs</MudText>
 
 <MudDataGrid @ref="grid" T="StuffListItem" ServerData="LoadServerData" CurrentPage="gridPage" RowsPerPage="PageSize" SortMode="SortMode.Single">
     <ToolBarContent>
@@ -22,14 +20,18 @@
         <MudButton OnClick="() => bulk?.Open()" Variant="Variant.Filled" Color="Color.Secondary">Bulk</MudButton>
     </ToolBarContent>
     <Columns>
-        <Column T="StuffListItem" Field="Name" />
+        <Column T="StuffListItem" Field="Name">
+            <CellTemplate>
+                <MudLink Href="@($"/stuffs/{context.Item.Slug}")">@context.Item.Name</MudLink>
+            </CellTemplate>
+        </Column>
         <Column T="StuffListItem" Field="Locations">
             <CellTemplate>
                 @foreach (var (location, i) in context.Item.Locations.ToIndex()) {
                     @if (i > 0) {
                         <text>, </text>
                     }
-                    <a href="@($"/locations/{location.Slug}")">@location.Name</a>
+                    <MudLink Href="@($"/locations/{location.Slug}")">@location.Name</MudLink>
                 }
             </CellTemplate>
         </Column>
@@ -48,42 +50,6 @@
         </div>
     </PagerContent>
 </MudDataGrid>
-
-@if (data != null && data.Count > 0) {
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Locations</th>
-                <th scope="col" style=""></th>
-            </tr>
-        </thead>
-        <tbody class="table-group-divider">
-            @foreach (var item in data.List) {
-                <tr>
-                    <td>
-                        <a href="@($"/stuffs/{item.Slug}")">@item.Name</a>
-                    </td>
-                    <td>
-                        @foreach (var (location, i) in item.Locations.ToIndex()) {
-                            @if (i > 0) {
-                                <text>, </text>
-                            }
-                            <a href="@($"/locations/{location.Slug}")">@location.Name</a>
-                        }
-                    </td>
-                    <td>
-                        <button @onclick="() => delete?.Open(item)" class="btn btn-sm btn-outline-danger border border-0">
-                            <i class="bi-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-
-    <Pager Count="data.Count" Page="pagerPage" PageSize="PageSize" GenerateLink="GenerateLink" />
-}
 
 <CreateBulkModal @ref="bulk" OnCreated="LoadData" />
 <DeleteModal @ref="delete" OnDeleted="LoadData" />
@@ -115,13 +81,13 @@
         await Task.CompletedTask;
         search = Search;
         pagerPage = Page ?? 1;
-        if (grid != null && Page == null) // BUG: server data doesn't auto reload
+        if (grid != null && Page == null) // BUG: ServerData doesn't auto reload
             await grid.ReloadServerData();
     }
 
     async Task LoadData()
     {
-        if (grid != null && Page == null) // BUG: server data doesn't auto reload
+        if (grid != null)
             await grid.ReloadServerData();
     }
 
@@ -163,8 +129,10 @@
 
     async void OnAddClick()
     {
-        var dref = await dialog.ShowAsync<StuffCreateModal>();
-        var result = dref.Result;
+        var dialogRef = await dialog.ShowAsync<StuffCreateModal>();
+        var result = await dialogRef.Result;
+        if (!result.Canceled && grid != null)
+            await grid.ReloadServerData();
     }
 
     async void OnDelete(StuffListItem item)

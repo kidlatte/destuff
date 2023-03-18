@@ -1,5 +1,4 @@
-@page "/stuffs/{Slug}"
-@page "/stuffs/{Slug}/{Tab}"
+@page "/stuffs/{Slug}/{Tab?}"
 
 @attribute [Authorize]
 @inject IHttpService http
@@ -9,15 +8,13 @@
 
 @if (model != null)
 {
-    <div class="d-flex mb-5">
+    <div class="d-flex">
         <div class="me-auto">
-            <Tabs Tab="@Tab" BasePath="@($"/stuffs/{Slug}")" />
+            <MudText Typo="Typo.h1" Class="my-5">@model.Name</MudText>
         </div>
         <div>
-            <a
-                href="/"
-                class="btn btn-outline-secondary"
-            >
+            <a href="/"
+               class="btn btn-outline-secondary">
                 <i class="bi bi-chevron-left"></i>
                 Stuffs
             </a>
@@ -25,16 +22,12 @@
             {
                 <FileUpload StuffId="@model.Id" OnUploaded="OnUploaded" ImageOnly="true"
                     Label="Upload" Class="btn btn-outline-primary ms-1" />
-                <button
-                    @onclick="() => update?.Open(model)"
-                    type="button" class="btn btn-outline-primary"
-                >
+                <button @onclick="() => update?.Open(model)"
+                        type="button" class="btn btn-outline-primary">
                     Edit
                 </button>
-                <button
-                    @onclick="() => delete?.Open(model)"
-                    type="button" class="btn btn-outline-danger"
-                >
+                <button @onclick="() => delete?.Open(model)"
+                        type="button" class="btn btn-outline-danger">
                     Delete
                 </button>
 
@@ -43,99 +36,100 @@
             }
             else if (Tab == StuffTabs.Locations)
             {
-                <button
-                    @onclick="() => locationAdd?.Open()"
-                    type="button" class="btn btn-outline-primary ms-1"
-                >
-                    Add
-                </button>
 
-                <LocationAddModal @ref="locationAdd" Model="model" OnAdded="LoadData" />
             }
         </div>
     </div>
     
 
-    <h1>@model.Name</h1>
+    <MudTabs ActivePanelIndex="activePanelIndex" ActivePanelIndexChanged="OnActivePanelIndexChanged"
+         Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+        <MudTabPanel Text="Details">
+            <div class="mw-100" style="width: 600px; max-width: 100%;">
+                <div class="mb-4">
+                    <Thumbnails Items="uploads" />
+                </div>
 
-    @if (Tab == StuffTabs.Details)
-    {
-        <div class="mw-100" style="width: 600px; max-width: 100%;">
-            <div class="mb-4">
-                <Thumbnails Items="uploads" />
-            </div>
+                @if (!string.IsNullOrEmpty(model.Url))
+                {
+                    <dl class="row">
+                        <dt class="col-sm-3">URL</dt>
+                        <dd class="col-sm-9 text-truncate">
+                            <a href="@model.Url" target="_blank">
+                                @model.Url
+                            </a>
+                        </dd>
+                    </dl>
+                }
 
-            @if (!string.IsNullOrEmpty(model.Url))
-            {
-                <dl class="row">
-                    <dt class="col-sm-3">URL</dt>
-                    <dd class="col-sm-9 text-truncate">
-                        <a href="@model.Url" target="_blank">
-                            @model.Url
-                        </a>
-                    </dd>
-                </dl>
-            }
-
-            @if (model.IsSingleLocation && model.FirstLocation != null)
-            {
-                <dl class="row">
-                    <dt class="col-sm-3">Location</dt>
-                    <dd class="col-sm-9">
-                        <a href="@($"/locations/{model.FirstLocation.Slug}")">
-                            @model.FirstLocation.Name
-                        </a>
-                        <small class="muted">
-                            (<a href="@($"/stuffs/{Slug}/locations")">more</a>)
-                        </small>
-                    </dd>
-                </dl>
-            }
-            else if (model.StuffLocations != null && model.StuffLocations.Any())
-            {
-                <dl class="row">
-                    <dt class="col-sm-3">Count</dt>
-                    <dd class="col-sm-9">
-                        <a href="@($"/stuffs/{Slug}/locations")">
-                            @model.StuffLocations.Sum(x => x.Count)
-                        </a>
-                    </dd>
-                </dl>
-                <dl class="row">
-                    <dt class="col-sm-3">Location</dt>
-                    <dd class="col-sm-9">
-                        @foreach(var (item, i) in model.StuffLocations.ToIndex())
-                        {
-                            @if (i > 0) {<text>, </text>}
-                            if (item.Location != null)
+                @if (model.IsSingleLocation && model.FirstLocation != null)
+                {
+                    <dl class="row">
+                        <dt class="col-sm-3">Location</dt>
+                        <dd class="col-sm-9">
+                            <a href="@($"/locations/{model.FirstLocation.Slug}")">
+                                @model.FirstLocation.Name
+                            </a>
+                            <small class="muted">
+                                (<a href="@($"/stuffs/{Slug}/locations")">more</a>)
+                            </small>
+                        </dd>
+                    </dl>
+                }
+                else if (model.StuffLocations != null && model.StuffLocations.Any())
+                {
+                    <dl class="row">
+                        <dt class="col-sm-3">Count</dt>
+                        <dd class="col-sm-9">
+                            <a href="@($"/stuffs/{Slug}/locations")">
+                                @model.StuffLocations.Sum(x => x.Count)
+                            </a>
+                        </dd>
+                    </dl>
+                    <dl class="row">
+                        <dt class="col-sm-3">Location</dt>
+                        <dd class="col-sm-9">
+                            @foreach (var (item, i) in model.StuffLocations.ToIndex())
                             {
-                                <a href="@($"/locations/{item.Location.Slug}")">
-                                    @item.Location.Name
-                                </a>
-                                @if (item.Count > 1)
+                                @if (i > 0)
                                 {
-                                    <span title="@($"{item.Count} units")">@($" ({item.Count})")</span>
+                                    <text>, </text>
+                                }
+                                if (item.Location != null)
+                                {
+                                    <a href="@($"/locations/{item.Location.Slug}")">
+                                        @item.Location.Name
+                                    </a>
+                                    @if (item.Count > 1)
+                                    {
+                                        <span title="@($"{item.Count} units")">@($" ({item.Count})")</span>
+                                    }
                                 }
                             }
-                        }
-                    </dd>
-                </dl>
-            }
+                        </dd>
+                    </dl>
+                }
 
-            <div>@model.Notes</div>
-        </div>
-    }
-    else if (Tab == StuffTabs.Locations)
-    {
-        <Locations Stuff="model" Models="model.StuffLocations" />
-    }
+                <div>@model.Notes</div>
+            </div>
+        </MudTabPanel>
+        <MudTabPanel Text="Locations">
+            <button @onclick="() => locationAdd?.Open()"
+                    type="button" class="btn btn-outline-primary ms-1">
+                Add
+            </button>
+
+            <LocationAddModal @ref="locationAdd" Model="model" OnAdded="LoadData" />
+        </MudTabPanel>
+    </MudTabs>
 }
 
 @code
 {
     [Parameter] public string? Slug { get; set; }
     [Parameter] public string? Tab { get; set; }
-    
+    int activePanelIndex;
+
     StuffModel? model { get; set; }
     List<UploadModel> uploads = new List<UploadModel>();
 
@@ -143,7 +137,16 @@
     UpdateModal? update;
     LocationAddModal? locationAdd;
 
-    protected override Task OnParametersSetAsync() => LoadData();
+    protected override Task OnParametersSetAsync()
+    {
+        activePanelIndex = Tab switch
+        {
+            StuffTabs.Locations => 1,
+            _ => 0
+        };
+
+        return LoadData(); 
+    }
 
     private async Task LoadData()
     {
@@ -168,6 +171,21 @@
             nav.NavigateTo($"stuffs/{stuff.Slug}");
         else
             await LoadData();
+    }
+
+    void OnActivePanelIndexChanged(int index)
+    {
+        activePanelIndex = index;
+        switch (index)
+        {
+            case 1:
+                nav.NavigateTo($"stuffs/{Slug}/{StuffTabs.Locations}");
+                break;
+            default:
+                nav.NavigateTo($"stuffs/{Slug}");
+                break;
+        }
+        
     }
 
     void OnDeleted() => nav.NavigateTo("/");
