@@ -1,6 +1,6 @@
 @inject IHttpService http
 
-@if (model != null)
+@if (Model != null)
 {
     <div class="modal-backdrop fade show"></div>
 
@@ -11,36 +11,36 @@
                     <h5 class="modal-title">Edit Stuff @name</h5>
                     <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
                 </div>
-                <EditForm OnValidSubmit="OnSubmit" Model="model" autocomplete="off">
+                <EditForm OnValidSubmit="OnSubmit" Model="Model" autocomplete="off">
                     <div class="modal-body">
                         <DataAnnotationsValidator />
 
                         <div class="form-floating mb-1">
-                            <InputText @bind-Value="model.Name" class="form-control"
+                            <InputText @bind-Value="Model.Name" class="form-control"
                                 placeholder="Name" disable="@loading" autocomplete="off" />
                             <label>Name</label>
-                            <ValidationMessage For="@(() => model.Name)" />
+                            <ValidationMessage For="@(() => Model.Name)" />
                         </div>
 
                         <div class="form-floating mb-1">
-                            <InputText @bind-Value="model.Url" disable="@loading"
+                            <InputText @bind-Value="Model.Url" disable="@loading"
                                        class="form-control" placeholder="URL" autocomplete="off" />
                             <label>URL</label>
-                            <ValidationMessage For="@(() => model.Url)" />
+                            <ValidationMessage For="@(() => Model.Url)" />
                         </div>
 
                         @if (singleLocation)
                         {
                             <div class="form-floating mb-1">
-                                <LocationSelect @bind-Value="model.LocationId" Loading="loading" />
+                                <LocationSelect @bind-Value="Model.LocationId" Loading="loading" />
                             </div>
                         }
 
                         <div class="form-floating mb-1">
-                            <InputTextArea @bind-Value="model.Notes" class="form-control" style="height: 100px"
+                            <InputTextArea @bind-Value="Model.Notes" class="form-control" style="height: 100px"
                                 placeholder="Notes" disable="@loading" />
                             <label>Notes</label>
-                            <ValidationMessage For="@(() => model.Notes)" />
+                            <ValidationMessage For="@(() => Model.Notes)" />
                         </div>
 
                         <label class="text-danger">@error</label>
@@ -58,12 +58,14 @@
 }
 
 @code {
+    [CascadingParameter] 
+    MudDialogInstance? dialog { get; set; }
 
     [Parameter]
     public EventCallback<StuffModel> OnUpdated { get; set; }
 
-
-    StuffRequest? model { get; set; }
+    [Parameter]
+    public StuffRequest? Model { get; set; }
     
     string? id { get; set; }
     string? name { get; set; }
@@ -74,14 +76,14 @@
 
     async Task OnSubmit()
     {
-        if (model == null)
+        if (Model == null)
             throw new NullReferenceException();
 
         loading = true;
 
         try
         {
-            var result = await http.PutAsync<StuffModel>($"{ApiRoutes.Stuffs}/{id}", model);
+            var result = await http.PutAsync<StuffModel>($"{ApiRoutes.Stuffs}/{id}", Model);
 
             await OnUpdated.InvokeAsync(result);
         }
@@ -102,7 +104,7 @@
         name = stuff.Name;
         singleLocation = stuff.IsSingleLocation;
 
-        model = stuff.ToRequest();
+        Model = stuff.ToRequest();
 
         StateHasChanged();
     }
@@ -110,6 +112,6 @@
 
     void Close()
     {
-        model = null;
+        Model = null;
     }
 }

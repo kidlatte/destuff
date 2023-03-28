@@ -6,8 +6,22 @@
   width: 100%;
 }
 
+.w-160p {
+  width: 160px;
+}
+
 .lh-100 {
   line-height: 1em;
+}
+
+.text-nowrap {
+  white-space: nowrap !important;
+}
+
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 #blazor-error-ui {

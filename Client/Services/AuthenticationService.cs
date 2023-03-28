@@ -20,11 +20,12 @@ public class AuthenticationService : AuthenticationStateProvider
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        var currentUser = await _storage.GetAuth();
-        if (currentUser?.UserName == null)
+        var auth = await _storage.GetAuth();
+
+        if (auth?.UserName == null || auth.Expires < DateTime.UtcNow)
             return new AuthenticationState(new ClaimsPrincipal());
 
-        var claims = new[] { new Claim(ClaimTypes.Name, currentUser.UserName) };
+        var claims = new[] { new Claim(ClaimTypes.Name, auth.UserName) };
         var identity = new ClaimsIdentity(claims, "jwt-auth");
         return new AuthenticationState(new ClaimsPrincipal(identity));
     }

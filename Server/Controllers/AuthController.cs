@@ -31,8 +31,6 @@ public class AuthController : ControllerBase
         _logger = logger;
     }
 
-    
-
     [HttpPost, Route(ApiRoutes.AuthLogin)]
     public async Task<ActionResult<AuthModel>> Login([FromBody] LoginRequest model)
     {
