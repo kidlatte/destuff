@@ -16,13 +16,11 @@
             @if (Tab == StuffTabs.Details)
             {
                 <FileUpload StuffId="@model.Id" OnUploaded="OnUploaded" ImageOnly="true"
-                    Label="Upload" Class="btn btn-outline-primary ms-1" />
-                <MudButton OnClick="() => update?.Open(model)" Variant="Variant.Outlined" Color="Color.Primary">
-                    Edit
-                </MudButton>
-                <MudButton OnClick="() => delete?.Open(model)" Variant="Variant.Outlined" Color="Color.Error">
-                    Delete
-                </MudButton>
+                    Label="Upload" Variant="Variant.Outlined" Color="Color.Tertiary" Class="ms-1" />
+                <MudButton OnClick="() => update?.Open(model)" Variant="Variant.Outlined" 
+                    Color="Color.Primary">Edit</MudButton>
+                <MudButton OnClick="() => delete?.Open(model)" Variant="Variant.Outlined"
+                    Color="Color.Error">Delete</MudButton>
 
                 <UpdateModal @ref="update" OnUpdated="OnUpdated" />
                 <DeleteModal @ref="delete" OnDeleted="OnDeleted" />

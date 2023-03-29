@@ -2,21 +2,22 @@
 
 @inject IHttpService http
 
-@if (loading)
-{
-    <button class="@Class" type="button" disabled>
-        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        Loading...
-    </button>
-}
-else
-{
-    <label class="@Class">
-        @Label
-        <InputFile OnChange="@OnInputFileChange" accept="@accept" multiple
-            class="invisible" style="width: 0; height: 0;" />
-    </label>
-}
+<MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged="OnFilesChanged" 
+        Class="@($"d-inline-flex mt-0 {Class}")" Accept="@accept">
+    <ButtonTemplate>
+        <MudButton HtmlTag="label" Variant="Variant" Color="Color" Style="{ min-width: 40px }" for="@context">
+            @if (loading)
+            {
+                <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+            }
+            else
+            {
+                @Label
+            }
+        </MudButton>
+        
+    </ButtonTemplate>
+</MudFileUpload>
 
 @code
 {
@@ -26,27 +27,29 @@ else
     [Parameter] public string? LocationId { get; set; }
     [Parameter] public string? StuffId { get; set; }
     [Parameter] public string? EventId { get; set; }
-    
+
     [Parameter] public string Label { get; set; } = "Upload files";
-    [Parameter] public string Class { get; set; } = "btn btn-primary";
-    [Parameter] public bool ImageOnly { get; set; } = false;
+    [Parameter] public string Class { get; set; } = "";
+    [Parameter] public bool ImageOnly { get; set; }
+    [Parameter] public Color Color { get; set; }
+    [Parameter] public Variant Variant { get; set; }
 
     string accept => ImageOnly ? "image/*" : "*";
 
     private bool loading;
 
-    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    private async void OnFilesChanged(IReadOnlyList<IBrowserFile> files)
     {
         loading = true;
 
-        foreach (var file in e.GetMultipleFiles())
+        foreach (var file in files)
         {
             var fileContent = new StreamContent(file.OpenReadStream(Settings.MaxUploadSize));
             fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
 
             using var content = new MultipartFormDataContent();
             content.Add(fileContent, "file", file.Name);
-            
+
             if (LocationId != null)
                 content.Add(new StringContent(LocationId), nameof(LocationId));
 
@@ -67,5 +70,6 @@ else
         }
 
         loading = false;
+        StateHasChanged();
     }
 }

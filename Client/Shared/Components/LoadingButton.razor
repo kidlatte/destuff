@@ -1,11 +1,11 @@
-﻿<MudButton ButtonType="ButtonType" Color="Color" Style="{ min-width: 40px }">
+﻿<MudButton ButtonType="ButtonType" Variant="Variant" Color="Color" Style="{ min-width: 40px }">
     @if (Loading)
     {
         <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
     }
     else
     {
-        <MudText>@Label</MudText>
+        @Label
     }
 </MudButton>
 
@@ -13,5 +13,6 @@
     [Parameter] public string Label { get; set; } = "SUBMIT";
     [Parameter] public bool Loading { get; set; }
     [Parameter] public ButtonType ButtonType { get; set; } = ButtonType.Submit;
+    [Parameter] public Variant Variant { get; set; }
     [Parameter] public Color Color { get; set; } = Color.Primary;
 }
