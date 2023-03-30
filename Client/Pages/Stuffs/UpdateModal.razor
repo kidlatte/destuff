@@ -1,60 +1,38 @@
 @inject IHttpService http
 
-@if (Model != null)
+@if (Model != null && request != null)
 {
-    <div class="modal-backdrop fade show"></div>
+    <EditForm OnValidSubmit="OnSubmit" Model="request" autocomplete="off">
+        <MudDialog>
+            <TitleContent>
+                <MudText Typo="Typo.h6" Class="text-truncate pe-5">Edit @Model.Name</MudText>
+            </TitleContent>
+            <DialogContent>
+                <DataAnnotationsValidator />
 
-    <div class="modal fade show" tabindex="-1" role="dialog" style="display: block; overflow-y: auto;">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Stuff @name</h5>
-                    <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
-                </div>
-                <EditForm OnValidSubmit="OnSubmit" Model="Model" autocomplete="off">
-                    <div class="modal-body">
-                        <DataAnnotationsValidator />
+                <MudTextField @bind-Value="request.Name" For="@(() => Model.Name)" Disabled="loading"
+                          Label="Name" Variant="Variant.Outlined" />
 
-                        <div class="form-floating mb-1">
-                            <InputText @bind-Value="Model.Name" class="form-control"
-                                placeholder="Name" disable="@loading" autocomplete="off" />
-                            <label>Name</label>
-                            <ValidationMessage For="@(() => Model.Name)" />
-                        </div>
+                <MudTextField @bind-Value="request.Url" For="@(() => Model.Url)" Disabled="loading"
+                          Label="Product external URL" Variant="Variant.Outlined" />
 
-                        <div class="form-floating mb-1">
-                            <InputText @bind-Value="Model.Url" disable="@loading"
-                                       class="form-control" placeholder="URL" autocomplete="off" />
-                            <label>URL</label>
-                            <ValidationMessage For="@(() => Model.Url)" />
-                        </div>
+                @if (Model.IsSingleLocation)
+                {
+                    <LocationSelect @bind-Value="request.LocationId" Loading="loading" />
+                }
+                <MudTextField @bind-Value="request.Notes" For="@(() => Model.Notes)" Disabled="loading"
+                          Label="Notes" Variant="Variant.Outlined" Lines="3" />
 
-                        @if (singleLocation)
-                        {
-                            <div class="form-floating mb-1">
-                                <LocationSelect @bind-Value="Model.LocationId" Loading="loading" />
-                            </div>
-                        }
-
-                        <div class="form-floating mb-1">
-                            <InputTextArea @bind-Value="Model.Notes" class="form-control" style="height: 100px"
-                                placeholder="Notes" disable="@loading" />
-                            <label>Notes</label>
-                            <ValidationMessage For="@(() => Model.Notes)" />
-                        </div>
-
-                        <label class="text-danger">@error</label>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary" disabled="@loading">
-                            @(loading ? "Submitting..." : "Confirm")
-                        </button>
-                        <button @onclick="Close" type="button" class="btn btn-secondary">Cancel</button>
-                    </div>
-                </EditForm>
-            </div>
-        </div>
-    </div>
+                <MudText Color="@Color.Error">@error</MudText>
+            </DialogContent>
+            <DialogActions>
+                <LoadingButton Loading="loading" />
+                <MudButton OnClick="Close" Disabled="loading" Color="Color.Default">
+                    Cancel
+                </MudButton>
+            </DialogActions>
+        </MudDialog>
+    </EditForm>
 }
 
 @code {
@@ -62,30 +40,26 @@
     MudDialogInstance? dialog { get; set; }
 
     [Parameter]
-    public EventCallback<StuffModel> OnUpdated { get; set; }
-
-    [Parameter]
-    public StuffRequest? Model { get; set; }
-    
-    string? id { get; set; }
-    string? name { get; set; }
-    bool singleLocation { get; set; }
+    public required StuffModel? Model { get; set; }
+    public StuffRequest? request { get; set; }
 
     string error { get; set; } = "";
     bool loading { get; set; } = false;
 
+
+    protected override void OnParametersSet() => request = Model?.ToRequest();
+
     async Task OnSubmit()
     {
-        if (Model == null)
+        if (request == null)
             throw new NullReferenceException();
 
         loading = true;
+        StuffModel? result = null;
 
         try
         {
-            var result = await http.PutAsync<StuffModel>($"{ApiRoutes.Stuffs}/{id}", Model);
-
-            await OnUpdated.InvokeAsync(result);
+            result = await http.PutAsync<StuffModel>($"{ApiRoutes.Stuffs}/{Model?.Id}", request);
         }
         catch (Exception ex)
         {
@@ -93,25 +67,12 @@
         }
 
         loading = false;
-
-        Close();
+        dialog?.Close(result);
     }
 
-
-    public void Open(StuffModel stuff)
+    public void Close()
     {
-        id = stuff.Id;
-        name = stuff.Name;
-        singleLocation = stuff.IsSingleLocation;
-
-        Model = stuff.ToRequest();
-
-        StateHasChanged();
-    }
-
-
-    void Close()
-    {
-        Model = null;
+        request = null;
+        dialog?.Cancel();
     }
 }

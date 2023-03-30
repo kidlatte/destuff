@@ -1,13 +1,19 @@
-﻿.vh-100 {
+﻿@media (min-width: 600px) {
+  dl {
+    display: flex;
+  }
+  dl > dt {
+    flex: none;
+    width: 160px;
+  }
+}
+
+.vh-100 {
   height: 100vh;
 }
 
 .w-100 {
   width: 100%;
-}
-
-.w-160p {
-  width: 160px;
 }
 
 .lh-100 {

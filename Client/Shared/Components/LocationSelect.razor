@@ -1,8 +1,8 @@
 @inject IHttpService http
 
-<input value="@text" @oninput="OnInput" @onfocus="OnFocus" @onblur="OnBlur"
+@*<input value="@text" @oninput="OnInput" @onfocus="OnFocus" @onblur="OnBlur"
        class="form-control" placeholder="Location" disable="@Loading" autocomplete="off" />
-<label>Location</label>
+<label>Location</label>*@
 @if (showOptions)
 {
     <div class="autocomplete list-group">
@@ -12,7 +12,7 @@
         @foreach (var item in list.OrEmpty())
         {
             <button @onclick="() => OnClick(item)" type="button"
-        class="list-group-item list-group-item-action @(item.Id == model?.Id ? "list-group-item-secondary" : "")">
+                class="list-group-item list-group-item-action @(item.Id == model?.Id ? "list-group-item-secondary" : "")">
 
                 @if (item.Data != null)
                 {
@@ -34,6 +34,15 @@
     </div>
 }
 
+<MudSelect T="ILocationDataModel" Value="model" ValueChanged="OnClick" Label="Location" Variant="Variant.Outlined">
+    <MudSelectItem T="ILocationDataModel"><em>none</em></MudSelectItem>
+    @foreach (var item in list.OrEmpty())
+    {
+        <MudSelectItem T="ILocationDataModel" Value="@item">@item.Name</MudSelectItem>
+    }
+
+</MudSelect>
+
 <LocationCreateModal @ref="create" OnCreated="OnCreated" />
 
 @code
@@ -47,13 +56,11 @@
     string? text { get; set; }
     bool showOptions { get; set; } = false;
 
-    Timer? timer;
+    Timer? debouncer;
     LocationCreateModal? create;
 
     protected override async Task OnInitializedAsync() 
     {
-        Console.WriteLine($"Location: {Value}");
-
         await LoadData();
 
         if (Value != null && list != null)
@@ -63,13 +70,13 @@
             text = GetPath(model);
         }
 
-        timer = new Timer(async _ => await LoadData(), null, Timeout.Infinite, Timeout.Infinite);
+        debouncer = new Timer(async _ => await LoadData(), null, Timeout.Infinite, Timeout.Infinite);
     }        
 
     void OnInput(ChangeEventArgs e)
     {
         text = e.Value?.ToString();
-        timer?.Change(500, Timeout.Infinite);
+        debouncer?.Change(500, Timeout.Infinite);
     }
 
     void OnFocus()

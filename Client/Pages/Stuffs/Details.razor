@@ -2,11 +2,12 @@
 
 @attribute [Authorize]
 @inject IHttpService http
+@inject IDialogService dialog
 @inject NavigationManager nav
 
-<PageTitle>@(model == null ? "Stuffs" : $"{model.Name} | Stuffs") | Destuff</PageTitle>
+<PageTitle>@(Model == null ? "Stuffs" : $"{Model.Name} | Stuffs") | Destuff</PageTitle>
 
-@if (model != null)
+@if (Model != null)
 {
     <div class="d-md-flex">
         <div class="text-nowrap order-1">
@@ -15,23 +16,27 @@
             </MudButton>
             @if (Tab == StuffTabs.Details)
             {
-                <FileUpload StuffId="@model.Id" OnUploaded="OnUploaded" ImageOnly="true"
+                <FileUpload StuffId="@Model.Id" OnUploaded="OnUploaded" ImageOnly="true"
                     Label="Upload" Variant="Variant.Outlined" Color="Color.Tertiary" Class="ms-1" />
-                <MudButton OnClick="() => update?.Open(model)" Variant="Variant.Outlined" 
+                <MudButton OnClick="OnUpdateClick" Variant="Variant.Outlined" 
                     Color="Color.Primary">Edit</MudButton>
-                <MudButton OnClick="() => delete?.Open(model)" Variant="Variant.Outlined"
+                <MudButton OnClick="() => delete?.Open(Model)" Variant="Variant.Outlined"
                     Color="Color.Error">Delete</MudButton>
 
-                <UpdateModal @ref="update" OnUpdated="OnUpdated" />
                 <DeleteModal @ref="delete" OnDeleted="OnDeleted" />
             }
             else if (Tab == StuffTabs.Locations)
             {
+                <button @onclick="() => locationAdd?.Open()"
+                        type="button" class="btn btn-outline-primary ms-1">
+                    Add
+                </button>
 
+                <LocationAddModal @ref="locationAdd" Model="Model" OnAdded="LoadData" />
             }
         </div>
         <div class="text-truncate me-auto order-0">
-            <MudText Typo="Typo.h1" Class="text-truncate my-5">@model.Name</MudText>
+            <MudText Typo="Typo.h1" Class="text-truncate my-5">@Model.Name</MudText>
         </div>
     </div>
     
@@ -44,30 +49,30 @@
                     <Thumbnails Items="uploads" />
                 </div>
 
-                <dl class="d-sm-flex">
-                    <dt class="w-160p">Name</dt>
-                    <dd>@model.Name</dd>
+                <dl>
+                    <dt>Name</dt>
+                    <dd>@Model.Name</dd>
                 </dl>
 
-                @if (!string.IsNullOrEmpty(model.Url))
+                @if (!string.IsNullOrEmpty(Model.Url))
                 {
-                    <dl class="d-sm-flex">
-                        <dt class="w-160p">URL</dt>
+                    <dl>
+                        <dt>URL</dt>
                         <dd class="text-truncate">
-                            <MudLink Href="@model.Url" Target="_blank">
-                                @model.Url
+                            <MudLink Href="@Model.Url" Target="_blank">
+                                @Model.Url
                             </MudLink>
                         </dd>
                     </dl>
                 }
 
-                @if (model.IsSingleLocation && model.FirstLocation != null)
+                @if (Model.IsSingleLocation && Model.FirstLocation != null)
                 {
-                    <dl class="d-sm-flex">
-                        <dt class="w-160p">Location</dt>
+                    <dl>
+                        <dt>Location</dt>
                         <dd>
-                            <a href="@($"/locations/{model.FirstLocation.Slug}")">
-                                @model.FirstLocation.Name
+                            <a href="@($"/locations/{Model.FirstLocation.Slug}")">
+                                @Model.FirstLocation.Name
                             </a>
                             <small class="muted">
                                 (<a href="@($"/stuffs/{Slug}/locations")">more</a>)
@@ -75,20 +80,20 @@
                         </dd>
                     </dl>
                 }
-                else if (model.StuffLocations != null && model.StuffLocations.Any())
+                else if (Model.StuffLocations != null && Model.StuffLocations.Any())
                 {
-                    <dl class="d-sm-flex">
-                        <dt class="w-160p">Count</dt>
+                    <dl>
+                        <dt>Count</dt>
                         <dd>
                             <a href="@($"/stuffs/{Slug}/locations")">
-                                @model.StuffLocations.Sum(x => x.Count)
+                                @Model.StuffLocations.Sum(x => x.Count)
                             </a>
                         </dd>
                     </dl>
-                    <dl class="d-sm-flex">
-                        <dt class="w-160p">Location</dt>
+                    <dl>
+                        <dt>Location</dt>
                         <dd>
-                            @foreach (var (item, i) in model.StuffLocations.ToIndex())
+                            @foreach (var (item, i) in Model.StuffLocations.ToIndex())
                             {
                                 @if (i > 0)
                                 {
@@ -109,16 +114,11 @@
                     </dl>
                 }
 
-                <div>@model.Notes</div>
+                <div>@Model.Notes</div>
             </div>
         </MudTabPanel>
         <MudTabPanel Text="Locations">
-            <button @onclick="() => locationAdd?.Open()"
-                    type="button" class="btn btn-outline-primary ms-1">
-                Add
-            </button>
-
-            <LocationAddModal @ref="locationAdd" Model="model" OnAdded="LoadData" />
+            <Locations Stuff="Model" Models="Model.StuffLocations" />
         </MudTabPanel>
     </MudTabs>
 }
@@ -129,11 +129,10 @@
     [Parameter] public string? Tab { get; set; }
     int activePanelIndex;
 
-    StuffModel? model { get; set; }
+    StuffModel? Model { get; set; }
     List<UploadModel> uploads = new List<UploadModel>();
 
     DeleteModal? delete;
-    UpdateModal? update;
     LocationAddModal? locationAdd;
 
     protected override Task OnParametersSetAsync()
@@ -151,9 +150,9 @@
     {
         try
         {
-            model = await http.GetAsync<StuffModel>($"{ApiRoutes.StuffSlug}/{Slug}");
-            if (model != null)
-                uploads.AddRange(model.Uploads.OrEmpty());
+            Model = await http.GetAsync<StuffModel>($"{ApiRoutes.StuffSlug}/{Slug}");
+            if (Model != null)
+                uploads.AddRange(Model.Uploads.OrEmpty());
         }
         catch (HttpRequestException ex)
         {
@@ -164,12 +163,22 @@
         }
     }
 
-    async Task OnUpdated(StuffModel stuff)
+    async void OnUpdateClick()
     {
-        if (Slug != stuff.Slug) 
-            nav.NavigateTo($"stuffs/{stuff.Slug}");
-        else
-            await LoadData();
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(UpdateModal.Model), Model);
+
+        var dialogRef = await dialog.ShowAsync<UpdateModal>("", parameters);
+        var result = await dialogRef.Result;
+
+        if (!result.Canceled && result.Data != null)
+        {
+            var data = result.Data as StuffModel;
+            if (data == null || data.Slug ==  Slug)
+                await LoadData();
+            else
+                nav.NavigateTo($"stuffs/{data.Slug}");
+        }
     }
 
     void OnActivePanelIndexChanged(int index)
