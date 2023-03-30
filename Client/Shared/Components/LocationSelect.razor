@@ -1,47 +1,30 @@
 @inject IHttpService http
 
-@*<input value="@text" @oninput="OnInput" @onfocus="OnFocus" @onblur="OnBlur"
-       class="form-control" placeholder="Location" disable="@Loading" autocomplete="off" />
-<label>Location</label>*@
-@if (showOptions)
-{
-    <div class="autocomplete list-group">
-        <button @onclick="() => OnClick(null)" type="button" class="list-group-item list-group-item-action">
-            <em class="text-muted">none</em>
-        </button>
-        @foreach (var item in list.OrEmpty())
+<MudAutocomplete T="ILocationDataModel" Value="model" ValueChanged="OnClick" 
+    SearchFunc="@Search" ToStringFunc="e => e?.Name"
+    Label="Location" DebounceInterval="300" Variant="Variant.Outlined"
+    ResetValueOnEmptyText="true" CoerceText="false" CoerceValue="false"
+>
+    <ItemTemplate Context="item">
+        @if (item.Id == "add")
         {
-            <button @onclick="() => OnClick(item)" type="button"
-                class="list-group-item list-group-item-action @(item.Id == model?.Id ? "list-group-item-secondary" : "")">
-
-                @if (item.Data != null)
+            <em class="text-muted">Add Location</em>
+            <strong>@item.Name</strong>
+        }
+        else
+        {
+            @if (item.Data != null)
+            {
+                @foreach (var path in item.Data.Path.OrEmpty())
                 {
-                    @foreach (var path in item.Data.Path.OrEmpty())
-                    {
-                        <em>@path.Name</em>
-                        <i class="bi bi-chevron-compact-right"></i>
-                    }
-                    <span>@item.Name</span>
+                    <em>@path.Name</em>
+                    <i class="bi bi-chevron-compact-right"></i>
                 }
-            </button>
+            }
+            <span>@item.Name</span>
         }
-        @if (text != GetPath(model))
-        {
-            <button @onclick="OnCreate" type="button" class="list-group-item list-group-item-action">
-                <em class="text-muted">Add Location @(string.IsNullOrEmpty(text) ? "" : $"\"{text}\"")</em>
-            </button>
-        }
-    </div>
-}
-
-<MudSelect T="ILocationDataModel" Value="model" ValueChanged="OnClick" Label="Location" Variant="Variant.Outlined">
-    <MudSelectItem T="ILocationDataModel"><em>none</em></MudSelectItem>
-    @foreach (var item in list.OrEmpty())
-    {
-        <MudSelectItem T="ILocationDataModel" Value="@item">@item.Name</MudSelectItem>
-    }
-
-</MudSelect>
+    </ItemTemplate>
+</MudAutocomplete>
 
 <LocationCreateModal @ref="create" OnCreated="OnCreated" />
 
@@ -53,73 +36,36 @@
 
     ICollection<ILocationDataModel>? list { get; set; }
     ILocationDataModel? model { get; set; }
-    string? text { get; set; }
-    bool showOptions { get; set; } = false;
 
-    Timer? debouncer;
     LocationCreateModal? create;
 
-    protected override async Task OnInitializedAsync() 
+    private async Task<IEnumerable<ILocationDataModel>?> Search(string value)
     {
-        await LoadData();
-
-        if (Value != null && list != null)
-        {
-            model = list.Where(x => x.Id == Value).FirstOrDefault() ?? 
-                await http.GetAsync<LocationModel>($"{ApiRoutes.Locations}/{Value}");
-            text = GetPath(model);
-        }
-
-        debouncer = new Timer(async _ => await LoadData(), null, Timeout.Infinite, Timeout.Infinite);
-    }        
-
-    void OnInput(ChangeEventArgs e)
-    {
-        text = e.Value?.ToString();
-        debouncer?.Change(500, Timeout.Infinite);
-    }
-
-    void OnFocus()
-    {
-        showOptions = true;
-    }
-
-    async Task OnBlur()
-    {
-        await Task.Delay(300); // wait for onclick
-        text = GetPath(model);
-        showOptions = false;
+        var text = value;
+        var query = new PagedQuery { Search = value, PageSize = 10, SortField = nameof(LocationModel.Id) };
+        var result = await http.GetAsync<PagedList<LocationLookupItem>>($"{ApiRoutes.LocationLookup}?{query}");
+        return result?.List
+            .Append(new LocationLookupItem { Id = "add", Name = value, Slug = "", })
+            .Cast<ILocationDataModel>().ToList();
     }
 
     async Task OnClick(ILocationDataModel? item)
     {
-        Value = item?.Id;
-        if (ValueChanged.HasDelegate)
-            await ValueChanged.InvokeAsync(item?.Id);
+        if (item?.Id == "add")
+            create?.Open(item.Name);
+        else
+        {
+            Value = item?.Id;
+            if (ValueChanged.HasDelegate)
+                await ValueChanged.InvokeAsync(item?.Id);
 
-        model = item;
-        text = GetPath(item);
-        showOptions = false;
-    }
-
-    void OnCreate()
-    {
-        showOptions = false;
-        create?.Open(text);
+            model = item;
+        }
     }
 
     async Task OnCreated(LocationModel item)
     {
         await OnClick(item);
-        await LoadData();
-    }
-
-    async Task LoadData()
-    {
-        var query = new PagedQuery { Search = text, PageSize = 10, SortField = nameof(LocationModel.Id) };
-        var result = await http.GetAsync<PagedList<LocationLookupItem>>($"{ApiRoutes.LocationLookup}?{query}");
-        list = result?.List.Cast<ILocationDataModel>().ToList();
-        await InvokeAsync(StateHasChanged);
     }
 
     static string? GetPath(ILocationDataModel? item) => item == null ? null : 

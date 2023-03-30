@@ -4,8 +4,8 @@ namespace Destuff.Shared.Models;
 
 public interface ILocationModel
 {
-    string? Id { get; set; }
-    string? Slug { get; set; }
+    string Id { get; set; }
+    string Slug { get; set; }
     string? Name { get; set; }
 }
 
@@ -27,8 +27,8 @@ public class LocationRequest
 
 public class LocationModel: LocationRequest, ILocationDataModel
 {
-    public string? Id { get; set; }
-    public string? Slug { get; set; }
+    public required string Id { get; set; }
+    public required string Slug { get; set; }
     public LocationData? Data { get; set; }
 
     public List<LocationModel>? Children { get; set; }
@@ -36,8 +36,8 @@ public class LocationModel: LocationRequest, ILocationDataModel
 
 public class LocationListItem: ILocationModel
 {
-    public string? Id { get; set; }
-    public string? Slug { get; set; }
+    public required string Id { get; set; }
+    public required string Slug { get; set; }
     public string? Name { get; set; }
 }
 
