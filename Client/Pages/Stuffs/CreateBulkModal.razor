@@ -1,80 +1,69 @@
 @inject IHttpService http
+@inject ISnackbar snackbar
 
-@if (bulk != null)
+@if (model != null)
 {
-    <div class="modal-backdrop fade show"></div>
+    <EditForm OnValidSubmit="OnSubmit" Model="model" autocomplete="off">
+        <MudDialog>
+            <TitleContent>
+                <MudText Typo="Typo.h6">Add Stuff by Bulk</MudText>
+            </TitleContent>
+            <DialogContent>
+                <DataAnnotationsValidator />
+                <p>Add one stuff per line.</p>
 
-    <div class="modal fade show" tabindex="-1" role="dialog" style="display: block; overflow-y: auto;">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add Stuff by Bulk</h5>
-                    <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
-                </div>
-                <EditForm OnValidSubmit="OnSubmit" Model="bulk" autocomplete="off">
-                    <div class="modal-body">
-                        <DataAnnotationsValidator />
-                        <p>Add one stuff per line.</p>
+                <MudTextField @bind-Value="model.BatchNames" For="@(() => model.BatchNames)" Disabled="loading"
+                          Label="Names" Variant="Variant.Outlined" Lines="3" />
 
-                        <div class="form-floating mb-1">
-                            <InputTextArea @bind-Value="bulk.BatchNames" class="form-control" style="height: 100px"
-                                placeholder="Notes" disable="@loading" />
-                            <label>Name</label>
-                            <ValidationMessage For="@(() => bulk.BatchNames)" />
-                        </div>
-
-                        <div class="form-floating mb-1">
-                            <LocationSelect @bind-Value="bulk.LocationId" Loading="loading" />
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary" disabled="@loading">
-                            @(loading ? "Submitting..." : "Confirm")
-                        </button>
-                        <button @onclick="Close" type="button" class="btn btn-secondary">Cancel</button>
-                    </div>
-                </EditForm>
-            </div>
-        </div>
-    </div>
+                <LocationSelect @bind-Value="model.LocationId" Loading="loading" />
+            </DialogContent>
+            <DialogActions>
+                <LoadingButton Loading="loading" />
+                <MudButton OnClick="Close" Disabled="loading" Color="Color.Default">
+                    Cancel
+                </MudButton>
+            </DialogActions>
+        </MudDialog>
+    </EditForm>
 }
 
 @code {
     [CascadingParameter]
-    public Toast? Toast { get; set; }
+    MudDialogInstance? dialog { get; set; }
 
-    [Parameter]
-    public EventCallback<StuffModel> OnCreated { get; set; }
-
-    StuffBulkCreateModel? bulk { get; set; }
+    StuffBulkCreateModel? model { get; set; }
     bool loading { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        model = new StuffBulkCreateModel();
+    }
 
     async Task OnSubmit()
     {
-        if (bulk == null)
+        if (model == null)
             throw new NullReferenceException();
 
         loading = true;
 
-        var names = (bulk.BatchNames ?? "").Split("\n", StringSplitOptions.RemoveEmptyEntries).ToList();
+        var names = (model.BatchNames ?? "").Split("\n", StringSplitOptions.RemoveEmptyEntries).ToList();
         foreach (var name in names)
         {
             var model = new StuffRequest
             {
                 Name = name,
-                LocationId = bulk.LocationId
+                LocationId = this.model.LocationId
             };
 
             try
             {
                 var result = await http.PostAsync<StuffModel>(ApiRoutes.Stuffs, model);
-                await OnCreated.InvokeAsync(result);
-
-                Toast?.Open($"{model.Name} has been added.");
+                snackbar.Add($"{model.Name} has been added.");
             }
             catch (Exception ex)
             {
-                Toast?.Error($"{ex.Message}");
+                snackbar.Add($"{ex.Message}", Severity.Error);
             }
         }
 
@@ -82,15 +71,10 @@
         Close();
     }
 
-    public void Open()
-    {
-        bulk = new StuffBulkCreateModel();
-        StateHasChanged();
-    }
-
     public void Close()
     {
-        bulk = null;
+        model = null;
+        dialog?.Cancel();
     }
 
     class StuffBulkCreateModel

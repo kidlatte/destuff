@@ -181,7 +181,7 @@
     async void OnDeleteClick()
     {
         var parameters = new DialogParameters();
-        parameters.Add(nameof(UpdateModal.Model), Model);
+        parameters.Add(nameof(DeleteModal.Model), Model);
 
         var dialogRef = await dialog.ShowAsync<DeleteModal>("", parameters);
         var result = await dialogRef.Result;

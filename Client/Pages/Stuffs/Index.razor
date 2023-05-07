@@ -17,7 +17,7 @@
                       Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"></MudTextField>
         <MudSpacer />
         <MudButton OnClick="OnAddClick" Variant="Variant.Filled" Color="Color.Primary" Class="mr-2">Add</MudButton>
-        <MudButton OnClick="() => bulk?.Open()" Variant="Variant.Filled" Color="Color.Secondary">Bulk</MudButton>
+        <MudButton OnClick="OnBulkClick" Variant="Variant.Filled" Color="Color.Secondary">Bulk</MudButton>
     </ToolBarContent>
     <Columns>
         <Column T="StuffListItem" Field="Name">
@@ -51,9 +51,6 @@
     </PagerContent>
 </MudDataGrid>
 
-<CreateBulkModal @ref="bulk" OnCreated="LoadData" />
-<DeleteModal @ref="delete" OnDeleted="LoadData" />
-
 @code
 {
     [Parameter, SupplyParameterFromQuery(Name = "s")]
@@ -71,8 +68,6 @@
     PagedList<StuffListItem>? data { get; set; }
 
     MudDataGrid<StuffListItem>? grid;
-    CreateBulkModal? bulk;
-    DeleteModal? delete;
 
     protected override void OnInitialized() => PageCount = gridPage + 1;
 
@@ -135,13 +130,23 @@
             await grid.ReloadServerData();
     }
 
+    async void OnBulkClick()
+    {
+        var dialogRef = await dialog.ShowAsync<CreateBulkModal>();
+        var result = await dialogRef.Result;
+        if (!result.Canceled && grid != null)
+            await grid.ReloadServerData();
+    }
+
     async void OnDelete(StuffListItem item)
     {
-        bool? result = await dialog.ShowMessageBox(
-            $"Delete {item.Name}",
-            $"Are you sure you want to delete stuff \"{item.Name}\".",
-            yesText: "Delete", cancelText: "Cancel");
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(DeleteModal.Model), item);
 
-        StateHasChanged();
+        var dialogRef = await dialog.ShowAsync<DeleteModal>("", parameters);
+        var result = await dialogRef.Result;
+
+        if (!result.Canceled && grid != null)
+            await grid.ReloadServerData();
     }
 }
