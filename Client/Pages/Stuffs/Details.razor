@@ -20,10 +20,8 @@
                     Label="Upload" Variant="Variant.Outlined" Color="Color.Tertiary" Class="ms-1" />
                 <MudButton OnClick="OnUpdateClick" Variant="Variant.Outlined" 
                     Color="Color.Primary">Edit</MudButton>
-                <MudButton OnClick="() => delete?.Open(Model)" Variant="Variant.Outlined"
+                <MudButton OnClick="OnDeleteClick" Variant="Variant.Outlined"
                     Color="Color.Error">Delete</MudButton>
-
-                <DeleteModal @ref="delete" OnDeleted="OnDeleted" />
             }
             else if (Tab == StuffTabs.Locations)
             {
@@ -132,7 +130,6 @@
     StuffModel? Model { get; set; }
     List<UploadModel> uploads = new List<UploadModel>();
 
-    DeleteModal? delete;
     LocationAddModal? locationAdd;
 
     protected override Task OnParametersSetAsync()
@@ -181,6 +178,18 @@
         }
     }
 
+    async void OnDeleteClick()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(UpdateModal.Model), Model);
+
+        var dialogRef = await dialog.ShowAsync<DeleteModal>("", parameters);
+        var result = await dialogRef.Result;
+
+        if (!result.Canceled)
+            nav.NavigateTo($"/");
+    }
+
     void OnActivePanelIndexChanged(int index)
     {
         activePanelIndex = index;
@@ -196,6 +205,5 @@
         
     }
 
-    void OnDeleted() => nav.NavigateTo("/");
     void OnUploaded(UploadModel upload) => uploads.Add(upload);
 }

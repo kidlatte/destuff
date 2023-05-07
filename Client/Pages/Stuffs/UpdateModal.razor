@@ -14,7 +14,7 @@
                           Label="Name" Variant="Variant.Outlined" />
 
                 <MudTextField @bind-Value="request.Url" For="@(() => Model.Url)" Disabled="loading"
-                          Label="Product external URL" Variant="Variant.Outlined" />
+                          Label="External URL" Variant="Variant.Outlined" />
 
                 @if (Model.IsSingleLocation)
                 {
@@ -45,7 +45,6 @@
 
     string error { get; set; } = "";
     bool loading { get; set; } = false;
-
 
     protected override void OnParametersSet() => request = Model?.ToRequest();
 
