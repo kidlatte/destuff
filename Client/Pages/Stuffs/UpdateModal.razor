@@ -10,10 +10,10 @@
             <DialogContent>
                 <DataAnnotationsValidator />
 
-                <MudTextField @bind-Value="request.Name" For="@(() => Model.Name)" Disabled="loading"
+                <MudTextField @bind-Value="request.Name" For="@(() => request.Name)" Disabled="loading"
                           Label="Name" Variant="Variant.Outlined" />
 
-                <MudTextField @bind-Value="request.Url" For="@(() => Model.Url)" Disabled="loading"
+                <MudTextField @bind-Value="request.Url" For="@(() => request.Url)" Disabled="loading"
                           Label="External URL" Variant="Variant.Outlined" />
 
                 @if (Model.IsSingleLocation)
