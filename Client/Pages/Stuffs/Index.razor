@@ -20,26 +20,31 @@
         <MudButton OnClick="OnBulkClick" Variant="Variant.Filled" Color="Color.Secondary">Bulk</MudButton>
     </ToolBarContent>
     <Columns>
-        <Column T="StuffListItem" Field="Name">
+        <PropertyColumn Property="x => x!.Name">
             <CellTemplate>
-                <MudLink Href="@($"/stuffs/{context.Item.Slug}")">@context.Item.Name</MudLink>
+                <MudLink Href="@($"/stuffs/{context.Item?.Slug}")">@context.Item?.Name</MudLink>
             </CellTemplate>
-        </Column>
-        <Column T="StuffListItem" Field="Locations">
+        </PropertyColumn>
+        <PropertyColumn Property="x => x!.Locations">
             <CellTemplate>
-                @foreach (var (location, i) in context.Item.Locations.ToIndex()) {
-                    @if (i > 0) {
-                        <text>, </text>
+                @if (context.Item != null)
+                { 
+                    @foreach (var (location, i) in context.Item.Locations.ToIndex())
+                    {
+                        @if (i > 0) { <text>, </text> }
+                        <MudLink Href="@($"/locations/{location.Slug}")">@location.Name</MudLink>
                     }
-                    <MudLink Href="@($"/locations/{location.Slug}")">@location.Name</MudLink>
                 }
             </CellTemplate>
-        </Column>
-        <Column T="StuffListItem" Title="">
+        </PropertyColumn>
+        <TemplateColumn>
             <CellTemplate>
-                <MudIconButton OnClick="_ => OnDelete(context.Item)" Icon="@Icons.Material.Filled.Delete" aria-label="delete"></MudIconButton>
+                @if (context.Item != null) 
+                {
+                    <MudIconButton OnClick="_ => OnDelete(context.Item)" Icon="@Icons.Material.Filled.Delete" aria-label="delete"></MudIconButton>
+                }
             </CellTemplate>
-        </Column>
+        </TemplateColumn>
     </Columns>
     <PagerContent>
         <div class="py-5 d-flex justify-center">
