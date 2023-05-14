@@ -119,8 +119,6 @@
         pagerPage = i;
     }
 
-    string GenerateLink(int page) => $"/stuffs?{new PagedQuery { Search = Search, Page = page }}";
-
     void OnSearch(string value)
     {
         search = value;
