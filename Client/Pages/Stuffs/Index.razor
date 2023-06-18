@@ -2,9 +2,9 @@
 @page "/stuffs"
 
 @attribute [Authorize]
-@inject NavigationManager nav
-@inject IHttpService http
-@inject IDialogService dialog
+@inject NavigationManager Nav
+@inject IHttpService Http
+@inject IDialogService Dialog
 
 <PageTitle>Stuffs | Destuff</PageTitle>
 
@@ -101,7 +101,7 @@
             SortField = sort?.SortBy,
             SortDir = sort?.Descending == true ? DestuffDirection.Descending : DestuffDirection.Ascending
         };
-        var result = await http.GetAsync<PagedList<StuffListItem>>($"{ApiRoutes.Stuffs}?{query}");
+        var result = await Http.GetAsync<PagedList<StuffListItem>>($"{ApiRoutes.Stuffs}?{query}");
         if (result == null)
             throw new Exception("Result is null");
 
@@ -115,28 +115,31 @@
     void PageChanged(int i)
     {
         if (pagerPage != i)
-            nav.NavigateTo($"/stuffs?{new PagedQuery { Search = Search, Page = i }}");
+            Nav.NavigateTo($"/stuffs?{new PagedQuery { Search = Search, Page = i }}");
         pagerPage = i;
     }
 
     void OnSearch(string value)
     {
         search = value;
-        nav.NavigateTo(string.IsNullOrEmpty(search) ? $"/stuffs" : $"/stuffs?s={search}");
+        Nav.NavigateTo(string.IsNullOrEmpty(search) ? $"/stuffs" : $"/stuffs?s={search}");
     }
 
     async void OnAddClick()
     {
-        var dialogRef = await dialog.ShowAsync<StuffCreateModal>();
-        var result = await dialogRef.Result;
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(StuffCreateModal.Model), new StuffRequest());
+
+        var dialog = await Dialog.ShowAsync<StuffCreateModal>("", parameters);
+        var result = await dialog.Result;
         if (!result.Canceled && grid != null)
             await grid.ReloadServerData();
     }
 
     async void OnBulkClick()
     {
-        var dialogRef = await dialog.ShowAsync<CreateBulkModal>();
-        var result = await dialogRef.Result;
+        var dialog = await Dialog.ShowAsync<CreateBulkModal>();
+        var result = await dialog.Result;
         if (!result.Canceled && grid != null)
             await grid.ReloadServerData();
     }
@@ -146,8 +149,8 @@
         var parameters = new DialogParameters();
         parameters.Add(nameof(DeleteModal.Model), item);
 
-        var dialogRef = await dialog.ShowAsync<DeleteModal>("", parameters);
-        var result = await dialogRef.Result;
+        var dialog = await Dialog.ShowAsync<DeleteModal>("", parameters);
+        var result = await dialog.Result;
 
         if (!result.Canceled && grid != null)
             await grid.ReloadServerData();

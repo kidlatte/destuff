@@ -1,47 +1,41 @@
 @inject IHttpService http
 
-@if (Model != null)
-{
-    <EditForm OnValidSubmit="OnSubmit" Model="Model" autocomplete="off">
-        <MudDialog>
-            <TitleContent>
-                <MudText Typo="Typo.h6" Class="text-truncate pe-5">Delete <strong>@Model.Name</strong></MudText>
-            </TitleContent>
-            <DialogContent>
-                <DataAnnotationsValidator />
+<EditForm OnValidSubmit="OnSubmit" Model="Model" autocomplete="off">
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6" Class="text-truncate pe-5">Delete <strong>@Model.Name</strong></MudText>
+        </TitleContent>
+        <DialogContent>
+            <DataAnnotationsValidator />
 
-                <p class="">
-                    Are you sure you want to delete stuff <strong>@Model.Name</strong>
-                </p>
-                <MudTextField @bind-Value="Model.Id" InputType="InputType.Hidden" />
+            <p class="">
+                Are you sure you want to delete stuff <strong>@Model.Name</strong>
+            </p>
+            <MudTextField @bind-Value="Model.Id" InputType="InputType.Hidden" />
 
-                <MudText Color="@Color.Error">@error</MudText>
-            </DialogContent>
-            <DialogActions>
-                <LoadingButton Loading="loading" Label="DELETE" Color="Color.Warning" />
-                <MudButton OnClick="() => dialog?.Cancel()" Disabled="loading" Color="Color.Default">
-                    Cancel
-                </MudButton>
-            </DialogActions>
-        </MudDialog>
-    </EditForm>
-}
+            <MudText Color="@Color.Error">@error</MudText>
+        </DialogContent>
+        <DialogActions>
+            <LoadingButton Loading="loading" Label="DELETE" Color="Color.Warning" />
+            <MudButton OnClick="() => dialog?.Cancel()" Disabled="loading" Color="Color.Default">
+                Cancel
+            </MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
 
 @code {
     [CascadingParameter]
     MudDialogInstance? dialog { get; set; }
 
     [Parameter]
-    public required IStuffModel? Model { get; set; }
+    public required IStuffModel Model { get; set; }
 
     string error { get; set; } = "";
     bool loading { get; set; } = false;
 
     async Task OnSubmit()
     {
-        if (Model == null)
-            throw new NullReferenceException();
-
         loading = true;
 
         try

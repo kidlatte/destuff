@@ -1,9 +1,9 @@
 @page "/suppliers"
 
 @attribute [Authorize]
-@inject NavigationManager nav
-@inject IHttpService http
-@inject IDialogService dialog
+@inject NavigationManager Nav
+@inject IHttpService Http
+@inject IDialogService Dialog
 
 <PageTitle>Suppliers | Destuff</PageTitle>
 
@@ -68,7 +68,6 @@
     </PagerContent>
 </MudDataGrid>
 
-<SupplierCreateModal @ref="create" OnCreated="LoadData" />
 <DeleteModal @ref="delete" OnDeleted="LoadData" />
 
 @code
@@ -88,7 +87,6 @@
 
     PagedList<SupplierListItem>? data { get; set; }
     
-    SupplierCreateModal? create;
     DeleteModal? delete;
 
     MudDataGrid<SupplierListItem>? grid;
@@ -102,7 +100,7 @@
     async Task LoadData()
     {
         var query = new PagedQuery { Search = Search, Page = Page, PageSize = PageSize };
-        data = await http.GetAsync<PagedList<SupplierListItem>>($"{ApiRoutes.Suppliers}?{query}");
+        data = await Http.GetAsync<PagedList<SupplierListItem>>($"{ApiRoutes.Suppliers}?{query}");
     }
 
     async Task<GridData<SupplierListItem>> LoadServerData(GridState<SupplierListItem> state)
@@ -118,7 +116,7 @@
             };
 
         loading = true;
-        var result = await http.GetAsync<PagedList<SupplierListItem>>($"{ApiRoutes.Suppliers}?{query}");
+        var result = await Http.GetAsync<PagedList<SupplierListItem>>($"{ApiRoutes.Suppliers}?{query}");
         loading = false;
 
         if (result == null)
@@ -134,19 +132,22 @@
 
     string GenerateLink(int page) => $"/suppliers?{new PagedQuery { Search = Search, Page = page }}";
 
-    void OnSearch() => nav.NavigateTo($"/suppliers?s={search}");
+    void OnSearch() => Nav.NavigateTo($"/suppliers?s={search}");
 
     void PageChanged(int i)
     {
         if (pagerPage != i)
-            nav.NavigateTo($"/suppliers?{new PagedQuery { Search = Search, Page = i }}");
+            Nav.NavigateTo($"/suppliers?{new PagedQuery { Search = Search, Page = i }}");
         pagerPage = i;
     }
 
     async void OnAddClick()
     {
-        var dialogRef = await dialog.ShowAsync<SupplierCreateModal>();
-        var result = await dialogRef.Result;
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(SupplierCreateModal.Model), new SupplierRequest());
+
+        var dialog = await Dialog.ShowAsync<SupplierCreateModal>("", parameters);
+        var result = await dialog.Result;
         if (!result.Canceled && grid != null)
             await grid.ReloadServerData();
     }
@@ -154,9 +155,9 @@
     async void OnDelete(SupplierListItem item)
     {
         var parameters = new DialogParameters();
-        //parameters.Add(nameof(DeleteModal.Model), item);
+        parameters.Add(nameof(DeleteModal.Model), item);
 
-        var dialogRef = await dialog.ShowAsync<DeleteModal>("", parameters);
+        var dialogRef = await Dialog.ShowAsync<DeleteModal>("", parameters);
         var result = await dialogRef.Result;
 
         if (!result.Canceled && grid != null)
