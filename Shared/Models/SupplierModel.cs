@@ -6,6 +6,7 @@ public interface ISupplierModel
 {
     string Id { get; set; }
     string? Name { get; set; }
+    string? ShortName { get; set; }
 }
 
 public class SupplierRequest

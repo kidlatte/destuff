@@ -68,8 +68,6 @@
     </PagerContent>
 </MudDataGrid>
 
-<DeleteModal @ref="delete" OnDeleted="LoadData" />
-
 @code
 {
     [Parameter, SupplyParameterFromQuery(Name = "s")]
@@ -86,8 +84,6 @@
     bool loading;
 
     PagedList<SupplierListItem>? data { get; set; }
-    
-    DeleteModal? delete;
 
     MudDataGrid<SupplierListItem>? grid;
 
