@@ -1,85 +1,74 @@
 @page "/suppliers/{Slug}"
 @attribute [Authorize]
 
-@inject IHttpService http
-@inject NavigationManager nav
+@inject NavigationManager Nav
+@inject IHttpService Http
+@inject IDialogService Dialog
 
-
-@if (model != null)
+@if (Model != null)
 {
-    <div class="text-end">
-        <a
-            href="/suppliers"
-            class="btn btn-outline-secondary"
-        >
-            <i class="bi bi-chevron-left"></i>
-            Suppliers
-        </a>
-        <button
-            @onclick="() => update?.Open(model)"
-            type="button" class="btn btn-outline-primary"
-        >
-            Edit
-        </button>
-        @*<button
-            @onclick="() => delete?.Open(model)"
-            type="button" class="btn btn-outline-danger"
-        >
-            Delete
-        </button>*@
+    <div class="d-md-flex">
+        <div class="text-nowrap order-1">
+            <MudButton Href="/suppliers" StartIcon="@Icons.Material.Rounded.ChevronLeft" Variant="Variant.Outlined">
+                Suppliers
+            </MudButton>
+            @*<MudButton OnClick="OnUpdateClick" Variant="Variant.Outlined"
+                        Color="Color.Primary">Edit</MudButton>*@
+            <MudButton OnClick="OnDeleteClick" Variant="Variant.Outlined"
+                        Color="Color.Error">Delete</MudButton>
+        </div>
+        <div class="text-truncate me-auto order-0">
+            <MudText Typo="Typo.h1" Class="text-truncate my-5">@Model.ShortName</MudText>
+        </div>
     </div>
-
-    <h1>@model.ShortName</h1>
 
     <div class="mw-100" style="width: 600px; max-width: 100%;">
         <dl class="row">
             <dt class="col-sm-3">Name</dt>
-            <dd class="col-sm-9">@model.Name</dd>
+            <dd class="col-sm-9">@Model.Name</dd>
         </dl>
 
-        @if (!string.IsNullOrEmpty(model.Url))
+        @if (!string.IsNullOrEmpty(Model.Url))
         {
             <dl class="row">
                 <dt class="col-sm-3">URL</dt>
                 <dd class="col-sm-9 text-truncate">
-                    <a href="@model.Url" target="_blank">
-                        @model.Url
+                    <a href="@Model.Url" target="_blank">
+                        @Model.Url
                     </a>
                 </dd>
             </dl>
         }
 
-        @if (!string.IsNullOrEmpty(model.Phone))
+        @if (!string.IsNullOrEmpty(Model.Phone))
         {
             <dl class="row">
                 <dt class="col-sm-3">Phone</dt>
-                <dd class="col-sm-9">@model.Phone</dd>
+                <dd class="col-sm-9">@Model.Phone</dd>
             </dl>
         }
 
-        @if (!string.IsNullOrEmpty(model.Address))
+        @if (!string.IsNullOrEmpty(Model.Address))
         {
             <dl class="row">
                 <dt class="col-sm-3">Address</dt>
-                <dd class="col-sm-9">@model.Address</dd>
+                <dd class="col-sm-9">@Model.Address</dd>
             </dl>
         }
 
-        <div>@model.Notes</div>
+        <div>@Model.Notes</div>
     </div>
 }
 
 <UpdateModal @ref="update" OnUpdated="OnUpdated" />
-<DeleteModal @ref="delete" OnDeleted="OnDeleted" />
 
 @code {
     [Parameter]
     public string? Slug { get; set; }
 
-    SupplierModel? model { get; set; }
+    SupplierModel? Model { get; set; }
 
     UpdateModal? update;
-    DeleteModal? delete;
 
 
     protected override Task OnParametersSetAsync() => LoadData();
@@ -88,12 +77,12 @@
     {
         try
         {
-            model = await http.GetAsync<SupplierModel>($"{ApiRoutes.SupplierSlug}/{Slug}");
+            Model = await Http.GetAsync<SupplierModel>($"{ApiRoutes.SupplierSlug}/{Slug}");
         }
         catch (HttpRequestException ex)
         {
             if (ex.StatusCode == HttpStatusCode.NotFound)
-                nav.NavigateTo($"/suppliers");
+                Nav.NavigateTo($"/suppliers");
             else
                 throw;
         }
@@ -101,10 +90,20 @@
 
     async Task OnUpdated (SupplierModel item) {
         if (Slug != item.Slug)
-            nav.NavigateTo($"/suppliers/{item.Slug}");
+            Nav.NavigateTo($"/suppliers/{item.Slug}");
         else
             await LoadData();
     }
 
-    void OnDeleted() => nav.NavigateTo("/suppliers");
+    async void OnDeleteClick()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(DeleteModal.Model), Model);
+
+        var dialog = await Dialog.ShowAsync<DeleteModal>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+            Nav.NavigateTo($"/suppliers");
+    }
 }

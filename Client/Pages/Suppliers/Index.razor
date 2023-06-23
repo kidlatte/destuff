@@ -1,6 +1,6 @@
 @page "/suppliers"
-
 @attribute [Authorize]
+
 @inject NavigationManager Nav
 @inject IHttpService Http
 @inject IDialogService Dialog
@@ -53,7 +53,7 @@
             <CellTemplate>
                 @if (context.Item != null)
                 {
-                    <MudIconButton OnClick="_ => OnDelete(context.Item)" Icon="@Icons.Material.Filled.Delete" aria-label="delete"></MudIconButton>
+                    <MudIconButton OnClick="_ => OnDeleteClick(context.Item)" Icon="@Icons.Material.Filled.Delete" aria-label="delete"></MudIconButton>
                 }
             </CellTemplate>
         </TemplateColumn>
@@ -148,13 +148,13 @@
             await grid.ReloadServerData();
     }
 
-    async void OnDelete(SupplierListItem item)
+    async void OnDeleteClick(SupplierListItem item)
     {
         var parameters = new DialogParameters();
         parameters.Add(nameof(DeleteModal.Model), item);
 
-        var dialogRef = await Dialog.ShowAsync<DeleteModal>("", parameters);
-        var result = await dialogRef.Result;
+        var dialog = await Dialog.ShowAsync<DeleteModal>("", parameters);
+        var result = await dialog.Result;
 
         if (!result.Canceled && grid != null)
             await grid.ReloadServerData();
