@@ -5,6 +5,8 @@
 @inject IHttpService Http
 @inject IDialogService Dialog
 
+<PageTitle>@(Model == null ? "Suppliers" : $"{Model.ShortName} | Suppliers") | Destuff</PageTitle>
+
 @if (Model != null)
 {
     <div class="d-md-flex">
@@ -12,10 +14,10 @@
             <MudButton Href="/suppliers" StartIcon="@Icons.Material.Rounded.ChevronLeft" Variant="Variant.Outlined">
                 Suppliers
             </MudButton>
-            @*<MudButton OnClick="OnUpdateClick" Variant="Variant.Outlined"
-                        Color="Color.Primary">Edit</MudButton>*@
+            <MudButton OnClick="OnUpdateClick" Variant="Variant.Outlined"
+                Color="Color.Primary">Edit</MudButton>
             <MudButton OnClick="OnDeleteClick" Variant="Variant.Outlined"
-                        Color="Color.Error">Delete</MudButton>
+                Color="Color.Error">Delete</MudButton>
         </div>
         <div class="text-truncate me-auto order-0">
             <MudText Typo="Typo.h1" Class="text-truncate my-5">@Model.ShortName</MudText>
@@ -23,16 +25,16 @@
     </div>
 
     <div class="mw-100" style="width: 600px; max-width: 100%;">
-        <dl class="row">
-            <dt class="col-sm-3">Name</dt>
-            <dd class="col-sm-9">@Model.Name</dd>
+        <dl>
+            <dt>Name</dt>
+            <dd>@Model.Name</dd>
         </dl>
 
         @if (!string.IsNullOrEmpty(Model.Url))
         {
-            <dl class="row">
-                <dt class="col-sm-3">URL</dt>
-                <dd class="col-sm-9 text-truncate">
+            <dl>
+                <dt>URL</dt>
+                <dd class="text-truncate">
                     <a href="@Model.Url" target="_blank">
                         @Model.Url
                     </a>
@@ -42,17 +44,17 @@
 
         @if (!string.IsNullOrEmpty(Model.Phone))
         {
-            <dl class="row">
-                <dt class="col-sm-3">Phone</dt>
-                <dd class="col-sm-9">@Model.Phone</dd>
+            <dl>
+                <dt>Phone</dt>
+                <dd>@Model.Phone</dd>
             </dl>
         }
 
         @if (!string.IsNullOrEmpty(Model.Address))
         {
-            <dl class="row">
-                <dt class="col-sm-3">Address</dt>
-                <dd class="col-sm-9">@Model.Address</dd>
+            <dl>
+                <dt>Address</dt>
+                <dd>@Model.Address</dd>
             </dl>
         }
 
@@ -60,15 +62,11 @@
     </div>
 }
 
-<UpdateModal @ref="update" OnUpdated="OnUpdated" />
-
 @code {
     [Parameter]
     public string? Slug { get; set; }
 
     SupplierModel? Model { get; set; }
-
-    UpdateModal? update;
 
 
     protected override Task OnParametersSetAsync() => LoadData();
@@ -88,11 +86,25 @@
         }
     }
 
-    async Task OnUpdated (SupplierModel item) {
-        if (Slug != item.Slug)
-            Nav.NavigateTo($"/suppliers/{item.Slug}");
-        else
-            await LoadData();
+    async void OnUpdateClick()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(UpdateModal.Model), Model);
+
+        var dialog = await Dialog.ShowAsync<UpdateModal>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var data = result.Data as SupplierModel;
+            if (data == null || data.Slug == Slug) 
+            {
+                await LoadData();
+                StateHasChanged();
+            }
+            else
+                Nav.NavigateTo($"suppliers/{data.Slug}");
+        }
     }
 
     async void OnDeleteClick()

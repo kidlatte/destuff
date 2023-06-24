@@ -1,6 +1,6 @@
 @inject IHttpService http
 
-@if (Model != null && request != null)
+@if (request != null)
 {
     <EditForm OnValidSubmit="OnSubmit" Model="request" autocomplete="off">
         <MudDialog>
@@ -20,7 +20,7 @@
                 {
                     <LocationSelect @bind-Value="request.LocationId" Loading="loading" />
                 }
-                <MudTextField @bind-Value="request.Notes" For="@(() => Model.Notes)" Disabled="loading"
+                <MudTextField @bind-Value="request.Notes" For="@(() => request.Notes)" Disabled="loading"
                           Label="Notes" Variant="Variant.Outlined" Lines="3" />
 
                 <MudText Color="@Color.Error">@error</MudText>
@@ -40,13 +40,13 @@
     MudDialogInstance? dialog { get; set; }
 
     [Parameter]
-    public required StuffModel? Model { get; set; }
-    public StuffRequest? request { get; set; }
+    public required StuffModel Model { get; set; }
+    StuffRequest? request { get; set; }
 
     string error { get; set; } = "";
     bool loading { get; set; } = false;
 
-    protected override void OnParametersSet() => request = Model?.ToRequest();
+    protected override void OnParametersSet() => request = Model.ToRequest();
 
     async Task OnSubmit()
     {
@@ -58,7 +58,7 @@
 
         try
         {
-            result = await http.PutAsync<StuffModel>($"{ApiRoutes.Stuffs}/{Model?.Id}", request);
+            result = await http.PutAsync<StuffModel>($"{ApiRoutes.Stuffs}/{Model.Id}", request);
         }
         catch (Exception ex)
         {

@@ -1,102 +1,64 @@
-@inject IHttpService http
+@inject IHttpService Http
 
-@if (model != null)
+@if (request != null)
 {
-    <div class="modal-backdrop fade show"></div>
+    <EditForm OnValidSubmit="OnSubmit" Model="request" autocomplete="off">
+        <MudDialog>
+            <TitleContent>
+                <MudText Typo="Typo.h6" Class="text-truncate pe-5">Edit @Model.ShortName</MudText>
+            </TitleContent>
+            <DialogContent>
+                <DataAnnotationsValidator />
 
-    <div class="modal fade show" tabindex="-1" role="dialog" style="display: block; overflow-y: auto;">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Supplier @name</h5>
-                    <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
-                </div>
-                <EditForm OnValidSubmit="OnSubmit" Model="model" autocomplete="off">
-                    <div class="modal-body">
-                        <DataAnnotationsValidator />
+                <MudTextField @bind-Value="request.ShortName" For="@(() => request.ShortName)" Disabled="loading"
+                              Label="Short Name" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="request.Name" For="@(() => request.Name)" Disabled="loading"
+                              Label="Name" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="request.Url" For="@(() => request.Url)" Disabled="loading"
+                              Label="External URL" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="request.Phone" For="@(() => request.Phone)" Disabled="loading"
+                              Label="Phone" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="request.Address" For="@(() => request.Address)" Disabled="loading"
+                              Label="Address" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="request.Notes" For="@(() => request.Notes)" Disabled="loading"
+                              Label="Notes" Variant="Variant.Outlined" Lines="3" />
 
-                        <div class="form-floating mb-1">
-                            <InputText @bind-Value="model.ShortName" disable="@loading"
-                                   class="form-control" placeholder="ShortName" autocomplete="off" />
-                            <label>ShortName</label>
-                            <ValidationMessage For="@(() => model.ShortName)" />
-                        </div>
-
-                        <div class="form-floating mb-1">
-                            <InputText @bind-Value="model.Name" disable="@loading"
-                                   class="form-control" placeholder="Name" autocomplete="off" />
-                            <label>Name</label>
-                            <ValidationMessage For="@(() => model.Name)" />
-                        </div>
-
-                        <div class="form-floating mb-1">
-                            <InputText @bind-Value="model.Url" disable="@loading"
-                                       class="form-control" placeholder="URL" autocomplete="off" />
-                            <label>URL</label>
-                            <ValidationMessage For="@(() => model.Url)" />
-                        </div>
-
-                        <div class="form-floating mb-1">
-                            <InputText @bind-Value="model.Phone" disable="@loading"
-                                   class="form-control" placeholder="Phone" autocomplete="off" />
-                            <label>Phone</label>
-                            <ValidationMessage For="@(() => model.Phone)" />
-                        </div>
-
-                        <div class="form-floating mb-1">
-                            <InputText @bind-Value="model.Address" disable="@loading"
-                                   class="form-control" placeholder="Address" autocomplete="off" />
-                            <label>Address</label>
-                            <ValidationMessage For="@(() => model.Address)" />
-                        </div>
-
-                        <div class="form-floating mb-1">
-                            <InputTextArea @bind-Value="model.Notes" class="form-control" style="height: 100px"
-                                placeholder="Notes" disable="@loading" />
-                            <label>Notes</label>
-                            <ValidationMessage For="@(() => model.Notes)" />
-                        </div>
-
-                        <label class="text-danger">@error</label>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary" disabled="@loading">
-                            @(loading ? "Submitting..." : "Confirm")
-                        </button>
-                        <button @onclick="Close" type="button" class="btn btn-secondary">Cancel</button>
-                    </div>
-                </EditForm>
-            </div>
-        </div>
-    </div>
+                <MudText Color="@Color.Error">@error</MudText>
+            </DialogContent>
+            <DialogActions>
+                <LoadingButton Loading="loading" />
+                <MudButton OnClick="Close" Disabled="loading" Color="Color.Default">
+                    Cancel
+                </MudButton>
+            </DialogActions>
+        </MudDialog>
+    </EditForm>
 }
 
 @code {
+    [CascadingParameter]
+    MudDialogInstance? dialog { get; set; }
 
     [Parameter]
-    public EventCallback<SupplierModel> OnUpdated { get; set; }
-
-
-    SupplierRequest? model { get; set; }
-    
-    string? id { get; set; }
-    string? name { get; set; }
+    public required SupplierModel Model { get; set; }
+    public SupplierRequest? request { get; set; }
 
     string error { get; set; } = "";
     bool loading { get; set; } = false;
 
+    protected override void OnParametersSet() => request = Model.ToRequest();
+
     async Task OnSubmit()
     {
-        if (model == null)
+        if (request == null)
             throw new NullReferenceException();
 
         loading = true;
 
         try
         {
-            var result = await http.PutAsync<SupplierModel>($"{ApiRoutes.Suppliers}/{id}", model);
-
-            await OnUpdated.InvokeAsync(result);
+            var result = await Http.PutAsync<SupplierModel>($"{ApiRoutes.Suppliers}/{Model.Id}", request);
+            dialog?.Close(result);
         }
         catch (Exception ex)
         {
@@ -104,24 +66,11 @@
         }
 
         loading = false;
-
-        Close();
     }
-
-
-    public void Open(SupplierModel supplier)
-    {
-        id = supplier.Id;
-        name = supplier.Name;
-
-        model = supplier.ToRequest();
-
-        StateHasChanged();
-    }
-
 
     void Close()
     {
-        model = null;
+        request = null;
+        dialog?.Cancel();
     }
 }

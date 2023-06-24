@@ -1,9 +1,9 @@
 @page "/stuffs/{Slug}/{Tab?}"
-
 @attribute [Authorize]
-@inject IHttpService http
-@inject IDialogService dialog
-@inject NavigationManager nav
+
+@inject NavigationManager Nav
+@inject IHttpService Http
+@inject IDialogService Dialog
 
 <PageTitle>@(Model == null ? "Stuffs" : $"{Model.Name} | Stuffs") | Destuff</PageTitle>
 
@@ -147,14 +147,14 @@
     {
         try
         {
-            Model = await http.GetAsync<StuffModel>($"{ApiRoutes.StuffSlug}/{Slug}");
+            Model = await Http.GetAsync<StuffModel>($"{ApiRoutes.StuffSlug}/{Slug}");
             if (Model != null)
                 uploads.AddRange(Model.Uploads.OrEmpty());
         }
         catch (HttpRequestException ex)
         {
             if (ex.StatusCode == HttpStatusCode.NotFound)
-                nav.NavigateTo($"/");
+                Nav.NavigateTo($"/");
             else
                 throw;
         }
@@ -165,16 +165,19 @@
         var parameters = new DialogParameters();
         parameters.Add(nameof(UpdateModal.Model), Model);
 
-        var dialogRef = await dialog.ShowAsync<UpdateModal>("", parameters);
+        var dialogRef = await Dialog.ShowAsync<UpdateModal>("", parameters);
         var result = await dialogRef.Result;
 
         if (!result.Canceled && result.Data != null)
         {
             var data = result.Data as StuffModel;
-            if (data == null || data.Slug ==  Slug)
+            if (data == null || data.Slug == Slug)
+            {
                 await LoadData();
+                StateHasChanged();
+            }
             else
-                nav.NavigateTo($"stuffs/{data.Slug}");
+                Nav.NavigateTo($"stuffs/{data.Slug}");
         }
     }
 
@@ -183,11 +186,11 @@
         var parameters = new DialogParameters();
         parameters.Add(nameof(DeleteModal.Model), Model);
 
-        var dialogRef = await dialog.ShowAsync<DeleteModal>("", parameters);
+        var dialogRef = await Dialog.ShowAsync<DeleteModal>("", parameters);
         var result = await dialogRef.Result;
 
         if (!result.Canceled)
-            nav.NavigateTo($"/");
+            Nav.NavigateTo($"/");
     }
 
     void OnActivePanelIndexChanged(int index)
@@ -196,10 +199,10 @@
         switch (index)
         {
             case 1:
-                nav.NavigateTo($"stuffs/{Slug}/{StuffTabs.Locations}");
+                Nav.NavigateTo($"stuffs/{Slug}/{StuffTabs.Locations}");
                 break;
             default:
-                nav.NavigateTo($"stuffs/{Slug}");
+                Nav.NavigateTo($"stuffs/{Slug}");
                 break;
         }
         
