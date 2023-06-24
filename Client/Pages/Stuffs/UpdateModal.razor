@@ -11,10 +11,10 @@
                 <DataAnnotationsValidator />
 
                 <MudTextField @bind-Value="request.Name" For="@(() => request.Name)" Disabled="loading"
-                          Label="Name" Variant="Variant.Outlined" />
+                              Label="Name" Variant="Variant.Outlined" />
 
                 <MudTextField @bind-Value="request.Url" For="@(() => request.Url)" Disabled="loading"
-                          Label="External URL" Variant="Variant.Outlined" />
+                              Label="External URL" Variant="Variant.Outlined" InputType="InputType.Url" />
 
                 @if (Model.IsSingleLocation)
                 {
@@ -54,11 +54,11 @@
             throw new NullReferenceException();
 
         loading = true;
-        StuffModel? result = null;
 
         try
         {
-            result = await http.PutAsync<StuffModel>($"{ApiRoutes.Stuffs}/{Model.Id}", request);
+            var result = await http.PutAsync<StuffModel>($"{ApiRoutes.Stuffs}/{Model.Id}", request);
+            dialog?.Close(result);
         }
         catch (Exception ex)
         {
@@ -66,7 +66,6 @@
         }
 
         loading = false;
-        dialog?.Close(result);
     }
 
     public void Close()

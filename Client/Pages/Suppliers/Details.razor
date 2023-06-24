@@ -35,9 +35,9 @@
             <dl>
                 <dt>URL</dt>
                 <dd class="text-truncate">
-                    <a href="@Model.Url" target="_blank">
+                    <MudLink Href="@Model.Url" Target="_blank">
                         @Model.Url
-                    </a>
+                    </MudLink>
                 </dd>
             </dl>
         }
@@ -46,7 +46,11 @@
         {
             <dl>
                 <dt>Phone</dt>
-                <dd>@Model.Phone</dd>
+                <dd>
+                    <MudLink Href="@($"tel:{Model.Phone}")">
+                        @Model.Phone
+                    </MudLink>
+                </dd>
             </dl>
         }
 
