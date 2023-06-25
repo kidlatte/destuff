@@ -1,36 +1,39 @@
 @inject IHttpService Http
 
-<EditForm OnValidSubmit="OnSubmit" Model="Model" autocomplete="off">
-    <MudDialog>
-        <TitleContent>
-            <MudText Typo="Typo.h6">Add Supplier</MudText>
-        </TitleContent>
-        <DialogContent>
-            <DataAnnotationsValidator />
+@if (Model != null)
+{ 
+    <EditForm OnValidSubmit="OnSubmit" Model="Model" autocomplete="off">
+        <MudDialog>
+            <TitleContent>
+                <MudText Typo="Typo.h6">Add Supplier</MudText>
+            </TitleContent>
+            <DialogContent>
+                <DataAnnotationsValidator />
 
-            <MudTextField @bind-Value="Model.ShortName" For="@(() => Model.ShortName)" Disabled="loading"
-                          Label="Short Name" Variant="Variant.Outlined" />
-            <MudTextField @bind-Value="Model.Name" For="@(() => Model.Name)" Disabled="loading"
-                          Label="Name" Variant="Variant.Outlined" />
-            <MudTextField @bind-Value="Model.Url" For="@(() => Model.Url)" Disabled="loading"
-                          Label="External URL" Variant="Variant.Outlined" InputType="InputType.Url" />
-            <MudTextField @bind-Value="Model.Phone" For="@(() => Model.Phone)" Disabled="loading"
-                          Label="Phone" Variant="Variant.Outlined" />
-            <MudTextField @bind-Value="Model.Address" For="@(() => Model.Address)" Disabled="loading"
-                          Label="Address" Variant="Variant.Outlined" />
-            <MudTextField @bind-Value="Model.Notes" For="@(() => Model.Notes)" Disabled="loading"
-                          Label="Notes" Variant="Variant.Outlined" Lines="3" />
+                <MudTextField @bind-Value="Model.ShortName" For="@(() => Model.ShortName)" Disabled="loading"
+                              Label="Short Name" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="Model.Name" For="@(() => Model.Name)" Disabled="loading"
+                              Label="Name" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="Model.Url" For="@(() => Model.Url)" Disabled="loading"
+                              Label="External URL" Variant="Variant.Outlined" InputType="InputType.Url" />
+                <MudTextField @bind-Value="Model.Phone" For="@(() => Model.Phone)" Disabled="loading"
+                              Label="Phone" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="Model.Address" For="@(() => Model.Address)" Disabled="loading"
+                              Label="Address" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="Model.Notes" For="@(() => Model.Notes)" Disabled="loading"
+                              Label="Notes" Variant="Variant.Outlined" Lines="3" />
 
-            <MudText Color="@Color.Error">@error</MudText>
-        </DialogContent>
-        <DialogActions>
-            <LoadingButton Loading="loading" />
-            <MudButton OnClick="() => dialog?.Cancel()" Disabled="loading" Color="Color.Default">
-                Cancel
-            </MudButton>
-        </DialogActions>
-    </MudDialog>
-</EditForm>
+                <MudText Color="@Color.Error">@error</MudText>
+            </DialogContent>
+            <DialogActions>
+                <LoadingButton Loading="loading" />
+                <MudButton OnClick="() => dialog?.Cancel()" Disabled="loading" Color="Color.Default">
+                    Cancel
+                </MudButton>
+            </DialogActions>
+        </MudDialog>
+    </EditForm>
+}
 
 @code {
     [CascadingParameter] 
@@ -40,13 +43,18 @@
     public EventCallback<SupplierModel> OnCreated { get; set; }
 
     [Parameter]
-    public required SupplierRequest Model { get; set; }
+    public SupplierRequest? Model { get; set; }
 
     string error { get; set; } = "";
     bool loading { get; set; } = false;
 
+    protected override void OnInitialized() => Model ??= new SupplierRequest();
+
     async Task OnSubmit()
     {
+        if (Model == null)
+            throw new NullReferenceException();
+
         loading = true;
 
         try

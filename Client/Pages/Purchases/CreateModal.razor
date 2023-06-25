@@ -1,73 +1,52 @@
-@inject IHttpService http
+@inject IHttpService Http
 
 @if (Model != null)
 {
-    <div class="modal-backdrop fade show"></div>
+    <EditForm OnValidSubmit="OnSubmit" Model="Model">
+        <MudDialog>
+            <TitleContent>
+                <MudText Typo="Typo.h6">Add Purchase</MudText>
+            </TitleContent>
+            <DialogContent>
+                <DataAnnotationsValidator />
 
-    <div class="modal fade show" tabindex="-1" role="dialog" style="display: block; overflow-y: auto;">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add Purchase</h5>
-                    <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
-                </div>
-                <EditForm OnValidSubmit="OnSubmit" Model="Model" autocomplete="off">
-                    <div class="modal-body">
-                        <DataAnnotationsValidator />
+                @*<div class="form-floating mb-1">
+                    <SupplierSelect @bind-Value="Model.SupplierId" Loading="loading" />
+                </div>*@
 
-                        <div class="form-floating mb-1">
-                            <SupplierSelect @bind-Value="Model.SupplierId" Loading="loading" />
-                        </div>
+                <MudDatePicker @bind-Date="Model.Receipt" For="@(() => Model.Receipt)" Disabled="loading"
+                              Label="Receipt Date" Variant="Variant.Outlined" />
+                <MudDatePicker @bind-Date="Model.Received" For="@(() => Model.Received)" Disabled="loading"
+                               Label="Received Date" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="Model.Notes" For="@(() => Model.Notes)" Disabled="loading"
+                              Label="Notes" Variant="Variant.Outlined" Lines="3" />
 
-                        <div class="form-floating mb-1">
-                            <InputDate @bind-Value="Model.Receipt" disable="@loading"
-                                       class="form-control" placeholder="Receipt Date" autocomplete="off" />
-                            <label>Receipt Date</label>
-                            <ValidationMessage For="@(() => Model.Receipt)" />
-                        </div>
-
-                        <div class="form-floating mb-1">
-                            <InputDate @bind-Value="Model.Received" disable="@loading"
-                                       class="form-control" placeholder="Received Date" autocomplete="off" />
-                            <label>Received Date</label>
-                            <ValidationMessage For="@(() => Model.Received)" />
-                        </div>
-
-                        <div class="form-floating mb-1">
-                            <InputTextArea @bind-Value="Model.Notes" disable="@loading"
-                                           class="form-control" style="height: 100px" placeholder="Notes" />
-                            <label>Notes</label>
-                            <ValidationMessage For="@(() => Model.Notes)" />
-                        </div>
-
-                        <label class="text-danger">@error</label>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary" disabled="@loading">
-                            @(loading ? "Submitting..." : "Confirm")
-                        </button>
-                        <button @onclick="Close" type="button" class="btn btn-secondary">Cancel</button>
-                    </div>
-
-                </EditForm>
-            </div>
-        </div>
-    </div>
+                <MudText Color="@Color.Error">@error</MudText>
+            </DialogContent>
+            <DialogActions>
+                <LoadingButton Loading="loading" />
+                <MudButton OnClick="() => dialog?.Cancel()" Disabled="loading" Color="Color.Default">
+                    Cancel
+                </MudButton>
+            </DialogActions>
+        </MudDialog>
+    </EditForm>
 }
 
 @code {
+    [CascadingParameter]
+    MudDialogInstance? dialog { get; set; }
+
     [Parameter]
     public EventCallback<PurchaseModel> OnCreated { get; set; }
 
+    [Parameter]
     public PurchaseRequest? Model { get; set; }
 
     string error { get; set; } = "";
     bool loading { get; set; } = false;
 
-    protected override async Task OnInitializedAsync() 
-    {
-        await base.OnInitializedAsync();
-    }
+    protected override void OnInitialized() => Model ??= new PurchaseRequest();
 
     async Task OnSubmit()
     {
@@ -78,10 +57,8 @@
 
         try
         {
-            var result = await http.PostAsync<PurchaseModel>(ApiRoutes.Purchases, Model);
-
-            Close();
-            await OnCreated.InvokeAsync(result);
+            var result = await Http.PostAsync<PurchaseModel>(ApiRoutes.Purchases, Model);
+            dialog?.Close(DialogResult.Ok(result));
         }
         catch (Exception ex)
         {

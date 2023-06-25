@@ -144,10 +144,7 @@
 
     async void OnAddClick()
     {
-        var parameters = new DialogParameters();
-        parameters.Add(nameof(SupplierCreateModal.Model), new SupplierRequest());
-
-        var dialog = await Dialog.ShowAsync<SupplierCreateModal>("", parameters);
+        var dialog = await Dialog.ShowAsync<SupplierCreateModal>();
         var result = await dialog.Result;
         if (!result.Canceled && grid != null)
             await grid.ReloadServerData();
