@@ -1,6 +1,6 @@
 @inject IHttpService http
 
-@if (model != null)
+@if (Model != null)
 {
     <div class="modal-backdrop fade show"></div>
 
@@ -11,33 +11,33 @@
                     <h5 class="modal-title">Add Purchase</h5>
                     <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
                 </div>
-                <EditForm OnValidSubmit="OnSubmit" Model="model" autocomplete="off">
+                <EditForm OnValidSubmit="OnSubmit" Model="Model" autocomplete="off">
                     <div class="modal-body">
                         <DataAnnotationsValidator />
 
                         <div class="form-floating mb-1">
-                            <SupplierSelect @bind-Value="model.SupplierId" Loading="loading" />
+                            <SupplierSelect @bind-Value="Model.SupplierId" Loading="loading" />
                         </div>
 
                         <div class="form-floating mb-1">
-                            <InputDate @bind-Value="model.Receipt" disable="@loading"
+                            <InputDate @bind-Value="Model.Receipt" disable="@loading"
                                        class="form-control" placeholder="Receipt Date" autocomplete="off" />
                             <label>Receipt Date</label>
-                            <ValidationMessage For="@(() => model.Receipt)" />
+                            <ValidationMessage For="@(() => Model.Receipt)" />
                         </div>
 
                         <div class="form-floating mb-1">
-                            <InputDate @bind-Value="model.Received" disable="@loading"
+                            <InputDate @bind-Value="Model.Received" disable="@loading"
                                        class="form-control" placeholder="Received Date" autocomplete="off" />
                             <label>Received Date</label>
-                            <ValidationMessage For="@(() => model.Received)" />
+                            <ValidationMessage For="@(() => Model.Received)" />
                         </div>
 
                         <div class="form-floating mb-1">
-                            <InputTextArea @bind-Value="model.Notes" disable="@loading"
+                            <InputTextArea @bind-Value="Model.Notes" disable="@loading"
                                            class="form-control" style="height: 100px" placeholder="Notes" />
                             <label>Notes</label>
-                            <ValidationMessage For="@(() => model.Notes)" />
+                            <ValidationMessage For="@(() => Model.Notes)" />
                         </div>
 
                         <label class="text-danger">@error</label>
@@ -59,7 +59,7 @@
     [Parameter]
     public EventCallback<PurchaseModel> OnCreated { get; set; }
 
-    PurchaseRequest? model { get; set; }
+    public PurchaseRequest? Model { get; set; }
 
     string error { get; set; } = "";
     bool loading { get; set; } = false;
@@ -71,14 +71,14 @@
 
     async Task OnSubmit()
     {
-        if (model == null)
+        if (Model == null)
             throw new NullReferenceException();
 
         loading = true;
 
         try
         {
-            var result = await http.PostAsync<PurchaseModel>(ApiRoutes.Purchases, model);
+            var result = await http.PostAsync<PurchaseModel>(ApiRoutes.Purchases, Model);
 
             Close();
             await OnCreated.InvokeAsync(result);
@@ -93,12 +93,12 @@
 
     public void Open()
     {
-        model = new PurchaseRequest { Receipt = DateTime.Now };
+        Model = new PurchaseRequest { Receipt = DateTime.Now };
         StateHasChanged();
     }
 
     public void Close()
     {
-        model = null;
+        Model = null;
     }
 }

@@ -39,14 +39,14 @@ public class PurchasesController : BaseController<Purchase>
 
         switch (grid.SortField)
         {
-            case "receipt":
-                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Receipt) : query.OrderBy(x => x.Receipt);
+            case "Receipt":
+                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Received ?? x.Receipt) : query.OrderBy(x => x.Received ?? x.Receipt);
                 break;
-            case "received":
-                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Received) : query.OrderBy(x => x.Received);
-                break;
-            case "supplier":
+            case "Supplier":
                 query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Supplier!.ShortName) : query.OrderBy(x => x.Supplier!.ShortName);
+                break;
+            case "Price":
+                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Price) : query.OrderBy(x => x.Price);
                 break;
             default:
                 query = query.OrderByDescending(x => x.Received ?? x.Receipt);

@@ -1,6 +1,6 @@
 @inject IHttpService http
 
-@if (model != null)
+@if (Model != null)
 {
     <div class="modal-backdrop fade show"></div>
 
@@ -13,7 +13,7 @@
                     </h5>
                     <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
                 </div>
-                <EditForm OnValidSubmit="OnSubmit" Model="model" autocomplete="off">
+                <EditForm OnValidSubmit="OnSubmit" Model="Model" autocomplete="off">
                     <div class="modal-body">
                         <p class="mb-3 fw-normal">
                             Are you sure you want to delete purchase?
@@ -39,20 +39,20 @@
     public EventCallback<IPurchaseModel> OnDeleted { get; set; }
 
 
-    IPurchaseModel? model { get; set; }
+    public IPurchaseModel? Model { get; set; }
     string error { get; set; } = "";
     bool loading { get; set; } = false;
 
     async Task OnSubmit()
     {
-        if (model == null)
+        if (Model == null)
             throw new NullReferenceException();
 
         loading = true;
 
         try
         {
-            await http.DeleteAsync($"{ApiRoutes.Purchases}/{model.Id}");
+            await http.DeleteAsync($"{ApiRoutes.Purchases}/{Model.Id}");
             await OnDeleted.InvokeAsync();
         }
         catch (Exception ex)
@@ -68,7 +68,7 @@
 
     public void Open(IPurchaseModel stuff)
     {
-        model = stuff;
+        Model = stuff;
 
         StateHasChanged();
     }
@@ -76,6 +76,6 @@
 
     void Close()
     {
-        model = null;
+        Model = null;
     }
 }
