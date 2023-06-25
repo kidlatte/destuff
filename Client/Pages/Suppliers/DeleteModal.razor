@@ -1,4 +1,4 @@
-@inject IHttpService http
+@inject IHttpService Http
 
 <EditForm OnValidSubmit="OnSubmit" Model="Model" autocomplete="off">
     <MudDialog>
@@ -40,7 +40,7 @@
 
         try
         {
-            await http.DeleteAsync($"{ApiRoutes.Suppliers}/{Model.Id}");
+            await Http.DeleteAsync($"{ApiRoutes.Suppliers}/{Model.Id}");
             dialog?.Close();
         }
         catch (Exception ex)
