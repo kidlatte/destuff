@@ -1,108 +1,70 @@
-@inject IHttpService http
+@inject IHttpService Http
+@inject IDialogService Dialog
 
-<input value="@text" @oninput="OnInput" @onfocus="OnFocus" @onblur ="OnBlur"
-    class="form-control" placeholder="Supplier" disable="@Loading" autocomplete="off" />
-<label>Supplier</label>
-@if (showOptions)
-{
-    <div class="autocomplete list-group">
-        <button @onclick="() => OnClick(null)" type="button" class="list-group-item list-group-item-action">
-            <em class="text-muted">none</em>
-        </button>
-        @foreach(var item in list.OrEmpty())
-        {
-            <button @onclick="() => OnClick(item)" type="button"
-                    class="list-group-item list-group-item-action @(item.Id == model?.Id ? "list-group-item-secondary" : "")">
-                @item.Name
-            </button>
-        }
-        @if (text != model?.Name)
-        {
-            <button @onclick="OnCreate" type="button" class="list-group-item list-group-item-action">
-                <em class="text-muted">Add Supplier @(string.IsNullOrEmpty(text) ? "" : $"\"{text}\"")</em>
-            </button>
-        }
-    </div>
-}
-
-<SupplierCreateModal @ref="create" OnCreated="OnCreated" />
+<MudAutocomplete @ref="field" @bind-Text="text" T="ISupplierModel"
+                 Value="Model" ValueChanged="ModelChanged"
+                 SearchFunc="@Search" ToStringFunc="@(x => x.Name)" Disabled="Disabled"
+                 Label="Supplier" Variant="Variant.Outlined" 
+                 Clearable="true" ResetValueOnEmptyText="true" ShowProgressIndicator="true">
+</MudAutocomplete>
 
 @code
 {
     [Parameter] public string? Value { get; set; }
     [Parameter] public EventCallback<string?> ValueChanged { get; set; }
-    [Parameter] public bool Loading { get; set; }
+    [Parameter] public bool Disabled { get; set; }
 
-    ICollection<ISupplierModel>? list { get; set; }
-    ISupplierModel? model { get; set; }
+    IEnumerable<ISupplierModel> list = Enumerable.Empty<ISupplierModel>();
+
+    MudAutocomplete<ISupplierModel>? field;
     string? text { get; set; }
-    bool showOptions { get; set; } = false;
 
-    private Timer? timer;
-    SupplierCreateModal? create;
+    ISupplierModel? Model { get; set; }
 
-    protected override async Task OnInitializedAsync() 
+    protected override void OnParametersSet() => SetModel();
+
+    void SetModel() => Model = list.FirstOrDefault(x => x.Id == Value);
+
+    async Task<IEnumerable<ISupplierModel>> Search(string value)
     {
-        await LoadData();
+        var query = new PagedQuery { Search = value, PageSize = 9 };
+        var result = await Http.GetAsync<PagedList<SupplierListItem>>($"{ApiRoutes.Suppliers}?{query}");
 
-        if (Value != null && list != null)
+        list = result?.List.ToList() ?? Enumerable.Empty<SupplierListItem>();
+        SetModel();
+
+        return list.Append(new SupplierListItem { Id = "add", Slug = "add", Name = "-- Create new Supplier --" });
+    }
+
+    private async Task ModelChanged(ISupplierModel? value)
+    {
+        if (value?.Id == "add" && field != null)
         {
-            model = list.Where(x => x.Id == Value).FirstOrDefault() ??
-                await http.GetAsync<SupplierModel>($"{ApiRoutes.Suppliers}/{Value}");
+            await field.ToggleMenu(); // close dropdown
+            var model = await CreateNewSupplier();
+
+            await field.Clear();
+            await field.ToggleMenu(); // force search
+
+            await ValueChanged.InvokeAsync(model?.Id);
             text = model?.Name;
         }
-
-        timer = new Timer(async _ => await LoadData(), null, Timeout.Infinite, Timeout.Infinite);
+        else
+        {
+            Model = value;
+            if (ValueChanged.HasDelegate)
+                await ValueChanged.InvokeAsync(value?.Id);
+        }
     }
 
-    void OnInput(ChangeEventArgs e)
+    async Task<ISupplierModel?> CreateNewSupplier()
     {
-        text = e.Value?.ToString();
-        timer?.Change(500, Timeout.Infinite);
-    }
+        var dialog = await Dialog.ShowAsync<SupplierCreateModal>();
+        var result = await dialog.Result;
 
-    void OnFocus()
-    {
-        showOptions = true;
-    }
-
-    async Task OnBlur()
-    {
-        await Task.Delay(300); // wait for onclick
-        showOptions = false;
-        text = model?.Name;
-    }
-
-    async Task OnClick(ISupplierModel? item)
-    {
-        Value = item?.Id;
-        if (ValueChanged.HasDelegate)
-            await ValueChanged.InvokeAsync(item?.Id);
-
-        model = item;
-        text = item?.Name;
-        showOptions = false;
-    }
-
-    void OnCreate()
-    {
-        showOptions = false;
-        create?.Open(text);
-    }
-
-    async Task OnCreated(SupplierModel item)
-    {
-        await OnClick(item);
+        if (result.Canceled)
+            return null;
         
-        if (model != null && list != null && list.All(x => x.Id != model.Id))
-            list = new[] { model }.Union(list).ToList();
-    }
-
-    async Task LoadData()
-    {
-        var query = new PagedQuery { Search = text, PageSize = 10 };
-        var result = await http.GetAsync<PagedList<SupplierListItem>>($"{ApiRoutes.Suppliers}?{query}");
-        list = result?.List.Cast<ISupplierModel>().ToList();
-        await InvokeAsync(StateHasChanged);
+        return result.Data as ISupplierModel;
     }
 }

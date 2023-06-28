@@ -10,9 +10,7 @@
             <DialogContent>
                 <DataAnnotationsValidator />
 
-                @*<div class="form-floating mb-1">
-                    <SupplierSelect @bind-Value="Model.SupplierId" Loading="loading" />
-                </div>*@
+                <SupplierSelect @bind-Value="Model.SupplierId" Disabled="loading" />
 
                 <MudDatePicker @bind-Date="Model.Receipt" For="@(() => Model.Receipt)" Disabled="loading"
                               Label="Receipt Date" Variant="Variant.Outlined" />
