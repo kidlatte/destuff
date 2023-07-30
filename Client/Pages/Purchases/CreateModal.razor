@@ -36,9 +36,6 @@
     MudDialogInstance? dialog { get; set; }
 
     [Parameter]
-    public EventCallback<PurchaseModel> OnCreated { get; set; }
-
-    [Parameter]
     public PurchaseRequest? Model { get; set; }
 
     string error { get; set; } = "";
@@ -64,16 +61,5 @@
         }
 
         loading = false;
-    }
-
-    public void Open()
-    {
-        Model = new PurchaseRequest { Receipt = DateTime.Now };
-        StateHasChanged();
-    }
-
-    public void Close()
-    {
-        Model = null;
     }
 }

@@ -40,9 +40,6 @@
     MudDialogInstance? dialog { get; set; }
 
     [Parameter]
-    public EventCallback<SupplierModel> OnCreated { get; set; }
-
-    [Parameter]
     public SupplierRequest? Model { get; set; }
 
     string error { get; set; } = "";
@@ -68,12 +65,5 @@
         }
 
         loading = false;
-    }
-
-    // TODO: remove
-    public void Open(string? name = null)
-    {
-        Model = new SupplierRequest { ShortName = name, Name = name };
-        StateHasChanged();
     }
 }
