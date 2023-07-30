@@ -86,11 +86,9 @@
 
     int PageSize => 10;
     int PageCount;
-    bool loading;
-
-    PagedList<SupplierListItem>? data { get; set; }
 
     MudDataGrid<SupplierListItem>? grid;
+    bool loading;
 
     protected override void OnInitialized() => PageCount = gridPage + 1;
 
@@ -146,6 +144,7 @@
     {
         var dialog = await Dialog.ShowAsync<SupplierCreateModal>();
         var result = await dialog.Result;
+
         if (!result.Canceled && grid != null)
             await grid.ReloadServerData();
     }
