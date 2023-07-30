@@ -54,9 +54,6 @@
     MudDialogInstance? dialog { get; set; }
 
     [Parameter]
-    public EventCallback<IPurchaseModel> OnDeleted { get; set; }
-
-    [Parameter]
     public required IPurchaseModel Model { get; set; }
 
     string error { get; set; } = "";
@@ -77,11 +74,5 @@
         }
 
         loading = false;
-    }
-
-    public void Open(IPurchaseModel stuff)
-    {
-        Model = stuff;
-        StateHasChanged();
     }
 }

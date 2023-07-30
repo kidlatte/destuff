@@ -135,7 +135,7 @@
     async void OnDelete(PurchaseItemListItem item)
     {
         var parameters = new DialogParameters();
-        //parameters.Add(nameof(DeleteModal.Model), item);
+        parameters.Add(nameof(DeleteModal.Model), item);
 
         var dialog = await Dialog.ShowAsync<DeleteModal>("", parameters);
         var result = await dialog.Result;
