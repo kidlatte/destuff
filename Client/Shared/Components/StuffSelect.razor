@@ -1,106 +1,71 @@
-@inject IHttpService http
+@inject IHttpService Http
+@inject IDialogService Dialog
 
-<input value="@text" @oninput="OnInput" @onfocus="OnFocus" @onblur="OnBlur"
-    class="form-control" placeholder="Stuff" disable="@Loading" autocomplete="off" />
-<label>Stuff</label>
-@if (showOptions)
-{
-    <div class="autocomplete list-group">
-        <button @onclick="() => OnClick(null)" type="button" class="list-group-item list-group-item-action">
-            <em class="text-muted">none</em>
-        </button>
-        @foreach(var item in list.OrEmpty())
-        {
-            <button @onclick="() => OnClick(item)" type="button"
-                    class="list-group-item list-group-item-action @(item.Id == model?.Id ? "list-group-item-secondary" : "")">
-                @item.Name
-            </button>
-        }
-        @if (text != model?.Name)
-        {
-            <button @onclick="OnCreate" type="button" class="list-group-item list-group-item-action">
-                <em class="text-muted">Add Stuff @(string.IsNullOrEmpty(text) ? "" : $"\"{text}\"")</em>
-            </button>
-        }
-    </div>
-}
-
-<StuffCreateModal @ref="create" OnCreated="OnCreated" />
+<MudAutocomplete @ref="field" @bind-Text="text" T="IStuffModel"
+                 Value="Model" ValueChanged="ModelChanged"
+                 SearchFunc="@Search" ToStringFunc="@(x => x.Name)" Disabled="Disabled"
+                 Label="Stuff" Variant="Variant.Outlined"
+                 Clearable="true" ResetValueOnEmptyText="true" ShowProgressIndicator="true">
+</MudAutocomplete>
 
 @code
 {
     [Parameter] public string? Value { get; set; }
     [Parameter] public EventCallback<string?> ValueChanged { get; set; }
-    [Parameter] public bool Loading { get; set; }
+    [Parameter] public bool Disabled { get; set; }
 
-    ICollection<IStuffModel>? list { get; set; }
-    IStuffModel? model { get; set; }
+    IEnumerable<IStuffModel> list { get; set; } = Enumerable.Empty<IStuffModel>();
+    IStuffModel? Model { get; set; }
     string? text { get; set; }
-    bool showOptions { get; set; } = false;
 
-    Timer? timer;
-    StuffCreateModal? create;
+    MudAutocomplete<IStuffModel>? field;
 
-    protected override async Task OnInitializedAsync() 
+    protected override void OnParametersSet() => SetModel();
+
+    void SetModel() => Model = list.FirstOrDefault(x => x.Id == Value);
+
+    async Task<IEnumerable<IStuffModel>> Search(string value)
     {
-        await LoadData();
+        var query = new PagedQuery { Search = value, PageSize = 9 };
+        var result = await Http.GetAsync<PagedList<StuffListItem>>($"{ApiRoutes.Stuffs}?{query}");
 
-        if (Value != null && list != null)
+        list = result?.List.ToList() ?? Enumerable.Empty<StuffListItem>();
+        SetModel();
+
+        return list.Append(new StuffListItem { Id = "add", Slug = "add", Name = "-- Create new Stuff --" });
+    }
+
+    private async Task ModelChanged(IStuffModel? value)
+    {
+        if (value?.Id == "add" && field != null)
         {
-            model = list.Where(x => x.Id == Value).FirstOrDefault() ??
-                await http.GetAsync<StuffModel>($"{ApiRoutes.Stuffs}/{Value}");
+            await field.ToggleMenu(); // close dropdown
+            var model = await CreateNewStuff();
+
+            await field.Clear();
+            await field.ToggleMenu(); // force search
+
+            if (ValueChanged.HasDelegate)
+                await ValueChanged.InvokeAsync(model?.Id);
+
             text = model?.Name;
         }
-
-        timer = new Timer(async _ => await LoadData(), null, Timeout.Infinite, Timeout.Infinite);
+        else
+        {
+            Model = value;
+            if (ValueChanged.HasDelegate)
+                await ValueChanged.InvokeAsync(value?.Id);
+        }
     }
 
-    void OnInput(ChangeEventArgs e)
+    async Task<IStuffModel?> CreateNewStuff()
     {
-        text = e.Value?.ToString();
-        timer?.Change(500, Timeout.Infinite);
-    }
+        var dialog = await Dialog.ShowAsync<StuffCreateModal>();
+        var result = await dialog.Result;
 
-    void OnFocus()
-    {
-        showOptions = true;
-    }
+        if (result.Canceled)
+            return null;
 
-    async Task OnBlur()
-    {
-        await Task.Delay(300); // wait for onclick
-        text = model?.Name;
-        showOptions = false;
-    }
-
-    async Task OnClick(IStuffModel? item)
-    {
-        Value = item?.Id;
-        if (ValueChanged.HasDelegate)
-            await ValueChanged.InvokeAsync(item?.Id);
-
-        model = item;
-        text = item?.Name;
-        showOptions = false;
-    }
-
-    void OnCreate()
-    {
-        showOptions = false;
-        create?.Open(text);
-    }
-
-    async Task OnCreated(StuffModel item)
-    {
-        await OnClick(item);
-        await LoadData();
-    }
-
-    async Task LoadData()
-    {
-        var query = new PagedQuery { Search = text, PageSize = 10 };
-        var result = await http.GetAsync<PagedList<StuffListItem>>($"{ApiRoutes.Stuffs}?{query}");
-        list = result?.List.Cast<IStuffModel>().ToList();
-        await InvokeAsync(StateHasChanged);
+        return result.Data as IStuffModel;
     }
 }

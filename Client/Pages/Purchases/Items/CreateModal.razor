@@ -10,7 +10,7 @@
             <DialogContent>
                 <DataAnnotationsValidator />
 
-                <StuffSelect @bind-Value="Model.StuffId" Loading="loading" />
+                <StuffSelect @bind-Value="Model.StuffId" Disabled="loading" />
 
                 <MudNumericField @bind-Value="Model.Quantity" For="@(() => Model.Quantity)" Disabled="loading"
                                Label="Quantity" Variant="Variant.Outlined" />
