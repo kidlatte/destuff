@@ -1,104 +1,114 @@
 @page "/purchases/{Id}"
 @attribute [Authorize]
 
-@inject IHttpService http
-@inject NavigationManager nav
+@inject NavigationManager Nav
+@inject IHttpService Http
+@inject IDialogService Dialog
 
+<PageTitle>@(Title == null ? "Purchases" : $"{Title} | Purchases") | Destuff</PageTitle>
 
-@if (model != null)
+@if (Model != null)
 {
-    <div class="text-end">
-        <a
-            href="/purchases"
-            class="btn btn-outline-secondary"
-        >
-            <i class="bi bi-chevron-left"></i>
-            Purchases
-        </a>
-        <button
-            @onclick="() => update?.Open(model)"
-            type="button" class="btn btn-outline-primary"
-        >
-            Edit
-        </button>
-        <button
-            @onclick="() => delete?.Open(model)"
-            type="button" class="btn btn-outline-danger"
-        >
-            Delete
-        </button>
+    <div class="d-md-flex">
+        <div class="text-nowrap order-1">
+            <MudButton Href="/suppliers" StartIcon="@Icons.Material.Rounded.ChevronLeft" Variant="Variant.Outlined">
+                Purchases
+            </MudButton>
+            <MudButton OnClick="OnUpdateClick" Variant="Variant.Outlined"
+                       Color="Color.Primary">Edit</MudButton>
+            <MudButton OnClick="OnDeleteClick" Variant="Variant.Outlined"
+                       Color="Color.Error">Delete</MudButton>
+        </div>
+        <div class="text-truncate me-auto order-0">
+            <MudText Typo="Typo.h1" Class="text-truncate my-5">@Title</MudText>
+        </div>
     </div>
-
-    <h1>Purchase</h1>
 
     <div class="mw-100" style="width: 600px; max-width: 100%;">
 
-        @if (model.Supplier != null)
+        @if (Model.Supplier != null)
         {
-            <dl class="row">
-                <dt class="col-sm-3">Supplier</dt>
-                <dd class="col-sm-9">
-                    <a href="@($"/suppliers/{model.Supplier?.Slug}")">@model.Supplier?.Name</a>
+            <dl>
+                <dt>Supplier</dt>
+                <dd>
+                    <MudLink Href="@($"/suppliers/{Model.Supplier.Slug}")">
+                        @Model.Supplier.Name
+                    </MudLink>
                 </dd>
             </dl>
         }
 
-        @if (model.Receipt.HasValue)
+        @if (Model.Receipt.HasValue)
         {
-            <dl class="row">
-                <dt class="col-sm-3">Receipt Date</dt>
-                <dd class="col-sm-9">@model.Receipt.Value.ToLongDateString()</dd>
+            <dl>
+                <dt>Receipt Date</dt>
+                <dd>@Model.Receipt.Value.ToLongDateString()</dd>
             </dl>
         }
 
-        @if (model.Received.HasValue)
+        @if (Model.Received.HasValue)
         {
-            <dl class="row">
-                <dt class="col-sm-3">Received Date</dt>
-                <dd class="col-sm-9">@model.Received.Value.ToLongDateString()</dd>
+            <dl>
+                <dt>Received Date</dt>
+                <dd>@Model.Received.Value.ToLongDateString()</dd>
             </dl>
         }
 
-        <div>@model.Notes</div>
+        <div>@Model.Notes</div>
     </div>
 }
 
-<UpdateModal @ref="update" OnUpdated="Updated" />
-<DeleteModal @ref="delete" OnDeleted="LoadData" />
-<Destuff.Client.Pages.Purchases.Items.Index @ref="items" PurchaseId="@Id" />
+<Destuff.Client.Pages.Purchases.Items.Index PurchaseId="@Id" />
 
 @code {
     [Parameter]
     public string? Id { get; set; }
-    
-    PurchaseModel? model { get; set; }
 
-    UpdateModal? update;
-    DeleteModal? delete;
-    Items.Index? items;
+    PurchaseModel? Model { get; set; }
 
+    string Title => Model == null ? "Purchase" :
+        Model.Received != null ? $"Purchase: {Model.Received:d}" :
+        Model.Receipt != null ? $"Purchase: {Model.Receipt:d}" :
+        Model.Supplier != null ? $"Purchase: {Model.Supplier.Name}" :
+        $"Purchase: {Model.Id}";
 
-    protected override Task OnParametersSetAsync()
-    {
-        return LoadData();
-    }
+    protected override Task OnParametersSetAsync() => LoadData();
 
     async Task LoadData()
     {
         try
         {
-            model = await http.GetAsync<PurchaseModel>($"{ApiRoutes.Purchases}/{Id}");
+            Model = await Http.GetAsync<PurchaseModel>($"{ApiRoutes.Purchases}/{Id}");
         }
         catch (HttpRequestException ex)
         {
             if (ex.StatusCode == HttpStatusCode.NotFound)
-                nav.NavigateTo($"/purchases");
+                Nav.NavigateTo($"/purchases");
             else
                 throw;
         }
     }
 
-    Task Updated (PurchaseModel item) {
-        return LoadData();
+    async void OnUpdateClick()
+    {
+        var parameters = new DialogParameters();
+        //parameters.Add(nameof(UpdateModal.Model), Model);
+
+        var dialog = await Dialog.ShowAsync<UpdateModal>("", parameters);
+        var result = await dialog.Result;
+        await LoadData();
+        StateHasChanged();
+    }
+
+    async void OnDeleteClick()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(DeleteModal.Model), Model);
+
+        var dialog = await Dialog.ShowAsync<DeleteModal>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+            Nav.NavigateTo($"/purchases");
     }
 }
