@@ -1,86 +1,62 @@
-@inject IHttpService http
+@inject IHttpService Http
 
-@if (model != null)
+@if (request != null)
 {
-    <div class="modal-backdrop fade show"></div>
+    <EditForm OnValidSubmit="OnSubmit" Model="request" autocomplete="off">
+        <MudDialog>
+            <TitleContent>
+                <MudText Typo="Typo.h6" Class="text-truncate pe-5">Edit Item @Model.Stuff.Name</MudText>
+            </TitleContent>
+            <DialogContent>
+                <DataAnnotationsValidator />
 
-    <div class="modal fade show" tabindex="-1" role="dialog" style="display: block; overflow-y: auto;">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Item @name</h5>
-                    <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
-                </div>
-                <EditForm OnValidSubmit="OnSubmit" Model="model" autocomplete="off">
-                    <div class="modal-body">
-                        <DataAnnotationsValidator />
+                <StuffSelect @bind-Value="request.StuffId" Disabled="loading" />
+                
+                <MudNumericField @bind-Value="request.Quantity" For="@(() => request.Quantity)" Disabled="loading"
+                                 Label="Quantity" Variant="Variant.Outlined" />
 
-                        <div class="form-floating mb-1">
-                            <StuffSelect @bind-Value="model.StuffId" Loading="loading" />
-                            <ValidationMessage For="@(() => model.StuffId)" />
-                        </div>
+                <MudNumericField @bind-Value="request.Price" For="@(() => request.Price)" Disabled="loading"
+                                 Label="Price" Variant="Variant.Outlined" />
 
-                        <div class="form-floating mb-1">
-                            <InputNumber @bind-Value="model.Quantity" disable="@loading"
-                                         class="form-control" placeholder="Quantity" autocomplete="off" />
-                            <label>Quantity</label>
-                            <ValidationMessage For="@(() => model.Quantity)" />
-                        </div>
+                <MudTextField @bind-Value="request.Notes" For="@(() => request.Notes)" Disabled="loading"
+                              Label="Notes" Variant="Variant.Outlined" Lines="3" />
 
-                        <div class="form-floating mb-1">
-                            <InputNumber @bind-Value="model.Price" disable="@loading"
-                                         class="form-control" placeholder="Cost" autocomplete="off" />
-                            <label>Cost</label>
-                            <ValidationMessage For="@(() => model.Price)" />
-                        </div>
-
-                        <div class="form-floating mb-1">
-                            <InputTextArea @bind-Value="model.Notes" class="form-control" style="height: 100px"
-                                placeholder="Notes" disable="@loading" />
-                            <label>Notes</label>
-                            <ValidationMessage For="@(() => model.Notes)" />
-                        </div>
-
-                        <label class="text-danger">@error</label>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary" disabled="@loading">
-                            @(loading ? "Submitting..." : "Confirm")
-                        </button>
-                        <button @onclick="Close" type="button" class="btn btn-secondary">Cancel</button>
-                    </div>
-                </EditForm>
-            </div>
-        </div>
-    </div>
+                <MudText Color="@Color.Error">@error</MudText>
+            </DialogContent>
+            <DialogActions>
+                <LoadingButton Loading="loading" />
+                <MudButton OnClick="Close" Disabled="loading" Color="Color.Default">
+                    Cancel
+                </MudButton>
+            </DialogActions>
+        </MudDialog>
+    </EditForm>
 }
 
 @code {
+    [CascadingParameter]
+    MudDialogInstance? dialog { get; set; }
 
     [Parameter]
-    public EventCallback<PurchaseItemModel> OnUpdated { get; set; }
-
-
-    PurchaseItemRequest? model { get; set; }
-    
-    string? id { get; set; }
-    string? name { get; set; }
+    public required IPurchaseItemModel Model { get; set; }
+    public PurchaseItemRequest? request { get; set; }
 
     string error { get; set; } = "";
     bool loading { get; set; } = false;
 
+    protected override void OnParametersSet() => request = Model.ToRequest();
+
     async Task OnSubmit()
     {
-        if (model == null)
+        if (request == null)
             throw new NullReferenceException();
 
         loading = true;
 
         try
         {
-            var result = await http.PutAsync<PurchaseItemModel>($"{ApiRoutes.PurchaseItems}/{id}", model);
-
-            await OnUpdated.InvokeAsync(result);
+            var result = await Http.PutAsync<PurchaseItemModel>($"{ApiRoutes.PurchaseItems}/{Model.Id}", request);
+            dialog?.Close(result);
         }
         catch (Exception ex)
         {
@@ -88,38 +64,11 @@
         }
 
         loading = false;
-
-        Close();
     }
-
-
-    public void Open(PurchaseItemModel purchaseItem)
-    {
-        id = purchaseItem.Id;
-        name = purchaseItem.Stuff.Name;
-
-        model = purchaseItem.ToRequest();
-
-        StateHasChanged();
-    }
-
-
-    public async Task Open(PurchaseItemListItem purchaseItem)
-    {
-        id = purchaseItem.Id;
-        name = purchaseItem.Stuff.Name;
-
-        var purchaseItemModel = await http.GetAsync<PurchaseItemModel>($"{ApiRoutes.PurchaseItems}/{id}");
-        if (purchaseItemModel == null)
-            throw new NullReferenceException();
-
-        model = purchaseItemModel.ToRequest();
-        StateHasChanged();
-    }
-
 
     void Close()
     {
-        model = null;
+        request = null;
+        dialog?.Cancel();
     }
 }

@@ -15,19 +15,22 @@
         </PropertyColumn>
         <PropertyColumn Property="x => x!.Quantity" />
         <PropertyColumn Property="x => x!.Price" Format="n2" />
-        <TemplateColumn Title="Total">
+        <TemplateColumn Title="Total" Sortable="false">
             <CellTemplate>
                 @if (context.Item != null)
                 {
-                    <text>@(context.Item.Quantity * context.Item.Quantity)</text>
+                    <text>@($"{context.Item.Quantity * context.Item.Price:n2}")</text>
                 }
             </CellTemplate>
         </TemplateColumn>
-        <TemplateColumn>
+        <TemplateColumn Sortable="false">
             <CellTemplate>
                 @if (context.Item != null)
                 {
-                    <MudIconButton OnClick="_ => OnDelete(context.Item)" Icon="@Icons.Material.Filled.Delete" aria-label="delete"></MudIconButton>
+                    <div class="d-flex flex-nowrap">
+                        <MudIconButton OnClick="_ => OnEdit(context.Item)" Icon="@Icons.Material.Filled.Edit" aria-label="edit"></MudIconButton>
+                        <MudIconButton OnClick="_ => OnDelete(context.Item)" Icon="@Icons.Material.Filled.Delete" aria-label="delete"></MudIconButton>
+                    </div>
                 }
             </CellTemplate>
         </TemplateColumn>
@@ -138,6 +141,18 @@
         parameters.Add(nameof(DeleteModal.Model), item);
 
         var dialog = await Dialog.ShowAsync<DeleteModal>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && grid != null)
+            await grid.ReloadServerData();
+    }
+
+    async void OnEdit(PurchaseItemListItem item)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(UpdateModal.Model), item);
+
+        var dialog = await Dialog.ShowAsync<UpdateModal>("", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled && grid != null)

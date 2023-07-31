@@ -20,9 +20,12 @@
 
     MudAutocomplete<IStuffModel>? field;
 
-    protected override void OnParametersSet() => SetModel();
-
-    void SetModel() => Model = list.FirstOrDefault(x => x.Id == Value);
+    protected override async Task OnInitializedAsync()
+    {
+        if (Value != null)
+            Model = await Http.GetAsync<StuffModel>($"{ApiRoutes.Stuffs}/{Value}");
+        text = Model?.Name;
+    }
 
     async Task<IEnumerable<IStuffModel>> Search(string value)
     {
@@ -30,8 +33,6 @@
         var result = await Http.GetAsync<PagedList<StuffListItem>>($"{ApiRoutes.Stuffs}?{query}");
 
         list = result?.List.ToList() ?? Enumerable.Empty<StuffListItem>();
-        SetModel();
-
         return list.Append(new StuffListItem { Id = "add", Slug = "add", Name = "-- Create new Stuff --" });
     }
 

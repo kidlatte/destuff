@@ -9,6 +9,9 @@ public interface IPurchaseItemModel
     StuffModel Stuff { get; set; }
     int Quantity { get; set; }
     decimal? Price { get; set; }
+    string? Notes { get; set; }
+
+    PurchaseItemRequest ToRequest();
 }
 
 public class PurchaseItemRequest
@@ -53,4 +56,17 @@ public class PurchaseItemListItem: IPurchaseItemModel
     public required StuffModel Stuff { get; set; }
     public int Quantity { get; set; }
     public decimal? Price { get; set; }
+    public string? Notes { get; set; }
+
+    public PurchaseItemRequest ToRequest()
+    {
+        return new PurchaseItemRequest
+        {
+            StuffId = Stuff.Id,
+            PurchaseId = PurchaseId,
+            Quantity = Quantity,
+            Price = Price,
+            Notes = Notes,
+        };
+    }
 }
