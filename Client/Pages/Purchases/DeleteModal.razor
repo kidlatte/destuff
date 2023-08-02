@@ -12,7 +12,7 @@
                 }
                 else if (Model.Received.HasValue || Model.Receipt.HasValue)
                 {
-                    <text> made in </text>
+                    <text> on </text>
                     <strong>@((Model.Received ?? Model.Receipt)?.ToShortDateString())</strong>
                 }
             </MudText>
@@ -31,7 +31,7 @@
                 }
                 @if (Model.Received.HasValue || Model.Receipt.HasValue)
                 {
-                    <text> made in </text>
+                    <text> made on </text>
                     <strong>@((Model.Received ?? Model.Receipt)?.ToShortDateString())</strong>
                 }
                 <text>?</text>

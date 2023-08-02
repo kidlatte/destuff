@@ -58,11 +58,11 @@
     [Parameter]
     public required string PurchaseId { get; set; }
 
-    [Parameter, SupplyParameterFromQuery(Name = "s")]
+    [Parameter]
     public string? Search { get; set; }
     string? search { get; set; }
 
-    [Parameter, SupplyParameterFromQuery(Name = "p")]
+    [Parameter]
     public int? Page { get; set; } = 1;
     int gridPage => (Page ?? 1) - 1;
     int pagerPage = 1;

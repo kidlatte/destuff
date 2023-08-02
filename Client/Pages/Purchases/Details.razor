@@ -20,7 +20,19 @@
                        Color="Color.Error">Delete</MudButton>
         </div>
         <div class="text-truncate me-auto order-0">
-            <MudText Typo="Typo.h1" Class="text-truncate my-5">@Title</MudText>
+            <MudText Typo="Typo.h1" Class="text-truncate my-5">
+                Purchase
+                @if (Model.Supplier != null)
+                {
+                    <text> from </text>
+                    <strong>@Model.Supplier.ShortName</strong>
+                }
+                else if (Model.Received.HasValue || Model.Receipt.HasValue)
+                {
+                    <text> on </text>
+                    <strong>@((Model.Received ?? Model.Receipt)?.ToShortDateString())</strong>
+                }
+            </MudText>
         </div>
     </div>
 
@@ -59,11 +71,17 @@
 }
 
 <div class="mt-5">
-    <Destuff.Client.Pages.Purchases.Items.Index PurchaseId="@Id" />
+    <Destuff.Client.Pages.Purchases.Items.Index PurchaseId="@Id" Search="@Search" Page="@Page" />
 </div>
 
 
 @code {
+    [Parameter, SupplyParameterFromQuery(Name = "s")]
+    public string? Search { get; set; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "p")]
+    public int? Page { get; set; } = 1;
+
     [Parameter]
     public string? Id { get; set; }
 
@@ -95,7 +113,7 @@
     async void OnUpdateClick()
     {
         var parameters = new DialogParameters();
-        //parameters.Add(nameof(UpdateModal.Model), Model);
+        parameters.Add(nameof(UpdateModal.Model), Model);
 
         var dialog = await Dialog.ShowAsync<UpdateModal>("", parameters);
         var result = await dialog.Result;
