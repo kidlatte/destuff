@@ -1,72 +1,141 @@
 @page "/users"
 
-@using BlazorGrid.Interfaces
-@using BlazorGrid.Abstractions
-@using BlazorGrid.Components
 @using System.Threading
 
-@inject IHttpService http
+@inject NavigationManager Nav
+@inject IHttpService Http
+@inject IDialogService Dialog
 
-<PageTitle>Users</PageTitle>
+<PageTitle>Users | Destuff</PageTitle>
 
-<h1>Users</h1>
+<MudText Typo="Typo.h1" Class="my-5">Users</MudText>
 
-<div class="text-end">
-    <button  @onclick="() => Create()" type="button" class="btn btn-sm btn-primary">Register</button>
-</div>
-
-<div style="height: 400px;">
-    <BlazorGrid @ref="grid" TRow="UserModel" Provider="LoadData">
-        <GridCol For="() => context.UserName" Caption="UserName" />
-        <StaticGridCol FitToContent="true">
-            <button @onclick="() => Edit(context)" class="btn btn-link py-0">Edit</button>
-            <button @onclick="() => Delete(context)" class="btn btn-link py-0">Delete</button>
-        </StaticGridCol>            
-    </BlazorGrid>
-</div>
-
-<EditModal @ref="edit" />
-<CreateModal @ref="create" OnUserCreated="Reload" />
-<DeleteModal @ref="delete" OnUserDeleted="Reload" />
+<MudDataGrid @ref="grid" T="UserModel" ServerData="LoadServerData" CurrentPage="gridPage" RowsPerPage="PageSize" Loading="loading" SortMode="SortMode.Single">
+    <ToolBarContent>
+        <MudTextField T="string" Value="search" ValueChanged="OnSearch" Placeholder="Search"
+                      Style="max-width: 300px" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense"
+                      Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"></MudTextField>
+        <MudSpacer />
+        <MudButton OnClick="OnAddClick" Variant="Variant.Filled" Color="Color.Primary" Class="mr-2">Add</MudButton>
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x!.UserName" />
+        <TemplateColumn Sortable="false">
+            <CellTemplate>
+                @if (context.Item != null)
+                {
+                    <MudIconButton OnClick="_ => OnDeleteClick(context.Item)" Icon="@Icons.Material.Filled.Delete" aria-label="delete"></MudIconButton>
+                }
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <PagerContent>
+        <div class="py-5 d-flex justify-center">
+            @if (PageCount > 1)
+            {
+                <MudPagination Count="PageCount" Selected="pagerPage" SelectedChanged="PageChanged" Color="Color.Primary" />
+            }
+        </div>
+    </PagerContent>
+</MudDataGrid>
 
 @code
 {
-    IBlazorGrid? grid;
-    CreateModal? create;
-    EditModal? edit;
-    DeleteModal? delete;
+    [Parameter, SupplyParameterFromQuery(Name = "s")]
+    public string? Search { get; set; }
+    string? search { get; set; }
 
-    async ValueTask<BlazorGridResult<UserModel>?> LoadData(BlazorGridRequest request, CancellationToken _)
+    [Parameter, SupplyParameterFromQuery(Name = "p")]
+    public int? Page { get; set; } = 1;
+    int gridPage => (Page ?? 1) - 1;
+    int pagerPage = 1;
+
+    int PageSize => 10;
+    int PageCount;
+
+    MudDataGrid<UserModel>? grid;
+    bool loading;
+
+    protected override void OnInitialized() => PageCount = gridPage + 1;
+
+    protected override async Task OnParametersSetAsync()
     {
-        return await http.PostAsync<BlazorGridResult<UserModel>>(ApiRoutes.Users, request);
+        search = Search;
+        pagerPage = Page ?? 1;
+        if (grid != null && Page == null) // BUG: ServerData doesn't auto reload
+            await grid.ReloadServerData();
     }
 
-    void Create()
+    async Task<GridData<UserModel>> LoadServerData(GridState<UserModel> state)
     {
-        create?.Open();
+        var sort = state.SortDefinitions.FirstOrDefault();
+        var query = new PagedQuery
+            {
+                Search = Search,
+                Page = gridPage, // BUG: state returns wrong page on first load.
+                PageSize = state.PageSize,
+                SortField = sort?.SortBy,
+                SortDir = sort?.Descending == true ? DestuffDirection.Descending : DestuffDirection.Ascending
+            };
+
+        loading = true;
+        var result = await Http.GetAsync<PagedList<UserModel>>($"{ApiRoutes.Users}?{query}");
+        loading = false;
+
+        if (result == null)
+            throw new Exception("Result is null");
+
+        PageCount = (result.Count - 1) / PageSize + 1;
+        return new()
+            {
+                Items = result.List,
+                TotalItems = result.Count
+            };
     }
 
-    async Task Reload()
+    void PageChanged(int i)
     {
-        if (grid != null)
-            await grid.ReloadAsync();
+        if (pagerPage != i)
+            Nav.NavigateTo($"/users?{new PagedQuery { Search = Search, Page = i }}");
+        pagerPage = i;
     }
 
-    void Edit(UserModel model)
+    void OnSearch(string value)
     {
-        if (edit != null)
-        {
-            edit.UserName = model.UserName;
-            edit.Open();
-        }
+        search = value;
+        Nav.NavigateTo(string.IsNullOrEmpty(search) ? $"/users" : $"/users?s={search}");
     }
 
-    void Delete(UserModel model)
+    async void OnAddClick()
     {
-        if (delete != null)
-        {
-            delete.UserName = model.UserName;
-            delete.Open();
-        }
+        var dialog = await Dialog.ShowAsync<CreateModal>();
+        var result = await dialog.Result;
+
+        if (!result.Canceled && grid != null)
+            await grid.ReloadServerData();
+    }
+
+    async void OnEditClick()
+    {
+        var parameters = new DialogParameters();
+        //parameters.Add(nameof(EditModal.Model), item);
+
+        var dialog = await Dialog.ShowAsync<EditModal>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && grid != null)
+            await grid.ReloadServerData();
+    }
+
+    async void OnDeleteClick(UserModel item)
+    {
+        var parameters = new DialogParameters();
+        //parameters.Add(nameof(DeleteModal.Model), item);
+
+        var dialog = await Dialog.ShowAsync<DeleteModal>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && grid != null)
+            await grid.ReloadServerData();
     }
 }

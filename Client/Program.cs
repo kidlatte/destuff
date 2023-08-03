@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Blazored.LocalStorage;
 using Destuff.Client;
 using Destuff.Client.Services;
-using BlazorGrid.Extensions;
 using MudBlazor.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -23,7 +22,6 @@ builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => 
     provider.GetRequiredService<AuthenticationService>());
 
-builder.Services.AddBlazorGrid();
 builder.Services.AddMudServices();
 
 await builder.Build().RunAsync();

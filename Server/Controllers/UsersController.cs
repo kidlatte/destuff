@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using BlazorGrid.Abstractions;
 using Destuff.Server.Data;
+using Destuff.Server.Models;
 using Destuff.Server.Services;
 using Destuff.Shared;
 using Destuff.Shared.Models;
@@ -19,42 +19,31 @@ public class UsersController : BaseController
     {
     }
 
-    [Authorize]
-    [HttpPost]
-    public async Task<ActionResult<BlazorGridResult<UserModel>>> FetchUsers(BlazorGridRequest request)
+    [HttpGet]
+    public async Task<PagedList<UserModel>> Get([FromQuery] GridQuery? request)
     {
         var query = Context.Users.AsQueryable();
 
-        if (!string.IsNullOrEmpty(request.Query))
-            query = query.Where(x => x.UserName != null && x.UserName.StartsWith(request.Query));
+        request ??= new GridQuery();
+        if (!string.IsNullOrEmpty(request.Search))
+            query = query.Where(x => x.UserName != null && x.UserName.StartsWith(request.Search));
 
-        var count = await query.CountAsync();
-        if (count == 0)
+        switch (request.SortField)
         {
-            return Ok(new BlazorGridResult<UserModel>
-            {
-                Data = new List<UserModel>(),
-                TotalCount = 0
-            });
+            case "UserName":
+                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.UserName) : query.OrderBy(x => x.UserName);
+                break;
+            default:
+                break;
         }
 
-        // Apply ordering
-        if (request.OrderBy == null)
-            query = query.OrderBy(x => x.UserName);
-        else if (request.OrderByDescending)
-            query = query.OrderByDescending(request.OrderBy);
-        else
-            query = query.OrderBy(request.OrderBy);
+        var count = await query.CountAsync();
+        var list = await query
+            .Skip(request.Skip).Take(request.Take)
+            .Select(x => new UserModel { UserName = x.UserName })
+            .ToListAsync();
 
-        // Apply paging
-        var rows = query.Skip(request.Offset).Take(request.Length)
-            .Select(x => new UserModel { UserName = x.UserName }).ToList();
-
-        return Ok(new BlazorGridResult<UserModel>
-        {
-            Data = rows,
-            TotalCount = count
-        });
+        return new PagedList<UserModel>(count, list);
     }
 
 
