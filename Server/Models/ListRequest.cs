@@ -3,7 +3,7 @@ using Destuff.Shared.Models;
 
 namespace Destuff.Server.Models;
 
-public class GridQuery : PagedQuery
+public class ListRequest : ListQuery
 {
     [FromQuery(Name = "s")]
     public override string? Search { get; set; }

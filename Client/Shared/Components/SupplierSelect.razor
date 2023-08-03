@@ -29,7 +29,7 @@
 
     async Task<IEnumerable<ISupplierModel>> Search(string value)
     {
-        var query = new PagedQuery { Search = value, PageSize = 9 };
+        var query = new ListQuery { Search = value, PageSize = 9 };
         var result = await Http.GetAsync<PagedList<SupplierListItem>>($"{ApiRoutes.Suppliers}?{query}");
 
         list = result?.List.ToList() ?? Enumerable.Empty<SupplierListItem>();

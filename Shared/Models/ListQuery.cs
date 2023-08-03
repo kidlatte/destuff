@@ -1,6 +1,6 @@
 namespace Destuff.Shared.Models;
 
-public class PagedQuery
+public class ListQuery
 {
     public virtual string? Search { get; set; }
     public virtual int? Page { get; set; }

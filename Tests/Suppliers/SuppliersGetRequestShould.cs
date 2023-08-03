@@ -35,7 +35,7 @@ public class SuppliersGetRequestShould : IntegrationTestBase
         await AuthorizedSendAsync<SupplierModel>(new SupplierRequest { ShortName = "search02", Name = "Search 02" }, HttpMethod.Post);
 
         // Act
-        var query = new PagedQuery 
+        var query = new ListQuery 
         { 
             Search = search,
             Page = page,

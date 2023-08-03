@@ -86,7 +86,7 @@
     async Task<GridData<StuffListItem>> LoadServerData(GridState<StuffListItem> state)
     {
         var sort = state.SortDefinitions.FirstOrDefault();
-        var query = new PagedQuery {
+        var query = new ListQuery {
             Search = Search,
             Page = gridPage, // BUG: state returns wrong page on first load.
             PageSize = state.PageSize,
@@ -111,7 +111,7 @@
     void PageChanged(int i)
     {
         if (pagerPage != i)
-            Nav.NavigateTo($"/stuffs?{new PagedQuery { Search = Search, Page = i }}");
+            Nav.NavigateTo($"/stuffs?{new ListQuery { Search = Search, Page = i }}");
         pagerPage = i;
     }
 

@@ -43,7 +43,7 @@ public class PurchasesGetRequestShould : IntegrationTestBase
         await AuthorizedSendAsync<PurchaseModel>(new PurchaseRequest { Receipt = DateTime.UtcNow.AddHours(-3), Received = DateTime.UtcNow.AddHours(-3) }, HttpMethod.Post);
 
         // Act
-        var query = new PagedQuery 
+        var query = new ListQuery 
         { 
             Search = search,
             Page = page,

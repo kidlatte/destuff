@@ -26,34 +26,34 @@ public class StuffsController : BaseController<Stuff>
     }
 
     [HttpGet]
-    public async Task<PagedList<StuffListItem>> Get([FromQuery] GridQuery? grid)
+    public async Task<PagedList<StuffListItem>> Get([FromQuery] ListRequest? request)
     {
         var query = Query;
 
-        grid ??= new GridQuery();
-        if (!string.IsNullOrEmpty(grid.Search)) {
-            var search = grid.Search.ToLower();
+        request ??= new ListRequest();
+        if (!string.IsNullOrEmpty(request.Search)) {
+            var search = request.Search.ToLower();
             query = query.Where(x => x.Name.ToLower().Contains(search) ||
                 x.Url!.ToLower().Contains(search) ||
                 x.Notes!.ToLower().Contains(search));
         }
 
-        var sortField = grid.SortField ?? "";
+        var sortField = request.SortField ?? "";
         switch (sortField) {
             case "":
                 query = query.OrderByDescending(x => x.Created);
                 break;
             case "Locations":
-                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Locations!.First().Name) : query.OrderBy(x => x.Locations!.First().Name);
+                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Locations!.First().Name) : query.OrderBy(x => x.Locations!.First().Name);
                 break;
             default:
-                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField);
+                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField);
                 break;
         }
 
         var count = await query.CountAsync();
         var list = await query
-            .Skip(grid.Skip).Take(grid.Take)
+            .Skip(request.Skip).Take(request.Take)
             .ProjectTo<StuffListItem>(Mapper.ConfigurationProvider)
             .ToListAsync();
 

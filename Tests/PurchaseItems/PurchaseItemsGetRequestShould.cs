@@ -50,7 +50,7 @@ public class PurchaseItemsGetRequestShould : IntegrationTestBase
         await AuthorizedSendAsync<PurchaseItemModel>(new PurchaseItemRequest { Quantity = 3, Price = 3, PurchaseId = purchase.Id, StuffId = stuffB.Id }, HttpMethod.Post);
 
         // Act
-        var query = new PagedQuery 
+        var query = new ListQuery 
         { 
             Search = search,
             Page = page,

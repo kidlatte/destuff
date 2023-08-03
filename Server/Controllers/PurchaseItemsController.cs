@@ -26,28 +26,28 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
     }
 
     [HttpGet]
-    public async Task<PagedList<PurchaseItemListItem>> Get([FromQuery(Name = "pid")] string purchaseId, [FromQuery] GridQuery? grid)
+    public async Task<PagedList<PurchaseItemListItem>> Get([FromQuery(Name = "pid")] string purchaseId, [FromQuery] ListRequest? request)
     {
         var pid = PurchaseId.Decode(purchaseId);
         var query = Query.Where(x => x.PurchaseId == pid);
 
-        grid ??= new GridQuery();
-        if (!string.IsNullOrEmpty(grid.Search)) {
-            var search = grid.Search.ToLower();
+        request ??= new ListRequest();
+        if (!string.IsNullOrEmpty(request.Search)) {
+            var search = request.Search.ToLower();
             query = query.Where(x => x.Stuff!.Name.ToLower().Contains(search) ||
                 x.Notes!.ToLower().Contains(search));
         }
 
-        switch (grid.SortField)
+        switch (request.SortField)
         {
-            case "quantity":
-                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Quantity) : query.OrderBy(x => x.Quantity);
+            case "Quantity":
+                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Quantity) : query.OrderBy(x => x.Quantity);
                 break;
-            case "cost":
-                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Price) : query.OrderBy(x => x.Price);
+            case "Cost":
+                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Price) : query.OrderBy(x => x.Price);
                 break;
-            case "stuff":
-                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Stuff) : query.OrderBy(x => x.Stuff);
+            case "Stuff":
+                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Stuff) : query.OrderBy(x => x.Stuff);
                 break;
             default:
                 query = query.OrderByDescending(x => x.Created);
@@ -56,7 +56,7 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
 
         var count = await query.CountAsync();
         var list = await query
-            .Skip(grid.Skip).Take(grid.Take)
+            .Skip(request.Skip).Take(request.Take)
             .ProjectTo<PurchaseItemListItem>(Mapper.ConfigurationProvider)
             .ToListAsync();
 

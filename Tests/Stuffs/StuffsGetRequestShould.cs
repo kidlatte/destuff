@@ -43,7 +43,7 @@ public class StuffsGetRequestShould : IntegrationTestBase
         await AuthorizedSendAsync<StuffModel>(new StuffRequest { Name = "Search 02" }, HttpMethod.Post);
 
         // Act
-        var query = new PagedQuery 
+        var query = new ListQuery 
         { 
             Search = search,
             Page = page,

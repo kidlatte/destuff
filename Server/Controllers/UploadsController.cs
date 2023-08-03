@@ -33,7 +33,7 @@ public class UploadsController : BaseController<Upload>
 
     [AllowAnonymous]
     [HttpGet(ApiRoutes.UploadFiles + "/{id}/{name}")]
-    public async Task<IActionResult> Get(string id, string name, [FromServices] FileExtensionContentTypeProvider provider)
+    public async Task<IActionResult> Get(string id, string name)
     {
         int actualId = UploadId.Decode(id);
         var query = Query.Where(x => x.Id == actualId);

@@ -20,11 +20,11 @@ public class UsersController : BaseController
     }
 
     [HttpGet]
-    public async Task<PagedList<UserModel>> Get([FromQuery] GridQuery? request)
+    public async Task<PagedList<UserModel>> Get([FromQuery] ListRequest? request)
     {
         var query = Context.Users.AsQueryable();
 
-        request ??= new GridQuery();
+        request ??= new ListRequest();
         if (!string.IsNullOrEmpty(request.Search))
             query = query.Where(x => x.UserName != null && x.UserName.StartsWith(request.Search));
 

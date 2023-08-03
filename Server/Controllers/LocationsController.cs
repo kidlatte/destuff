@@ -76,11 +76,11 @@ public class LocationsController : BaseController<Location>
 
     [Route(ApiRoutes.LocationLookup)]
     [HttpGet]
-    public async Task<PagedList<LocationLookupItem>> GetLookup([FromQuery] GridQuery? grid)
+    public async Task<PagedList<LocationLookupItem>> GetLookup([FromQuery] ListRequest? grid)
     {
         var query = Query;
 
-        grid ??= new GridQuery();
+        grid ??= new ListRequest();
         if (!string.IsNullOrEmpty(grid.Search))
             query = query.Where(x => x.Name.ToLower().Contains(grid.Search.ToLower()));
 

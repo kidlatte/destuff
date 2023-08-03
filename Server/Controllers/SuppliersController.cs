@@ -24,35 +24,33 @@ public class SuppliersController : BaseController<Supplier>
     }
 
     [HttpGet]
-    public async Task<PagedList<SupplierListItem>> Get([FromQuery] GridQuery? grid)
+    public async Task<PagedList<SupplierListItem>> Get([FromQuery] ListRequest? request)
     {
         var query = Query;
 
-        grid ??= new GridQuery();
-        if (!string.IsNullOrEmpty(grid.Search)) {
-            var search = grid.Search.ToLower();
+        request ??= new ListRequest();
+        if (!string.IsNullOrEmpty(request.Search)) {
+            var search = request.Search.ToLower();
             query = query.Where(x => x.ShortName.ToLower().Contains(search) ||
                 x.Name.ToLower().Contains(search) ||
                 x.Url!.ToLower().Contains(search) ||
                 x.Notes!.ToLower().Contains(search));
         }
 
-        switch (grid.SortField)
+        var sortField = request.SortField ?? "";
+        switch (sortField)
         {
-            case "shortName":
-                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.ShortName) : query.OrderBy(x => x.ShortName);
-                break;
-            case "name":
-                query = grid.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
+            case "":
+                query = query.OrderByDescending(x => x.Created);
                 break;
             default:
-                query = query.OrderByDescending(x => x.Created);
+                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField);
                 break;
         }
 
         var count = await query.CountAsync();
         var list = await query
-            .Skip(grid.Skip).Take(grid.Take)
+            .Skip(request.Skip).Take(request.Take)
             .ProjectTo<SupplierListItem>(Mapper.ConfigurationProvider)
             .ToListAsync();
 

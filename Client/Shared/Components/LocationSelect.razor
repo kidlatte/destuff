@@ -42,7 +42,7 @@
     private async Task<IEnumerable<ILocationDataModel>?> Search(string value)
     {
         var text = value;
-        var query = new PagedQuery { Search = value, PageSize = 10, SortField = nameof(LocationModel.Id) };
+        var query = new ListQuery { Search = value, PageSize = 10, SortField = nameof(LocationModel.Id) };
         var result = await http.GetAsync<PagedList<LocationLookupItem>>($"{ApiRoutes.LocationLookup}?{query}");
         return result?.List
             .Append(new LocationLookupItem { Id = "add", Name = value, Slug = "", })
