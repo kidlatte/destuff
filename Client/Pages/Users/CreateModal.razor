@@ -1,74 +1,57 @@
-@inject NavigationManager navigationManager
-@inject IHttpService http
+@inject IHttpService Http
 
-@if (showModal)
+@if (Model != null)
 {
-    <div class="modal-backdrop fade show"></div>
+    <EditForm OnValidSubmit="OnSubmit" Model="Model" autocomplete="off">
+        <MudDialog>
+            <TitleContent>
+                <MudText Typo="Typo.h6">Register User</MudText>
+            </TitleContent>
+            <DialogContent>
+                <DataAnnotationsValidator />
 
-    <div class="modal fade show" tabindex="-1" role="dialog" style="display: block; overflow-y: auto;">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Register User</h5>
-                    <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
-                </div>
-                <EditForm OnValidSubmit="OnSubmit" Model="model" autocomplete="off">
-                    <div class="modal-body">
-                        <DataAnnotationsValidator />
+                <MudTextField @bind-Value="Model.UserName" For="@(() => Model.UserName)" Disabled="loading"
+                              Label="Username" Variant="Variant.Outlined" autocomplete="off" />
+                <MudTextField @bind-Value="Model.Password" For="@(() => Model.Password)" Disabled="loading"
+                              Label="Password" Variant="Variant.Outlined" InputType="InputType.Password" autocomplete="new-password" />
 
-                        <p class="mb-3 fw-normal">Register a new user.</p>
-
-                        <div class="px-5">
-                            <div class="form-floating mb-1">
-                                <InputText @bind-Value="model.UserName" class="form-control"
-                                    placeholder="Username" disable="@loading" autocomplete="off" />
-                                <label for="floatingPassword">Username</label>
-                                <ValidationMessage For="@(() => model.UserName)" />
-                            </div>
-
-                            <div class="form-floating mb-1">
-                                <InputText @bind-Value="model.Password" type="password" class="form-control"
-                                    placeholder="Password" disable="@loading" autocomplete="new-password" />
-                                <label for="floatingPassword">Password</label>
-                                <ValidationMessage For="@(() => model.Password)" />
-                            </div>
-                        </div>
-
-                        <label class="text-danger">@error</label>
-                    </div>
-                    <div class="modal-footer">
-                        <button @onclick="Close" type="button" class="btn btn-secondary">Cancel</button>
-                        <button type="submit" class="btn btn-primary" disabled="@loading">
-                            @(loading ? "Submitting..." : "Confirm")
-                        </button>
-                    </div>
-                </EditForm>
-            </div>
-        </div>
-    </div>
+                <MudText Color="@Color.Error">@error</MudText>
+            </DialogContent>
+            <DialogActions>
+                <LoadingButton Loading="loading" />
+                <MudButton OnClick="() => dialog?.Cancel()" Disabled="loading" Color="Color.Default">
+                    Cancel
+                </MudButton>
+            </DialogActions>
+        </MudDialog>
+    </EditForm>
 }
 
 @code {
-    [Parameter]
-    public EventCallback OnUserCreated { get; set; }
+    [CascadingParameter]
+    MudDialogInstance? dialog { get; set; }
 
-    RegisterRequest model { get; set; } = new RegisterRequest();
+    [Parameter]
+    public RegisterRequest? Model { get; set; }
+
     string error { get; set; } = "";
     bool loading { get; set; } = false;
-    bool showModal { get; set; } = false;
+
+    protected override void OnInitialized() => Model ??= new RegisterRequest();
 
     async Task OnSubmit()
     {
+        if (Model == null)
+            throw new NullReferenceException();
+
         loading = true;
 
         try
         {
-            var result = await http.PostAsync<IdentityResultModel>(ApiRoutes.AuthRegister, model);
-
+            var result = await Http.PostAsync<IdentityResultModel>(ApiRoutes.AuthRegister, Model);
             if (result?.Succeeded == true)
             {
-                Close();
-                await OnUserCreated.InvokeAsync();
+                dialog?.Close(DialogResult.Ok(result));
             }
             else if (result?.Succeeded == false)
             {
@@ -81,19 +64,5 @@
         }
 
         loading = false;
-    }
-
-    public void Open()
-    {
-        error = "";
-
-        showModal = true;
-        StateHasChanged();
-    }
-
-    public void Close()
-    {
-        showModal = false;
-        StateHasChanged();
     }
 }
