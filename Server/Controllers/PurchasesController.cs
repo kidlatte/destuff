@@ -49,7 +49,8 @@ public class PurchasesController : BaseController<Purchase>
                 query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Price) : query.OrderBy(x => x.Price);
                 break;
             default:
-                query = query.OrderByDescending(x => x.Received ?? x.Receipt);
+                query = query.OrderByDescending(x => x.Received == null && x.Receipt == null)
+                    .ThenByDescending(x => x.Received ?? x.Receipt);
                 break;
         }
 

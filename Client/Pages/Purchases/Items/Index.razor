@@ -28,8 +28,8 @@
                 @if (context.Item != null)
                 {
                     <div class="d-flex flex-nowrap">
-                        <MudIconButton OnClick="_ => OnEdit(context.Item)" Icon="@Icons.Material.Filled.Edit" aria-label="edit"></MudIconButton>
-                        <MudIconButton OnClick="_ => OnDelete(context.Item)" Icon="@Icons.Material.Filled.Delete" aria-label="delete"></MudIconButton>
+                        <MudIconButton OnClick="_ => OnEditClick(context.Item)" Icon="@Icons.Material.Filled.Edit" aria-label="edit"></MudIconButton>
+                        <DeleteIconButton OnClick="_ => OnDeleteClick(context.Item)" />
                     </div>
                 }
             </CellTemplate>
@@ -135,7 +135,7 @@
             await grid.ReloadServerData();
     }
 
-    async void OnDelete(PurchaseItemListItem item)
+    async void OnDeleteClick(PurchaseItemListItem item)
     {
         var parameters = new DialogParameters();
         parameters.Add(nameof(DeleteModal.Model), item);
@@ -147,7 +147,7 @@
             await grid.ReloadServerData();
     }
 
-    async void OnEdit(PurchaseItemListItem item)
+    async void OnEditClick(PurchaseItemListItem item)
     {
         var parameters = new DialogParameters();
         parameters.Add(nameof(UpdateModal.Model), item);

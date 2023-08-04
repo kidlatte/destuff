@@ -40,7 +40,7 @@ public class UsersController : BaseController
         var count = await query.CountAsync();
         var list = await query
             .Skip(request.Skip).Take(request.Take)
-            .Select(x => new UserModel { UserName = x.UserName })
+            .Select(x => new UserModel { UserName = x.UserName ?? "" })
             .ToListAsync();
 
         return new PagedList<UserModel>(count, list);

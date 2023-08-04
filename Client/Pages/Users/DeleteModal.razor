@@ -1,49 +1,38 @@
-@inject NavigationManager navigationManager
-@inject IHttpService http
+@inject IHttpService Http
 
-@if (showModal)
-{
-    <div class="modal-backdrop fade show"></div>
+<EditForm OnValidSubmit="OnSubmit" Model="Model" autocomplete="off">
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6" Class="text-truncate pe-5">Delete <strong>@Model.UserName</strong></MudText>
+        </TitleContent>
+        <DialogContent>
+            <DataAnnotationsValidator />
 
-    <div class="modal fade show" tabindex="-1" role="dialog" style="display: block; overflow-y: auto;">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Delete User</h5>
-                    <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
-                </div>
-                <EditForm OnValidSubmit="OnSubmit" Model="model">
-                    <div class="modal-body">
-                        <DataAnnotationsValidator />
+            <p>
+                Do you really want to remove user <strong>@Model.UserName</strong> from the database?
+            </p>
+            <MudTextField @bind-Value="Model.UserName" InputType="InputType.Hidden" />
 
-                        <p class="mb-3 fw-normal">
-                            Do you really want to remove <code>@UserName</code> from the database?
-                        </p>
-
-                        <label class="text-danger">@error</label>
-                    </div>
-                    <div class="modal-footer">
-                        <button @onclick="Close" type="button" class="btn btn-secondary">Cancel</button>
-                        <button type="submit" class="btn btn-primary" disabled="@loading">
-                            @(loading ? "Submitting..." : "Confirm")
-                        </button>
-                    </div>
-                </EditForm>
-            </div>
-        </div>
-    </div>
-}
+            <MudText Color="@Color.Error">@error</MudText>
+        </DialogContent>
+        <DialogActions>
+            <LoadingButton Loading="loading" Label="DELETE" Color="Color.Warning" />
+            <MudButton OnClick="() => dialog?.Cancel()" Disabled="loading" Color="Color.Default">
+                Cancel
+            </MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
 
 @code {
+    [CascadingParameter]
+    MudDialogInstance? dialog { get; set; }
+
     [Parameter]
-    public EventCallback OnUserDeleted { get; set; }
+    public required UserModel Model { get; set; }
 
-    public string? UserName { get; set; }
-
-    UserModel model { get; set; } = new UserModel();
     string error { get; set; } = "";
     bool loading { get; set; } = false;
-    bool showModal { get; set; } = false;
 
     async Task OnSubmit()
     {
@@ -51,9 +40,8 @@
 
         try
         {
-            await http.DeleteAsync($"{ApiRoutes.Users}/{UserName}");
-            Close();
-            await OnUserDeleted.InvokeAsync();
+            await Http.DeleteAsync($"{ApiRoutes.Users}/{Model.UserName}");
+            dialog?.Close();
         }
         catch (Exception ex)
         {
@@ -61,20 +49,5 @@
         }
 
         loading = false;
-    }
-
-    public void Open()
-    {
-        error = "";
-        model.UserName = UserName;
-
-        showModal = true;
-        StateHasChanged();
-    }
-
-    public void Close()
-    {
-        showModal = false;
-        StateHasChanged();
     }
 }

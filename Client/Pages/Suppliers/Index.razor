@@ -58,7 +58,7 @@
             <CellTemplate>
                 @if (context.Item != null)
                 {
-                    <MudIconButton OnClick="_ => OnDeleteClick(context.Item)" Icon="@Icons.Material.Filled.Delete" aria-label="delete"></MudIconButton>
+                    <DeleteIconButton OnClick="_ => OnDeleteClick(context.Item)" />
                 }
             </CellTemplate>
         </TemplateColumn>

@@ -25,7 +25,7 @@ public class LoginRequest
 public class PasswordRequest
 {
     [Required]
-    public string? UserName { get; set; }
+    public required string UserName { get; set; }
 
     [Required]
     public string? Password { get; set; }
@@ -46,5 +46,5 @@ public class AuthModel
 
 public class UserModel
 {
-    public string? UserName { get; set; }
+    public required string UserName { get; set; }
 }

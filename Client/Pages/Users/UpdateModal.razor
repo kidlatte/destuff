@@ -1,0 +1,79 @@
+@inject IHttpService Http
+
+@if (request != null)
+{
+    <EditForm OnValidSubmit="OnSubmit" Model="request" autocomplete="off">
+        <MudDialog>
+            <TitleContent>
+                <MudText Typo="Typo.h6" Class="text-truncate pe-5">Change Password</MudText>
+            </TitleContent>
+            <DialogContent>
+                <p>Change password for user <strong>@Model.UserName</strong>?</p>
+                
+                <DataAnnotationsValidator />
+
+                <MudTextField @bind-Value="request.UserName" For="@(() => request.UserName)" Disabled="loading"
+                              Label="Username" Variant="Variant.Outlined" ReadOnly="true" />
+                <MudTextField @bind-Value="request.Password" For="@(() => request.Password)" Disabled="loading"
+                              Label="Password" Variant="Variant.Outlined" InputType="InputType.Password" autocomplete="new-password" />
+
+
+                <MudText Color="@Color.Error">@error</MudText>
+            </DialogContent>
+            <DialogActions>
+                <LoadingButton Loading="loading" />
+                <MudButton OnClick="Close" Disabled="loading" Color="Color.Default">
+                    Cancel
+                </MudButton>
+            </DialogActions>
+        </MudDialog>
+    </EditForm>
+}
+
+@code {
+    [CascadingParameter]
+    MudDialogInstance? dialog { get; set; }
+
+    [Parameter]
+    public required UserModel Model { get; set; }
+    PasswordRequest? request { get; set; }
+    
+    string error { get; set; } = "";
+    bool loading { get; set; } = false;
+
+    protected override void OnParametersSet() => request = new PasswordRequest { UserName = Model.UserName };
+
+    async Task OnSubmit()
+    {
+        if (request == null)
+            throw new NullReferenceException();
+
+        loading = true;
+
+        try
+        {
+            var result = await Http.PutAsync<IdentityResultModel>(ApiRoutes.AuthChangePassword, request);
+
+            if (result?.Succeeded == true)
+            {
+                dialog?.Close(result);
+            }
+            else if (result?.Succeeded == false)
+            {
+                error = string.Join("\n", result.Errors);
+            }
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+
+        loading = false;
+    }
+
+    public void Close()
+    {
+        request = null;
+        dialog?.Cancel();
+    }
+}

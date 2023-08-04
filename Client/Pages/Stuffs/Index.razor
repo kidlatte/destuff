@@ -41,7 +41,7 @@
             <CellTemplate>
                 @if (context.Item != null) 
                 {
-                    <MudIconButton OnClick="_ => OnDelete(context.Item)" Icon="@Icons.Material.Filled.Delete" aria-label="delete"></MudIconButton>
+                    <DeleteIconButton OnClick="_ => OnDeleteClick(context.Item)" />
                 }
             </CellTemplate>
         </TemplateColumn>
@@ -139,7 +139,7 @@
             await grid.ReloadServerData();
     }
 
-    async void OnDelete(StuffListItem item)
+    async void OnDeleteClick(StuffListItem item)
     {
         var parameters = new DialogParameters();
         parameters.Add(nameof(DeleteModal.Model), item);
