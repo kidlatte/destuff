@@ -27,7 +27,8 @@
                         {
                             <MudIconButton OnClick="_ => OnAddClick(item)" Icon="@Icons.Material.Filled.Add" Size="Size.Small" Class="mx-2" />
                             <MudIconButton OnClick="_ => update?.Open(item)" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Class="mx-2" />
-                            <MudIconButton OnClick="_ => delete?.Open(item)" Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Class="mx-2" />
+                            <MudIconButton OnClick="_ => OnDeleteClick(item)" Disabled="@item.Children.OrEmpty().Any()"
+                                Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Class="mx-2" />
                         }
                     </div>
                 </div>
@@ -37,7 +38,6 @@
 </MudTreeView>
 
 <UpdateModal @ref="update" OnUpdated="LoadData" />
-<DeleteModal @ref="delete" OnDeleted="LoadData" />
 
 @code
 {
@@ -45,7 +45,6 @@
     LocationModel? selected { get; set; }
 
     UpdateModal? update;
-    DeleteModal? delete;
 
     protected override Task OnInitializedAsync()
     {
@@ -75,7 +74,25 @@
         var result = await dialog.Result;
 
         if (!result.Canceled)
+        {
             items = await Http.GetAsync<List<LocationModel>>(ApiRoutes.Locations);
+            StateHasChanged();
+        }
+    }
+
+    async void OnDeleteClick(LocationModel item)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(DeleteModal.Model), item);
+
+        var dialog = await Dialog.ShowAsync<DeleteModal>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        { 
+            items = await Http.GetAsync<List<LocationModel>>(ApiRoutes.Locations);
+            StateHasChanged();
+        }
     }
 
 }

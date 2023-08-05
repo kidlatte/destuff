@@ -30,14 +30,21 @@ public class HttpService : IHttpService
     public event EventHandler<bool>? OnlineStateChanged;
     public event EventHandler<HttpRequestError>? OnError;
 
-    private readonly HttpClient Http;
-    private readonly IStorageService Storage;
-    private int LoadingCounter = 0;
+    readonly HttpClient Http;
+    readonly IStorageService Storage;
+    readonly JsonSerializerOptions JsonOptions;
+    int LoadingCounter = 0;
 
     public HttpService(HttpClient http, IStorageService storage)
     {
         Http = http;
         Storage = storage;
+
+        JsonOptions = new JsonSerializerOptions 
+        { 
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+
         System.Diagnostics.Debug.WriteLine($"HttpService instantiated");
     }
 
@@ -98,7 +105,7 @@ public class HttpService : IHttpService
     {
         var request = new HttpRequestMessage(method, uri);
         if (value != null)
-            request.Content = new StringContent(JsonSerializer.Serialize(value), Encoding.UTF8, "application/json");
+            request.Content = new StringContent(JsonSerializer.Serialize(value, JsonOptions), Encoding.UTF8, "application/json");
 
         return SendAsync(request);
     }
@@ -107,7 +114,7 @@ public class HttpService : IHttpService
     {
         var request = new HttpRequestMessage(method, uri);
         if (value != null)
-            request.Content = new StringContent(JsonSerializer.Serialize(value), Encoding.UTF8, "application/json");
+            request.Content = new StringContent(JsonSerializer.Serialize(value, JsonOptions), Encoding.UTF8, "application/json");
 
         return SendAsync<T>(request);
     }
