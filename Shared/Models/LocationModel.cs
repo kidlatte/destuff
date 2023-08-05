@@ -32,6 +32,16 @@ public class LocationModel: LocationRequest, ILocationDataModel
     public LocationData? Data { get; set; }
 
     public List<LocationModel>? Children { get; set; }
+
+    public LocationRequest ToRequest()
+    {
+        return new LocationRequest
+        {
+            Name = Name,
+            ParentId = ParentId,
+            Notes = Notes,
+        };
+    }
 }
 
 public class LocationListItem: ILocationModel

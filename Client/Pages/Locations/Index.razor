@@ -4,9 +4,9 @@
 @inject IHttpService Http
 @inject IDialogService Dialog
 
-<PageTitle>Locations</PageTitle>
+<PageTitle>Locations | Destuff</PageTitle>
 
-<h1>Locations</h1>
+<MudText Typo="Typo.h1" Class="my-5">Locations</MudText>
 
 <div class="text-end mb-3">
     <MudSpacer />
@@ -26,7 +26,7 @@
                         @if (item == selected)
                         {
                             <MudIconButton OnClick="_ => OnAddClick(item)" Icon="@Icons.Material.Filled.Add" Size="Size.Small" Class="mx-2" />
-                            <MudIconButton OnClick="_ => update?.Open(item)" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Class="mx-2" />
+                            <MudIconButton OnClick="_ => OnEditClick(item)" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Class="mx-2" />
                             <MudIconButton OnClick="_ => OnDeleteClick(item)" Disabled="@item.Children.OrEmpty().Any()"
                                 Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Class="mx-2" />
                         }
@@ -36,8 +36,6 @@
         </MudTreeViewItem>
     </ItemTemplate>
 </MudTreeView>
-
-<UpdateModal @ref="update" OnUpdated="LoadData" />
 
 @code
 {
@@ -80,6 +78,21 @@
         }
     }
 
+    async void OnEditClick(LocationModel item)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(UpdateModal.Model), item);
+
+        var dialog = await Dialog.ShowAsync<UpdateModal>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        { 
+            items = await Http.GetAsync<List<LocationModel>>(ApiRoutes.Locations);
+            StateHasChanged();
+        }
+    }
+
     async void OnDeleteClick(LocationModel item)
     {
         var parameters = new DialogParameters();
@@ -89,7 +102,7 @@
         var result = await dialog.Result;
 
         if (!result.Canceled)
-        { 
+        {
             items = await Http.GetAsync<List<LocationModel>>(ApiRoutes.Locations);
             StateHasChanged();
         }
