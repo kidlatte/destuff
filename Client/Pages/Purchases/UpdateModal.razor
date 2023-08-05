@@ -22,7 +22,7 @@
             <DialogContent>
                 <DataAnnotationsValidator />
 
-                <SupplierSelect @bind-Value="request.SupplierId" Disabled="loading" />
+                <SupplierSelect @bind-Value="request.SupplierId" Loading="loading" />
 
                 <MudDatePicker @bind-Date="request.Receipt" For="@(() => request.Receipt)" Disabled="loading"
                                Label="Receipt Date" Variant="Variant.Outlined" />
