@@ -1,4 +1,5 @@
-@inject IHttpService http
+@inject IHttpService Http
+@inject IDialogService Dialog
 
 <MudAutocomplete T="ILocationDataModel" Value="model" ValueChanged="OnClick" 
     SearchFunc="@Search" ToStringFunc="e => e?.Name"
@@ -26,8 +27,6 @@
     </ItemTemplate>
 </MudAutocomplete>
 
-<LocationCreateModal @ref="create" OnCreated="OnCreated" />
-
 @code
 {
     [Parameter] public string? Value { get; set; }
@@ -38,12 +37,13 @@
     ILocationDataModel? model { get; set; }
 
     LocationCreateModal? create;
+    MudAutocomplete<ISupplierModel>? field;
 
     private async Task<IEnumerable<ILocationDataModel>?> Search(string value)
     {
         var text = value;
         var query = new ListQuery { Search = value, PageSize = 10, SortField = nameof(LocationModel.Id) };
-        var result = await http.GetAsync<PagedList<LocationLookupItem>>($"{ApiRoutes.LocationLookup}?{query}");
+        var result = await Http.GetAsync<PagedList<LocationLookupItem>>($"{ApiRoutes.LocationLookup}?{query}");
         return result?.List
             .Append(new LocationLookupItem { Id = "add", Name = value, Slug = "", })
             .Cast<ILocationDataModel>().ToList();
@@ -52,7 +52,8 @@
     async Task OnClick(ILocationDataModel? item)
     {
         if (item?.Id == "add")
-            create?.Open(item.Name);
+        {
+        }
         else
         {
             Value = item?.Id;

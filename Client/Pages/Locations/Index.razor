@@ -2,6 +2,7 @@
 @attribute [Authorize]
 
 @inject IHttpService Http
+@inject IDialogService Dialog
 
 <PageTitle>Locations</PageTitle>
 
@@ -9,7 +10,7 @@
 
 <div class="text-end mb-3">
     <MudSpacer />
-    <MudButton OnClick="_ => create?.Open()" Variant="Variant.Filled" Color="Color.Primary">Add</MudButton>
+    <MudButton OnClick="_ => OnAddClick()" Variant="Variant.Filled" Color="Color.Primary">Add</MudButton>
     <MudButton OnClick="_ => MapPaths()" Variant="Variant.Filled" Color="Color.Secondary">Refresh</MudButton>
 </div>
 
@@ -24,7 +25,7 @@
                     <div class="flex-0">
                         @if (item == selected)
                         {
-                            <MudIconButton OnClick="_ => create?.Open(item)" Icon="@Icons.Material.Filled.Add" Size="Size.Small" Class="mx-2" />
+                            <MudIconButton OnClick="_ => OnAddClick(item)" Icon="@Icons.Material.Filled.Add" Size="Size.Small" Class="mx-2" />
                             <MudIconButton OnClick="_ => update?.Open(item)" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Class="mx-2" />
                             <MudIconButton OnClick="_ => delete?.Open(item)" Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Class="mx-2" />
                         }
@@ -35,7 +36,6 @@
     </ItemTemplate>
 </MudTreeView>
 
-<LocationCreateModal @ref="create" OnCreated="LoadData" />
 <UpdateModal @ref="update" OnUpdated="LoadData" />
 <DeleteModal @ref="delete" OnDeleted="LoadData" />
 
@@ -44,10 +44,8 @@
     List<LocationModel>? items { get; set; }
     LocationModel? selected { get; set; }
 
-    LocationCreateModal? create;
     UpdateModal? update;
     DeleteModal? delete;
-
 
     protected override Task OnInitializedAsync()
     {
@@ -67,4 +65,17 @@
 
         items = await Http.GetAsync<List<LocationModel>>(ApiRoutes.Locations);
     }
+
+    async void OnAddClick(LocationModel? item = null)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(LocationCreateModal.Parent), item);
+
+        var dialog = await Dialog.ShowAsync<LocationCreateModal>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+            items = await Http.GetAsync<List<LocationModel>>(ApiRoutes.Locations);
+    }
+
 }
