@@ -14,53 +14,43 @@
     <MudButton OnClick="_ => MapPaths()" Variant="Variant.Filled" Color="Color.Secondary">Refresh</MudButton>
 </div>
 
-<MudTreeView T="LocationModel" Items="items?.ToHashSet()" @bind-SelectedValue="selected" Hover="true">
-    <ItemTemplate Context="item">
-        <MudTreeViewItem Value="@item" Text="@item.Name" Items="@item.Children?.ToHashSet()" Expanded="true">
-            <BodyContent>
-                <div class="d-flex justify-space-between align-items-center w-100">
-                    <div class="py-2">
-                        <label>@item.Name</label>
-                    </div>
-                    <div class="flex-0">
-                        @if (item == selected)
-                        {
+<div>
+    <MudTreeView T="LocationModel" Items="items?.ToHashSet()" Hover="true">
+        <ItemTemplate Context="item">
+            <MudTreeViewItem Value="@item" Text="@item.Name" Items="@item.Children?.ToHashSet()" Expanded="true">
+                <BodyContent>
+                    <div class="d-flex justify-space-between align-items-center w-100">
+                        <div class="py-2">
+                            <label class="label-name">@item.Name</label>
+                        </div>
+                        <div class="flex-0">
+                            <MudIconButton Href="@($"/locations/{item.Slug}")" Icon="@Icons.Material.Filled.Info" Size="Size.Small" Class="mx-2" />
                             <MudIconButton OnClick="_ => OnAddClick(item)" Icon="@Icons.Material.Filled.Add" Size="Size.Small" Class="mx-2" />
                             <MudIconButton OnClick="_ => OnEditClick(item)" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Class="mx-2" />
                             <MudIconButton OnClick="_ => OnDeleteClick(item)" Disabled="@item.Children.OrEmpty().Any()"
                                 Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Class="mx-2" />
-                        }
+                        </div>
                     </div>
-                </div>
-            </BodyContent>
-        </MudTreeViewItem>
-    </ItemTemplate>
-</MudTreeView>
+                </BodyContent>
+            </MudTreeViewItem>
+        </ItemTemplate>
+    </MudTreeView>
+</div>
 
 @code
 {
     List<LocationModel>? items { get; set; }
-    LocationModel? selected { get; set; }
 
-    UpdateModal? update;
+    protected override Task OnInitializedAsync() => LoadData();
 
-    protected override Task OnInitializedAsync()
-    {
-        return LoadData();
-    }
-
-    async Task LoadData(LocationModel? model = null)
-    {
-        items = await Http.GetAsync<List<LocationModel>>(ApiRoutes.Locations);
-        selected = model;
-    }
+    async Task LoadData() => items = await Http.GetAsync<List<LocationModel>>(ApiRoutes.Locations);
 
     async Task MapPaths()
     {
         var request = new HttpRequestMessage(HttpMethod.Put, ApiRoutes.LocationMap);
         await Http.SendAsync(request);
 
-        items = await Http.GetAsync<List<LocationModel>>(ApiRoutes.Locations);
+        await LoadData();
     }
 
     async void OnAddClick(LocationModel? item = null)
@@ -73,7 +63,7 @@
 
         if (!result.Canceled)
         {
-            items = await Http.GetAsync<List<LocationModel>>(ApiRoutes.Locations);
+            await LoadData();
             StateHasChanged();
         }
     }
@@ -88,7 +78,7 @@
 
         if (!result.Canceled)
         { 
-            items = await Http.GetAsync<List<LocationModel>>(ApiRoutes.Locations);
+            await LoadData();
             StateHasChanged();
         }
     }

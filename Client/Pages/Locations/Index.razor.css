@@ -1,0 +1,7 @@
+::deep .mud-treeview-hover .mud-treeview-item-content > .d-flex > .flex-0 {
+    display: none;
+}
+
+::deep .mud-treeview-hover .mud-treeview-item-content:hover > .d-flex > .flex-0 {
+    display: block;
+}

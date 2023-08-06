@@ -36,6 +36,7 @@ public class StuffModel : IStuffModel
     public ICollection<StuffLocationModel>? StuffLocations { get; set; }
     public ICollection<UploadModel>? Uploads { get; set; }
 
+    [JsonIgnore]
     public LocationListItem? FirstLocation => StuffLocations?.FirstOrDefault()?.Location;
 
     [JsonIgnore]

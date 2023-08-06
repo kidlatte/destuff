@@ -1,80 +1,100 @@
 @page "/locations/{Slug}"
 @attribute [Authorize]
 
-@inject IHttpService http
-@inject NavigationManager nav
+@inject NavigationManager Nav
+@inject IHttpService Http
+@inject IDialogService Dialog
 
+<PageTitle>@(Model == null ? "" : $"{Model.Name} |") Locations | Destuff</PageTitle>
 
-@if (model != null)
+@if (Model != null)
 {
-    <div class="text-end">
-        <a
-            href="/locations"
-            class="btn btn-outline-secondary"
-        >
-            <i class="bi bi-chevron-left"></i>
-            Locations
-        </a>
-        @*<button
-            @onclick="() => update?.Open(model)"
-            type="button" class="btn btn-outline-primary"
-        >
-            Edit
-        </button>*@
-        @*<button
-            @onclick="() => delete?.Open(model)"
-            type="button" class="btn btn-outline-danger"
-            disabled="@tree?.First().Children?.Any()"
-        >
-            Delete
-        </button>*@
+    <div class="d-md-flex">
+        <div class="text-nowrap order-1">
+            <MudButton Href="/locations" StartIcon="@Icons.Material.Rounded.ChevronLeft" Variant="Variant.Outlined">
+                Locations
+            </MudButton>
+            <MudButton OnClick="OnUpdateClick" Variant="Variant.Outlined"
+                       Color="Color.Primary">Edit</MudButton>
+            <MudButton OnClick="OnDeleteClick" Variant="Variant.Outlined"
+                       Color="Color.Error">Delete</MudButton>
+        </div>
+        <div class="text-truncate me-auto order-0">
+            <MudText Typo="Typo.h1" Class="text-truncate my-5">@Model.Name</MudText>
+        </div>
     </div>
 
-    <h1>@model.Name</h1>
+    <div>@Model.Notes</div>
 
-    <div>@model.Notes</div>
+    <MudTreeView T="LocationTreeModel" Items="items?.ToHashSet()" Hover="true">
+        <ItemTemplate Context="item">
+            <MudTreeViewItem Value="@item" Text="@item.Name" Items="@item.Children?.ToHashSet()" Expanded="true">
+                <BodyContent>
+                    <a href="@($"/locations/{item.Slug}")" class="d-inline-block w-100 py-2">@item.Name</a>
+                </BodyContent>
+            </MudTreeViewItem>
+        </ItemTemplate>
+    </MudTreeView>
 
-    <TreeLinks Items="tree" />
 }
-
-<UpdateModal @ref="update" OnUpdated="Updated" />
-<DeleteModal @ref="delete" OnDeleted="LoadData" />
 
 @code {
     [Parameter]
     public string? Slug { get; set; }
-    
-    LocationModel? model { get; set; }
-    
-    List<LocationTreeModel>? tree { get; set; }
 
-    UpdateModal? update;
-    DeleteModal? delete;
+    LocationModel? Model { get; set; }
 
+    List<LocationTreeModel>? items { get; set; }
 
-    protected override Task OnParametersSetAsync()
-    {
-        return LoadData();
-    }
+    protected override Task OnParametersSetAsync() => LoadData();
 
     async Task LoadData()
     {
         try
         {
-            model = await http.GetAsync<LocationModel>($"{ApiRoutes.LocationSlug}/{Slug}");
+            Model = await Http.GetAsync<LocationModel>($"{ApiRoutes.LocationSlug}/{Slug}");
         }
         catch (HttpRequestException ex)
         {
             if (ex.StatusCode == HttpStatusCode.NotFound)
-                nav.NavigateTo($"/locations");
+                Nav.NavigateTo($"/locations");
             else
                 throw;
         }
-        var item = await http.GetAsync<LocationTreeModel>($"{ApiRoutes.LocationTree}/{model?.Id}");
-        tree = new List<LocationTreeModel> { item! };
+        var item = await Http.GetAsync<LocationTreeModel>($"{ApiRoutes.LocationTree}/{Model?.Id}");
+        items = item?.Children?.Any() ?? false ? new() { item } : null;
     }
 
-    void Updated (LocationModel item) {
-        nav.NavigateTo($"/locations/{item.Slug}");
+    async void OnUpdateClick()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(UpdateModal.Model), Model);
+
+        var dialog = await Dialog.ShowAsync<UpdateModal>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var data = result.Data as LocationModel;
+            if (data == null || data.Slug == Slug)
+            {
+                await LoadData();
+                StateHasChanged();
+            }
+            else
+                Nav.NavigateTo($"locations/{data.Slug}");
+        }
+    }
+
+    async void OnDeleteClick()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(DeleteModal.Model), Model);
+
+        var dialog = await Dialog.ShowAsync<DeleteModal>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+            Nav.NavigateTo($"/locations");
     }
 }
