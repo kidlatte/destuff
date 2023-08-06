@@ -6,8 +6,8 @@ namespace Destuff.Shared.Models;
 
 public interface IStuffModel
 {
-    public string? Id { get; set; }
-    public string? Slug { get; set; }
+    public string Id { get; set; }
+    public string Slug { get; set; }
     public string? Name { get; set; }
 }
 
@@ -26,26 +26,26 @@ public class StuffRequest
 
 public class StuffModel : IStuffModel
 {
-    public string? Id { get; set; }
-    public string? Slug { get; set; }
+    public required string Id { get; set; }
+    public required string Slug { get; set; }
 
     public string? Name { get; set; }
     public string? Url { get; set; }
     public string? Notes { get; set; }
 
-    public ICollection<StuffLocationModel>? StuffLocations { get; set; }
+    public required ICollection<StuffLocationModel> StuffLocations { get; set; }
     public ICollection<UploadModel>? Uploads { get; set; }
 
     [JsonIgnore]
-    public LocationListItem? FirstLocation => StuffLocations?.FirstOrDefault()?.Location;
+    public LocationListItem? FirstLocation => StuffLocations.FirstOrDefault()?.Location;
 
     [JsonIgnore]
     public bool IsSingleLocation 
     {
         get 
         {
-            var count = StuffLocations.OrEmpty().Count();
-            return count == 0 || count == 1 && StuffLocations?.First().Count == 1;
+            var count = StuffLocations.Count();
+            return count == 0 || count == 1 && StuffLocations.First().Count == 1;
         }
     }
 
@@ -63,8 +63,8 @@ public class StuffModel : IStuffModel
 
 public class StuffListItem : IStuffModel
 {
-    public string? Id { get; set; }
-    public string? Slug { get; set; }
+    public required string Id { get; set; }
+    public required string Slug { get; set; }
     public string? Name { get; set; }
     public ICollection<LocationListItem>? Locations { get; set; }
 }

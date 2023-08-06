@@ -1,77 +1,61 @@
 @inject IHttpService http
 
-@if (model != null)
+@if (request != null)
 {
-    <div class="modal-backdrop fade show"></div>
+    <EditForm OnValidSubmit="OnSubmit" Model="request" autocomplete="off">
+        <MudDialog>
+            <TitleContent>
+                <MudText Typo="Typo.h6">
+                    Add Location
+                </MudText>
+            </TitleContent>
+            <DialogContent>
+                <p>
+                    Add Location to
+                    <strong>@Model.Name</strong>
+                </p>
 
-    <div class="modal fade show" tabindex="-1" role="dialog" style="display: block; overflow-y: auto;">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add Location</h5>
-                    <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
-                </div>
-                <EditForm OnValidSubmit="OnSubmit" Model="model" autocomplete="off">
-                    <div class="modal-body">
-                        <DataAnnotationsValidator />
+                <DataAnnotationsValidator />
+                <LocationSelect @bind-Value="request.LocationId" Loading="loading" />
+                <MudNumericField @bind-Value="request.Count" For="@(() => request.Count)" Disabled="loading"
+                             Label="Quantity" Variant="Variant.Outlined" />
 
-                        <div class="form-floating mb-1">
-                            <span class="form-control">
-                                @Model?.Name
-                            </span>
-                            <label>Name</label>
-                        </div>
-
-                        <div class="form-floating mb-1">
-                            <LocationSelect @bind-Value="model.LocationId" Loading="loading" />
-                        </div>
-
-                        <div class="form-floating mb-1">
-                            <InputNumber @bind-Value="model.Count" disable="@loading"
-                                class="form-control" placeholder="Name" autocomplete="off" />
-                            <label>Count</label>
-                            <ValidationMessage For="@(() => model.Count)" />
-                        </div>
-
-                        <label class="text-danger">@error</label>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary" disabled="@loading">
-                            @(loading ? "Submitting..." : "Confirm")
-                        </button>
-                        <button @onclick="Close" type="button" class="btn btn-secondary">Cancel</button>
-                    </div>
-                </EditForm>
-            </div>
-        </div>
-    </div>
+                <MudText Color="@Color.Error">@error</MudText>
+            </DialogContent>
+            <DialogActions>
+                <LoadingButton Loading="loading" />
+                <MudButton OnClick="() => dialog?.Cancel()" Disabled="loading" Color="Color.Default">
+                    Cancel
+                </MudButton>
+            </DialogActions>
+        </MudDialog>
+    </EditForm>
 }
 
 @code {
-    [Parameter]
-    public EventCallback<StuffLocationModel> OnAdded { get; set; }
-    
-    [Parameter]
-    public IStuffModel? Model { get; set; }
+    [CascadingParameter]
+    MudDialogInstance? dialog { get; set; }
 
-    StuffLocationRequest? model { get; set; }
+    [Parameter]
+    public required IStuffModel Model { get; set; }
+    StuffLocationRequest? request { get; set; }
 
     string error { get; set; } = "";
     bool loading { get; set; } = false;
 
+    protected override void OnParametersSet() => request = new() { StuffId = Model.Id, Count = 1 };
+
     async Task OnSubmit()
     {
-        if (model == null)
+        if (request == null)
             throw new NullReferenceException();
 
         loading = true;
 
         try
         {
-            var result = await http.PostAsync<StuffLocationModel>(ApiRoutes.StuffLocations, model);
-
-            Close();
-            await OnAdded.InvokeAsync(result);
+            var result = await http.PostAsync<StuffLocationModel>(ApiRoutes.StuffLocations, request);
+            dialog?.Close(DialogResult.Ok(result));
         }
         catch (Exception ex)
         {
@@ -79,17 +63,5 @@
         }
 
         loading = false;
-    }
-
-    public void Open()
-    {
-        if (Model != null)
-            model = new StuffLocationRequest { StuffId = Model.Id, Count = 1 };
-        StateHasChanged();
-    }
-
-    public void Close()
-    {
-        model = null;
     }
 }

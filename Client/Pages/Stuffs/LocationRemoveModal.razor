@@ -1,63 +1,50 @@
 @inject IHttpService http
 
-@if (Stuff != null && Location != null)
-{
-    <div class="modal-backdrop fade show"></div>
+<EditForm OnValidSubmit="OnSubmit" Model="Model" autocomplete="off">
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6" Class="text-truncate pe-5">Remove from <strong>@Model.Location.Name</strong></MudText>
+        </TitleContent>
+        <DialogContent>
+            <p class="">
+                Are you sure you want to remove stuff <strong>@Stuff.Name</strong>
+                from location <strong>@Model.Location.Name</strong>
+            </p>
 
-    <div class="modal fade show" tabindex="-1" role="dialog" style="display: block; overflow-y: auto;">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        Remove from 
-                        <strong>@Location.Name</strong>
-                    </h5>
-                    <button @onclick="Close" type="button" class="btn-close" aria-label="Close"></button>
-                </div>
-                <EditForm OnValidSubmit="OnSubmit" Model="Location" autocomplete="off">
-                    <div class="modal-body">
-                        <p class="mb-3 fw-normal">
-                            Are you sure you want to remove stuff <strong>@Stuff.Name</strong>
-                            from location <strong>@Location.Name</strong>
-                        </p>
-
-                        <label class="text-danger">@error</label>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary" disabled="@loading">
-                            @(loading ? "Submitting..." : "Confirm")
-                        </button>
-                        <button @onclick="Close" type="button" class="btn btn-secondary">Cancel</button>
-                    </div>
-                </EditForm>
-            </div>
-        </div>
-    </div>
-}
+            <DataAnnotationsValidator />
+            <MudText Color="@Color.Error">@error</MudText>
+        </DialogContent>
+        <DialogActions>
+            <LoadingButton Loading="loading" Label="DELETE" Color="Color.Warning" />
+            <MudButton OnClick="() => dialog?.Cancel()" Disabled="loading" Color="Color.Default">
+                Cancel
+            </MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
 
 @code {
 
-    [Parameter]
-    public EventCallback<ILocationModel> OnDeleted { get; set; }
+    [CascadingParameter]
+    MudDialogInstance? dialog { get; set; }
 
     [Parameter]
-    public IStuffModel? Stuff { get; set; }
-    public ILocationModel? Location { get; set; }
+    public required StuffLocationModel Model { get; set; }
+
+    [Parameter]
+    public required IStuffModel Stuff { get; set; }
 
     string error { get; set; } = "";
     bool loading { get; set; } = false;
 
     async Task OnSubmit()
     {
-        if (Stuff == null || Location == null)
-            throw new NullReferenceException();
-
         loading = true;
 
         try
         {
-            await http.DeleteAsync($"{ApiRoutes.StuffLocations}/{Stuff.Id}/{Location.Id}");
-            await OnDeleted.InvokeAsync(Location);
+            await http.DeleteAsync($"{ApiRoutes.StuffLocations}/{Stuff.Id}/{Model.Location.Id}");
+            dialog?.Close(DialogResult.Ok(Model));
         }
         catch (Exception ex)
         {
@@ -65,20 +52,5 @@
         }
 
         loading = false;
-
-        Close();
-    }
-
-
-    public void Open(ILocationModel model)
-    {
-        Location = model;
-        StateHasChanged();
-    }
-
-
-    void Close()
-    {
-        Location = null;
     }
 }

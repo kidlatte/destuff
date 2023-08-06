@@ -25,12 +25,8 @@
             }
             else if (Tab == StuffTabs.Locations)
             {
-                <button @onclick="() => locationAdd?.Open()"
-                        type="button" class="btn btn-outline-primary ms-1">
-                    Add
-                </button>
-
-                <LocationAddModal @ref="locationAdd" Model="Model" OnAdded="LoadData" />
+                <MudButton OnClick="OnLocationAddClick" Variant="Variant.Outlined"
+                           Color="Color.Primary" Class="ms-1">Add Location</MudButton>
             }
         </div>
         <div class="text-truncate me-auto order-0">
@@ -93,19 +89,15 @@
                         <dd>
                             @foreach (var (item, i) in Model.StuffLocations.ToIndex())
                             {
-                                @if (i > 0)
+                                @if (i > 0) { <text>, </text> }
+
+                                <a href="@($"/locations/{item.Location.Slug}")">
+                                    @item.Location.Name
+                                </a>
+
+                                @if (item.Count > 1)
                                 {
-                                    <text>, </text>
-                                }
-                                if (item.Location != null)
-                                {
-                                    <a href="@($"/locations/{item.Location.Slug}")">
-                                        @item.Location.Name
-                                    </a>
-                                    @if (item.Count > 1)
-                                    {
-                                        <span title="@($"{item.Count} units")">@($" ({item.Count})")</span>
-                                    }
+                                    <span title="@($"{item.Count} units")">@($" ({item.Count})")</span>
                                 }
                             }
                         </dd>
@@ -129,8 +121,6 @@
 
     StuffModel? Model { get; set; }
     List<UploadModel> uploads = new List<UploadModel>();
-
-    LocationAddModal? locationAdd;
 
     protected override Task OnParametersSetAsync()
     {
@@ -191,6 +181,21 @@
 
         if (!result.Canceled)
             Nav.NavigateTo($"/");
+    }
+
+    async void OnLocationAddClick()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(LocationAddModal.Model), Model);
+
+        var dialogRef = await Dialog.ShowAsync<LocationAddModal>("", parameters);
+        var result = await dialogRef.Result;
+
+        if (!result.Canceled)
+        {
+            await LoadData();
+            StateHasChanged();
+        }
     }
 
     void OnActivePanelIndexChanged(int index)

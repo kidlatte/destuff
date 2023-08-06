@@ -37,9 +37,6 @@
     MudDialogInstance? dialog { get; set; }
 
     [Parameter]
-    public EventCallback<StuffModel> OnCreated { get; set; }
-
-    [Parameter]
     public StuffRequest? Model { get; set; }
 
     string error { get; set; } = "";
@@ -65,12 +62,5 @@
         }
 
         loading = false;
-    }
-
-    // TODO: remove
-    public void Open(string? name = null)
-    {
-        Model = new StuffRequest { Name = name };
-        StateHasChanged();
     }
 }

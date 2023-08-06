@@ -16,7 +16,7 @@
                                  Label="Quantity" Variant="Variant.Outlined" />
 
                 <MudNumericField @bind-Value="request.Price" For="@(() => request.Price)" Disabled="loading"
-                                 Label="Price" Variant="Variant.Outlined" />
+                                 Label="Price" Variant="Variant.Outlined" Format="N2" />
 
                 <MudTextField @bind-Value="request.Notes" For="@(() => request.Notes)" Disabled="loading"
                               Label="Notes" Variant="Variant.Outlined" Lines="3" />
