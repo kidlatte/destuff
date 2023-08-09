@@ -120,7 +120,7 @@
     int activePanelIndex;
 
     StuffModel? Model { get; set; }
-    List<UploadModel> uploads = new List<UploadModel>();
+    IEnumerable<UploadModel>? uploads;
 
     protected override Task OnParametersSetAsync()
     {
@@ -139,7 +139,7 @@
         {
             Model = await Http.GetAsync<StuffModel>($"{ApiRoutes.StuffSlug}/{Slug}");
             if (Model != null)
-                uploads.AddRange(Model.Uploads.OrEmpty());
+                uploads = Model.Uploads.OrEmpty();
         }
         catch (HttpRequestException ex)
         {
@@ -155,8 +155,8 @@
         var parameters = new DialogParameters();
         parameters.Add(nameof(UpdateModal.Model), Model);
 
-        var dialogRef = await Dialog.ShowAsync<UpdateModal>("", parameters);
-        var result = await dialogRef.Result;
+        var dialog = await Dialog.ShowAsync<UpdateModal>("", parameters);
+        var result = await dialog.Result;
 
         if (!result.Canceled && result.Data != null)
         {
@@ -213,5 +213,5 @@
         
     }
 
-    void OnUploaded(UploadModel upload) => uploads.Add(upload);
+    Task OnUploaded(UploadModel upload) => LoadData();
 }

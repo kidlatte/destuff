@@ -34,6 +34,10 @@ dl {
     white-space: nowrap;
 }
 
+.mud-badge-cursor-pointer .mud-badge {
+    cursor: pointer;
+}
+
 #blazor-error-ui {
     color: #444;
 

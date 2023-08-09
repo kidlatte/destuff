@@ -2,22 +2,19 @@
 
 @if (Items != null)
 {
-    <div class="row row-cols-2 row-cols-md-6 g-2">
+    <MudGrid Spacing="1">
         @foreach(var item in Items)
         {
-            <div class="col">
-                <div class="card">
-                    <a href="@item.Url" target="_blank">
-                        <img src="@item.Url" class="card-img-top" alt="@item.FileName">
-                    </a>
-                    <button @onclick="() => delete?.Open(item)"
-                        class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
-                        <span class="visually-hidden btn-close">Remove image</span>
-                    </button>
-                </div>
-            </div>
+            <MudItem xs="6" sm="4" md="2">
+                <MudBadge OnClick="_ => delete?.Open(item)" Icon="@Icons.Material.Filled.Close" Color="Color.Error"
+                          Overlap="true" Bordered="true" Class="mud-badge-cursor-pointer">
+                    <MudLink Href="@item.Url" Target="_blank">
+                        <MudImage Src="@item.Url" Alt="@item.FileName" Fluid="true" Elevation="1" Class="rounded-lg" />
+                    </MudLink>
+                </MudBadge>
+            </MudItem>
         }
-    </div>
+    </MudGrid>
 }
 
 <DeleteModal @ref="delete" OnDeleted="OnDeleted" />
@@ -25,12 +22,12 @@
 @code
 {
     [Parameter]
-    public List<UploadModel>? Items { get; set; }
+    public IEnumerable<UploadModel>? Items { get; set; }
 
     DeleteModal? delete;
 
     void OnDeleted(UploadModel upload)
     {
-        Items?.Remove(upload);
+        Items = Items?.Where(x => x.Id != upload.Id);
     }
 }
