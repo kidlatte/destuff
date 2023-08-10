@@ -120,26 +120,24 @@
     int activePanelIndex;
 
     StuffModel? Model { get; set; }
-    IEnumerable<UploadModel>? uploads;
+    List<UploadModel> uploads = new List<UploadModel>();
 
-    protected override Task OnParametersSetAsync()
+    protected override void OnParametersSet() => activePanelIndex = Tab switch
     {
-        activePanelIndex = Tab switch
-        {
-            StuffTabs.Locations => 1,
-            _ => 0
-        };
+        StuffTabs.Locations => 1,
+        _ => 0
+    };
 
-        return LoadData(); 
-    }
+    protected override Task OnInitializedAsync() => LoadData();
 
     private async Task LoadData()
     {
         try
         {
+            uploads.Clear();
             Model = await Http.GetAsync<StuffModel>($"{ApiRoutes.StuffSlug}/{Slug}");
             if (Model != null)
-                uploads = Model.Uploads.OrEmpty();
+                uploads.AddRange(Model.Uploads.OrEmpty());
         }
         catch (HttpRequestException ex)
         {
@@ -210,8 +208,12 @@
                 Nav.NavigateTo($"stuffs/{Slug}");
                 break;
         }
-        
+
     }
 
-    Task OnUploaded(UploadModel upload) => LoadData();
+    async Task OnUploaded(UploadModel upload)
+    {
+        uploads.Add(upload);
+        await LoadData();
+    }
 }

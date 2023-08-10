@@ -1,7 +1,7 @@
-::deep .mud-treeview-hover .mud-treeview-item-content > .d-flex > .flex-0 {
+::deep .mud-treeview-hover .mud-treeview-item-content .btn-locations {
     display: none;
 }
 
-::deep .mud-treeview-hover .mud-treeview-item-content:hover > .d-flex > .flex-0 {
+::deep .mud-treeview-hover .mud-treeview-item-content:hover .btn-locations {
     display: block;
 }

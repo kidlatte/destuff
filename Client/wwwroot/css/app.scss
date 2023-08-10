@@ -2,13 +2,23 @@
 }
 
 dl {
+    margin-bottom: 1rem;
+
     @media (min-width: 600px) {
         display: flex;
+    }
 
-        > dt {
+    > dt {
+        font-weight: 700;
+
+        @media (min-width: 600px) {
             flex: none;
             width: 160px;
         }
+    }
+
+    > dd {
+        margin-bottom: .5rem;
     }
 }
 

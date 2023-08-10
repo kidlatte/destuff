@@ -1,11 +1,22 @@
-﻿@media (min-width: 600px) {
+﻿dl {
+  margin-bottom: 1rem;
+}
+@media (min-width: 600px) {
   dl {
     display: flex;
   }
+}
+dl > dt {
+  font-weight: 700;
+}
+@media (min-width: 600px) {
   dl > dt {
     flex: none;
     width: 160px;
   }
+}
+dl > dd {
+  margin-bottom: 0.5rem;
 }
 
 .vh-100 {

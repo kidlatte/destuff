@@ -6,29 +6,30 @@
 
 <PageTitle>Locations | Destuff</PageTitle>
 
-<MudText Typo="Typo.h1" Class="my-5">Locations</MudText>
-
-<div class="text-end mb-3">
+<MudToolBar WrapContent="true" Class="my-5">
+    <MudText Typo="Typo.h1">Locations</MudText>
     <MudSpacer />
-    <MudButton OnClick="_ => OnAddClick()" Variant="Variant.Filled" Color="Color.Primary">Add</MudButton>
-    <MudButton OnClick="MapPaths" Variant="Variant.Filled" Color="Color.Secondary">Refresh</MudButton>
-</div>
+    <div>
+        <MudButton OnClick="_ => OnAddClick()" Variant="Variant.Filled" Color="Color.Primary">Add</MudButton>
+        <MudButton OnClick="MapPaths" Variant="Variant.Filled" Color="Color.Secondary" Class="ms-1">Refresh</MudButton>
+    </div>
+</MudToolBar>
 
 <div>
     <MudTreeView T="LocationModel" Items="items?.ToHashSet()" Hover="true">
         <ItemTemplate Context="item">
             <MudTreeViewItem Value="@item" Text="@item.Name" Items="@item.Children?.ToHashSet()" Expanded="true">
                 <BodyContent>
-                    <div class="d-flex justify-space-between align-items-center w-100">
-                        <div class="py-2">
+                    <div class="d-flex justify-space-between align-center w-100">
+                        <div>
                             <label class="label-name">@item.Name</label>
                         </div>
-                        <div class="flex-0">
-                            <MudIconButton Href="@($"/locations/{item.Slug}")" Icon="@Icons.Material.Filled.Info" Size="Size.Small" Class="mx-2" />
-                            <MudIconButton OnClick="_ => OnAddClick(item)" Icon="@Icons.Material.Filled.Add" Size="Size.Small" Class="mx-2" />
-                            <MudIconButton OnClick="_ => OnEditClick(item)" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Class="mx-2" />
+                        <div class="btn-locations">
+                            <MudIconButton Href="@($"/locations/{item.Slug}")" Icon="@Icons.Material.Filled.Info" Color="Color.Info" Size="Size.Small" Class="mx-2" />
+                            <MudIconButton OnClick="_ => OnAddClick(item)" Icon="@Icons.Material.Filled.Add" Color="Color.Primary" Size="Size.Small" Class="mx-2" />
+                            <MudIconButton OnClick="_ => OnEditClick(item)" Icon="@Icons.Material.Filled.Edit" Color="Color.Secondary" Size="Size.Small" Class="mx-2" />
                             <MudIconButton OnClick="_ => OnDeleteClick(item)" Disabled="@item.Children.OrEmpty().Any()"
-                                Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Class="mx-2" />
+                                           Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" Class="mx-2" />
                         </div>
                     </div>
                 </BodyContent>
@@ -97,5 +98,4 @@
             StateHasChanged();
         }
     }
-
 }

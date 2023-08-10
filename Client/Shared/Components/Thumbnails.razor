@@ -1,12 +1,14 @@
 @using Destuff.Client.Pages.Uploads
 
+@inject IDialogService Dialog
+
 @if (Items != null)
 {
     <MudGrid Spacing="1">
         @foreach(var item in Items)
         {
             <MudItem xs="6" sm="4" md="2">
-                <MudBadge OnClick="_ => delete?.Open(item)" Icon="@Icons.Material.Filled.Close" Color="Color.Error"
+                <MudBadge OnClick="_ => OnDeleteClick(item)" Icon="@Icons.Material.Filled.Close" Color="Color.Error"
                           Overlap="true" Bordered="true" Class="mud-badge-cursor-pointer">
                     <MudLink Href="@item.Url" Target="_blank">
                         <MudImage Src="@item.Url" Alt="@item.FileName" Fluid="true" Elevation="1" Class="rounded-lg" />
@@ -17,17 +19,23 @@
     </MudGrid>
 }
 
-<DeleteModal @ref="delete" OnDeleted="OnDeleted" />
-
 @code
 {
     [Parameter]
-    public IEnumerable<UploadModel>? Items { get; set; }
+    public required List<UploadModel> Items { get; set; }
 
-    DeleteModal? delete;
-
-    void OnDeleted(UploadModel upload)
+    async void OnDeleteClick(UploadModel item)
     {
-        Items = Items?.Where(x => x.Id != upload.Id);
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(DeleteModal.Model), item);
+
+        var dialog = await Dialog.ShowAsync<DeleteModal>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        { 
+            Items.Remove(item);
+            StateHasChanged();
+        }
     }
 }
