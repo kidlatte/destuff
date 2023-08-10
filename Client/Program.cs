@@ -14,7 +14,7 @@ builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddTransient<IStorageService, StorageService>();
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-builder.Services.AddTransient<IHttpService, HttpService>();
+builder.Services.AddScoped<IHttpService, HttpService>();
 
 // builder.Services.AddOptions();
 builder.Services.AddAuthorizationCore();

@@ -124,9 +124,9 @@ public class HttpService : IHttpService
     public Task<T?> PutAsync<T>(string uri, object value) where T : class => SendAsync<T>(HttpMethod.Put, uri, value);
     public Task DeleteAsync(string uri) => SendAsync<object>(HttpMethod.Delete, uri);
 
-    void SetLoadingState(bool isLoading)
+    void SetLoadingState(bool loading)
     {
-        LoadingCounter += isLoading ? 1 : -1;
+        LoadingCounter += loading ? 1 : -1;
         LoadingCounter = Math.Max(LoadingCounter, 0);
         LoadingStateChanged?.Invoke(this, LoadingCounter > 0);
     }

@@ -1,16 +1,16 @@
 ﻿@inherits LayoutComponentBase
 
-@inject IStorageService storage
-@inject IHttpService http
-@inject ISnackbar snackbar
-@inject NavigationManager nav
+@inject IStorageService Storage
+@inject IHttpService Http
+@inject ISnackbar Snackbar
+@inject NavigationManager Nav
 
 <MudThemeProvider @bind-IsDarkMode="@darkMode" Theme="theme" />
 <MudDialogProvider 
-    FullWidth="true"
-    MaxWidth="MaxWidth.Small"
-    CloseButton="true"
     Position="DialogPosition.Center"
+    MaxWidth="MaxWidth.Small"
+    FullWidth="true"
+    CloseButton="true"
     CloseOnEscapeKey="true"
 />
 <MudSnackbarProvider />
@@ -26,7 +26,7 @@
 
         @if (loading) {
             <div class="px-3 d-flex align-center">
-                <MudProgressCircular Color="Color.Primary" Size="Size.Small" StrokeWidth="5" Indeterminate="true" />
+                <MudProgressCircular Color="Color.Inherit" Size="Size.Small" StrokeWidth="5" Indeterminate="true" />
             </div>
         }
         else if (!online) {
@@ -41,13 +41,17 @@
     </MudAppBar>
     <MudDrawer @bind-Open="drawerOpen" Elevation="1">
         <MudDrawerHeader>
-            <MudText Typo="Typo.h6">
+            <MudText Typo="Typo.h5">
                 <a href="/">Destuff</a>
             </MudText>
         </MudDrawerHeader>
         <NavMenu />
     </MudDrawer>
     <MudMainContent>
+        @if (loading)
+        {
+            <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+        }
         <MudContainer MaxWidth="MaxWidth.False" Class="my-2">
             @Body
         </MudContainer>
@@ -71,20 +75,19 @@
     protected override async Task OnInitializedAsync()
     {
 
-        darkMode = await storage.GetDarkTheme();
+        darkMode = await Storage.GetDarkTheme();
 
-        http.LoadingStateChanged += async (s, isLoading) => {
-            loading = isLoading;
+        Http.LoadingStateChanged += async (_, _loading) => {
+            loading = _loading;
             await InvokeAsync(StateHasChanged);
         };
 
-        http.OnlineStateChanged += (s, isOnline) => online = isOnline;
-        http.OnError += (s, args) => {
-            Console.WriteLine($"http: {args.StatusCode}");
+        Http.OnlineStateChanged += (s, isOnline) => online = isOnline;
+        Http.OnError += (s, args) => {
             if (args.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-                nav.NavigateTo("/login");
+                Nav.NavigateTo("/login");
             else
-                snackbar.Add(args.Message, Severity.Error);
+                Snackbar.Add(args.Message, Severity.Error);
         };
     }
 
@@ -96,6 +99,6 @@
     async Task DarkThemeChanged()
     {
         darkMode = !darkMode;
-        await storage.SetDarkTheme(darkMode);
+        await Storage.SetDarkTheme(darkMode);
     }
 }
