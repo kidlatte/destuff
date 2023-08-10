@@ -22,7 +22,7 @@ public class StuffsGetRequestShould : IntegrationTestBase
         await AuthorizedSendAsync<StuffModel>(model, HttpMethod.Post);
 
         // Act
-        var result = await AuthorizedSendAsync<PagedList<StuffModel>>();
+        var result = await AuthorizedSendAsync<PagedList<StuffListItem>>();
 
         // Assert
         Assert.NotNull(result);
@@ -51,7 +51,7 @@ public class StuffsGetRequestShould : IntegrationTestBase
             SortField = sortField,
             SortDir = sortDir ?? default
         };
-        var result = await AuthorizedGetAsync<PagedList<StuffModel>>($"{Route}?{query}");
+        var result = await AuthorizedGetAsync<PagedList<StuffListItem>>($"{Route}?{query}");
 
         // Assert
         Assert.NotNull(result);

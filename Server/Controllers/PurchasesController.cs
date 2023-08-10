@@ -39,13 +39,13 @@ public class PurchasesController : BaseController<Purchase>
 
         switch (request.SortField)
         {
-            case "Receipt":
+            case nameof(PurchaseListItem.Received):
                 query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Received ?? x.Receipt) : query.OrderBy(x => x.Received ?? x.Receipt);
                 break;
-            case "Supplier":
+            case nameof(PurchaseListItem.Supplier):
                 query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Supplier!.ShortName) : query.OrderBy(x => x.Supplier!.ShortName);
                 break;
-            case "Price":
+            case nameof(PurchaseListItem.Price):
                 query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Price) : query.OrderBy(x => x.Price);
                 break;
             default:

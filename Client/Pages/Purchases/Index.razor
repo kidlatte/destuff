@@ -18,7 +18,7 @@
         <MudButton OnClick="OnAddClick" Variant="Variant.Filled" Color="Color.Primary" Class="mr-2">Add</MudButton>
     </ToolBarContent>
     <Columns>
-        <PropertyColumn Property="x => x!.Receipt" Title="Date">
+        <PropertyColumn Property="x => x!.Received" Title="Date">
             <CellTemplate>
                 @if (context.Item != null)
                 {

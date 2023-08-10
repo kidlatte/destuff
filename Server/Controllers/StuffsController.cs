@@ -43,7 +43,7 @@ public class StuffsController : BaseController<Stuff>
             case "":
                 query = query.OrderByDescending(x => x.Created);
                 break;
-            case "Locations":
+            case nameof(StuffListItem.Locations):
                 query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Locations!.First().Name) : query.OrderBy(x => x.Locations!.First().Name);
                 break;
             default:

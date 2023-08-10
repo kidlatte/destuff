@@ -30,8 +30,8 @@ public class PurchaseItemsGetRequestShould : IntegrationTestBase
 
     [Theory]
     [InlineData(3, "Stuff 001b", null, null, null, null, null)]
-    [InlineData(3, "Stuff 001a", null, null, null, "quantity", null)]
-    [InlineData(3, "Stuff 001b", null, 1, 1, "cost", SortDirection.Ascending)]
+    [InlineData(3, "Stuff 001b", null, null, null, "Quantity", SortDirection.Descending)]
+    [InlineData(3, "Stuff 001a", null, 1, 1, "Cost", null)]
     [InlineData(2, "Stuff 001a", "001a", null, null, null, null)]
     public async Task Get_PurchaseItems_WithPaging(int count, string firstName, string? search, int? page, int? pageSize, string? sortField, SortDirection? sortDir)
     {
@@ -45,9 +45,9 @@ public class PurchaseItemsGetRequestShould : IntegrationTestBase
         var purchase = await AuthorizedSendAsync<PurchaseModel>(new PurchaseRequest(), HttpMethod.Post, ApiRoutes.Purchases);
         Assert.NotNull(purchase);
 
-        await AuthorizedSendAsync<PurchaseItemModel>(new PurchaseItemRequest { Quantity = 1, Price = 1, PurchaseId = purchase.Id, StuffId = stuffA.Id }, HttpMethod.Post);
+        await AuthorizedSendAsync<PurchaseItemModel>(new PurchaseItemRequest { Quantity = 1, Price = 6, PurchaseId = purchase.Id, StuffId = stuffA.Id }, HttpMethod.Post);
         await AuthorizedSendAsync<PurchaseItemModel>(new PurchaseItemRequest { Quantity = 2, Price = 5, PurchaseId = purchase.Id, StuffId = stuffA.Id }, HttpMethod.Post);
-        await AuthorizedSendAsync<PurchaseItemModel>(new PurchaseItemRequest { Quantity = 3, Price = 3, PurchaseId = purchase.Id, StuffId = stuffB.Id }, HttpMethod.Post);
+        await AuthorizedSendAsync<PurchaseItemModel>(new PurchaseItemRequest { Quantity = 3, Price = 4, PurchaseId = purchase.Id, StuffId = stuffB.Id }, HttpMethod.Post);
 
         // Act
         var query = new ListQuery 
