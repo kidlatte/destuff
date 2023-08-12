@@ -10,7 +10,7 @@
 @if (Model != null)
 {
     <div class="d-md-flex">
-        <div class="text-nowrap order-1">
+        <div class="text-right text-nowrap order-1 ms-5">
             <MudButton Href="/suppliers" StartIcon="@Icons.Material.Rounded.ChevronLeft" Variant="Variant.Outlined">
                 Suppliers
             </MudButton>
@@ -20,7 +20,7 @@
                 Color="Color.Error">Delete</MudButton>
         </div>
         <div class="text-truncate me-auto order-0">
-            <MudText Typo="Typo.h1" Class="text-truncate my-5">@Model.ShortName</MudText>
+            <MudText Typo="Typo.h1" Class="text-truncate my-5 my-md-3">@Model.ShortName</MudText>
         </div>
     </div>
 

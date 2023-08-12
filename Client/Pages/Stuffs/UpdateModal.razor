@@ -5,7 +5,7 @@
     <EditForm OnValidSubmit="OnSubmit" Model="request" autocomplete="off">
         <MudDialog>
             <TitleContent>
-                <MudText Typo="Typo.h6" Class="text-truncate pe-5">Edit @Model.Name</MudText>
+                <MudText Typo="Typo.h6" Class="text-truncate pe-5">Edit <strong>@Model.Name</strong></MudText>
             </TitleContent>
             <DialogContent>
                 <DataAnnotationsValidator />

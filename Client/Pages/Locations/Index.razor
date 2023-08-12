@@ -6,14 +6,16 @@
 
 <PageTitle>Locations | Destuff</PageTitle>
 
-<MudToolBar WrapContent="true" Class="my-5">
-    <MudText Typo="Typo.h1">Locations</MudText>
-    <MudSpacer />
-    <div>
-        <MudButton OnClick="_ => OnAddClick()" Variant="Variant.Filled" Color="Color.Primary">Add</MudButton>
-        <MudButton OnClick="MapPaths" Variant="Variant.Filled" Color="Color.Secondary" Class="ms-1">Refresh</MudButton>
+
+<div class="d-md-flex">
+    <div class="text-right text-nowrap order-1">
+        <MudButton OnClick="_ => OnAddClick()" Variant="Variant.Outlined" Color="Color.Primary">Add</MudButton>
+        <MudButton OnClick="MapPaths" Variant="Variant.Outlined" Color="Color.Secondary">Refresh</MudButton>
     </div>
-</MudToolBar>
+    <div class="text-truncate me-auto order-0">
+        <MudText Typo="Typo.h1" Class="text-truncate my-5 my-md-3">Locations</MudText>
+    </div>
+</div>
 
 <div>
     <MudTreeView T="LocationModel" Items="items?.ToHashSet()" Hover="true">
