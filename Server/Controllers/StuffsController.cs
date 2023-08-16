@@ -1,6 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Destuff.Server.Data;
@@ -9,6 +6,9 @@ using Destuff.Server.Models;
 using Destuff.Server.Services;
 using Destuff.Shared;
 using Destuff.Shared.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Destuff.Server.Controllers;
 
@@ -16,12 +16,12 @@ namespace Destuff.Server.Controllers;
 [ApiController, Authorize]
 public class StuffsController : BaseController<Stuff>
 {
-    private IStuffIdentifier StuffId { get; }
+    private IStuffIdentifier Hasher { get; }
     private ILocationIdentifier LocationId { get; }
 
     public StuffsController(ApplicationDbContext context, IMapper mapper, IStuffIdentifier stuffId, ILocationIdentifier locationId) : base(context, mapper)
     {
-        StuffId = stuffId;
+        Hasher = stuffId;
         LocationId = locationId;
     }
 
@@ -63,7 +63,7 @@ public class StuffsController : BaseController<Stuff>
     [HttpGet("{hash}")]
     public async Task<ActionResult<StuffModel?>> Get(string hash)
     {
-        int id = StuffId.Decode(hash);
+        int id = Hasher.Decode(hash);
         var query = Query.Where(x => x.Id == id);
 
         var model = await query
@@ -89,6 +89,19 @@ public class StuffsController : BaseController<Stuff>
             return NotFound();
 
         return model;
+    }
+
+    [HttpGet(ApiRoutes.StuffPurchases + "/{hash}")]
+    public async Task<IEnumerable<PurchaseListItem?>> GetPurchases(string hash)
+    {
+        int id = Hasher.Decode(hash);
+
+        var query = Context.PurchaseItems.Where(x => x.StuffId == id)
+            .Select(x => x.Purchase);
+
+        return await query
+            .ProjectTo<PurchaseListItem>(Mapper.ConfigurationProvider)
+            .ToListAsync();
     }
 
     [HttpPost]
@@ -125,7 +138,7 @@ public class StuffsController : BaseController<Stuff>
         if (!ModelState.IsValid || model.Name == null)
             return BadRequest(model);
 
-        int id = StuffId.Decode(hash);
+        int id = Hasher.Decode(hash);
         var slug = model.Name.ToSlug();
 
         var exists = await Query.AnyAsync(x => x.Id != id && x.Slug == slug);
@@ -165,7 +178,7 @@ public class StuffsController : BaseController<Stuff>
     [HttpDelete("{hash}")]
     public async Task<IActionResult> Delete(string hash)
     {
-        int id = StuffId.Decode(hash);
+        int id = Hasher.Decode(hash);
         var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
         if (entity == null)
             return NotFound();

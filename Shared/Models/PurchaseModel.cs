@@ -5,7 +5,7 @@ public interface IPurchaseModel
     string Id { get; set; }
     DateTime? Receipt { get; set; }
     DateTime? Received { get; set; }
-    SupplierModel? Supplier { get; set; }
+    SupplierListItem? Supplier { get; set; }
 }
 
 public class PurchaseRequest
@@ -20,7 +20,7 @@ public class PurchaseModel : PurchaseRequest, IPurchaseModel
 {
     public required string Id { get; set; }
     public decimal Price { get; set; }
-    public SupplierModel? Supplier { get; set; }
+    public SupplierListItem? Supplier { get; set; }
 
     public PurchaseRequest ToRequest()
     {
@@ -40,5 +40,5 @@ public class PurchaseListItem: IPurchaseModel
     public DateTime? Receipt { get; set; }
     public DateTime? Received { get; set; }
     public decimal Price { get; set; }
-    public SupplierModel? Supplier { get; set; }
+    public SupplierListItem? Supplier { get; set; }
 }
