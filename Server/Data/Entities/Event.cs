@@ -1,6 +1,8 @@
+using Destuff.Shared.Models;
+
 namespace Destuff.Server.Data.Entities;
 
-public abstract class EventItem : Entity
+public interface IEvent
 {
     public EventType Type { get; set; }
 
@@ -11,7 +13,6 @@ public abstract class EventItem : Entity
 
     public int StuffId { get; set; }
     public Stuff? Stuff { get; set; }
-
 }
 
 public enum EventType
@@ -20,12 +21,24 @@ public enum EventType
     Inventory,
     Event,
     Move,
+    Lend,
     Dispose
 }
 
-public class Event : EventItem
+public class Event : Entity, IEvent
 {
- 
+    public EventType Type { get; set; }
+
+    public DateTime DateTime { get; set; }
+    public int Count { get; set; }
+    public string? Summary { get; set; }
+    public string? Notes { get; set; }
+
+    public EventData? Data { get; set; }
+
+    public int StuffId { get; set; }
+    public Stuff? Stuff { get; set; }
+
     public int LocationId { get; set; }
     public Location? Location { get; set; }
    
@@ -33,4 +46,9 @@ public class Event : EventItem
 
     public int ToLocationId { get; set; }
     public Location? ToLocation { get; set; }
+}
+
+public class EventData
+{ 
+    public StuffModel? Stuff { get; set; }
 }

@@ -16,12 +16,20 @@ public class Purchase : Entity
     public ICollection<Upload>? Uploads { get; set; }
 }
 
-public class PurchaseItem : EventItem
+public class PurchaseItem : Entity, IEvent
 {
     public int Quantity { get; set; }
-    
     public decimal Price { get; set; }
 
     public int PurchaseId { get; set; }
     public Purchase? Purchase { get; set; }
+
+    public int StuffId { get; set; }
+    public Stuff? Stuff { get; set; }
+
+    public DateTime DateTime { get; set; }
+    public EventType Type { get; set; }
+    public int Count { get; set; }
+    public string? Summary { get; set; }
+    public string? Notes { get; set; }
 }

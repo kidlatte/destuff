@@ -45,6 +45,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<Location>()
             .Property(x => x.Data).HasJsonConversion();
 
+        builder.Entity<Event>()
+            .Property(x => x.Data).HasJsonConversion();
+
         builder.Entity<Purchase>()
             .Property(e => e.Price).HasConversion<double>();
 
