@@ -14,7 +14,7 @@ public interface IStuffModel
 public class StuffRequest
 {
     [Required]
-    [StringLength(255)]
+    [StringLength(1023)]
     public string? Name { get; set; }
 
     public string? Url { get; set; }
