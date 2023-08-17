@@ -92,15 +92,16 @@ public class StuffsController : BaseController<Stuff>
     }
 
     [HttpGet(ApiRoutes.StuffPurchases + "/{hash}")]
-    public async Task<IEnumerable<PurchaseListItem?>> GetPurchases(string hash)
+    public async Task<IEnumerable<PurchaseItemSupplier?>> GetPurchases(string hash)
     {
         int id = Hasher.Decode(hash);
+        var query = Context.PurchaseItems.Where(x => x.StuffId == id);
 
-        var query = Context.PurchaseItems.Where(x => x.StuffId == id)
-            .Select(x => x.Purchase);
+        var entities = await query.ToListAsync();
+        var models = Mapper.Map<List<PurchaseItemSupplier>>(entities);
 
         return await query
-            .ProjectTo<PurchaseListItem>(Mapper.ConfigurationProvider)
+            .ProjectTo<PurchaseItemSupplier>(Mapper.ConfigurationProvider)
             .ToListAsync();
     }
 

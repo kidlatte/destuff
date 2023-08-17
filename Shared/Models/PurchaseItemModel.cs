@@ -70,3 +70,13 @@ public class PurchaseItemListItem: IPurchaseItemModel
         };
     }
 }
+
+public class PurchaseItemSupplier
+{
+    public required string Id { get; set; }
+    public DateTime DateTime { get; set; }
+    public int Quantity { get; set; }
+    public decimal? Price { get; set; }
+
+    public required PurchaseListItem Purchase { get; set; }
+}

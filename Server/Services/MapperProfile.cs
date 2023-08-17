@@ -57,6 +57,8 @@ public class MapperProfile : Profile
         CreateMap<PurchaseItem, PurchaseItemListItem>().IncludeAllDerived()
             .ForMember(m => m.Id, o => o.MapFrom(e => purchaseItemId.Encode(e.Id)))
             .ForMember(m => m.PurchaseId, o => o.MapFrom(e => purchaseId.Encode(e.PurchaseId)));
+        CreateMap<PurchaseItem, PurchaseItemSupplier>().IncludeAllDerived()
+            .ForMember(m => m.Id, o => o.MapFrom(e => purchaseItemId.Encode(e.Id)));
 
         CreateMap<Upload, UploadModel>().IncludeAllDerived()
             .ForMember(m => m.Id, o => o.MapFrom(e => uploadId.Encode(e.Id)));

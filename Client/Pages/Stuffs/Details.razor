@@ -109,6 +109,9 @@
         <MudTabPanel Text="Locations">
             <Locations Stuff="Model" Models="Model.StuffLocations" />
         </MudTabPanel>
+        <MudTabPanel Text="Purchases">
+            <Purchases Model="Model" />
+        </MudTabPanel>
     </MudTabs>
 }
 
@@ -124,6 +127,7 @@
     protected override void OnParametersSet() => activePanelIndex = Tab switch
     {
         StuffTabs.Locations => 1,
+        StuffTabs.Purchases => 2,
         _ => 0
     };
 
@@ -202,6 +206,9 @@
         {
             case 1:
                 Nav.NavigateTo($"stuffs/{Slug}/{StuffTabs.Locations}");
+                break;
+            case 2:
+                Nav.NavigateTo($"stuffs/{Slug}/{StuffTabs.Purchases}");
                 break;
             default:
                 Nav.NavigateTo($"stuffs/{Slug}");

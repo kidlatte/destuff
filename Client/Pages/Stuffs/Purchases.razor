@@ -1,0 +1,41 @@
+﻿@inject IHttpService Http
+
+<MudDataGrid Items="list" SortMode="SortMode.None" Elevation="0">
+    <Columns>
+        <PropertyColumn Property="x => x.DateTime" Title="Date">
+            <CellTemplate>
+                <MudLink Href="@($"/purchases/{context.Item.Purchase.Id}")">
+                    @((context.Item.Purchase.Received ?? context.Item.Purchase.Receipt)?.ToShortDateString())
+                </MudLink>
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Purchase.Supplier" Title="Supplier">
+            <CellTemplate>
+                @{
+                    var supplier = context.Item.Purchase.Supplier;
+                    
+                    if (supplier != null)
+                    {
+                        <MudLink Href="@($"/suppliers/{supplier.Slug}")">
+                            @supplier.Name
+                        </MudLink>
+                    }
+                }
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Quantity" />
+        <PropertyColumn Property="x => x.Price" Format="N2" />
+    </Columns>
+</MudDataGrid>
+
+@code {
+    [Parameter] public required IStuffModel Model { get; set; }
+
+    IEnumerable<PurchaseItemSupplier>? list { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        list = await Http.GetAsync<IEnumerable<PurchaseItemSupplier>>($"{ApiRoutes.StuffPurchases}/{Model.Id}");
+    }
+
+}
