@@ -5,12 +5,4 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-
-  <ItemGroup>
-    <SupportedPlatform Include="browser" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Akinzekeel.BlazorGrid.Abstractions" Version="1.0.7" />
-  </ItemGroup>
 </Project>

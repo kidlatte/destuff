@@ -1,6 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Destuff.Server.Data;
@@ -9,7 +6,9 @@ using Destuff.Server.Models;
 using Destuff.Server.Services;
 using Destuff.Shared;
 using Destuff.Shared.Models;
-using BlazorGrid.Abstractions;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Destuff.Server.Controllers;
 

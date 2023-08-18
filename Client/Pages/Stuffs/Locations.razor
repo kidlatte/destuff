@@ -2,10 +2,6 @@
 @inject IDialogService Dialog
 
 <MudDataGrid Items="Models" SortMode="SortMode.None" Elevation="0">
-    @*<ToolBarContent>
-        <MudSpacer />
-        <MudButton OnClick="OnAddClick" Variant="Variant.Filled" Color="Color.Primary" Class="mr-2">Add</MudButton>
-    </ToolBarContent>*@
     <Columns>
         <PropertyColumn Property="x => x.Location" Title="Location">
             <CellTemplate>
@@ -16,7 +12,6 @@
         <TemplateColumn Sortable="false">
             <CellTemplate>
                 <div class="d-flex flex-nowrap">
-                    @*<MudIconButton OnClick="_ => OnEditClick(context.Item)" Title="Change Password" Icon="@Icons.Material.Filled.Key" Color="Color.Tertiary" aria-label="change password"></MudIconButton>*@
                     <DeleteIconButton OnClick="_ => OnDeleteClick(context.Item)" />
                 </div>
             </CellTemplate>
