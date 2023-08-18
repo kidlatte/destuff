@@ -151,6 +151,22 @@
         }
     }
 
+    void OnActivePanelIndexChanged(int index)
+    {
+        activePanelIndex = index;
+        switch (index) {
+            case 1:
+                Nav.NavigateTo($"stuffs/{Slug}/{StuffTabs.Locations}");
+                break;
+            case 2:
+                Nav.NavigateTo($"stuffs/{Slug}/{StuffTabs.Purchases}");
+                break;
+            default:
+                Nav.NavigateTo($"stuffs/{Slug}");
+                break;
+        }
+    }
+
     async void OnUpdateClick()
     {
         var parameters = new DialogParameters();
@@ -199,23 +215,6 @@
         }
     }
 
-    void OnActivePanelIndexChanged(int index)
-    {
-        activePanelIndex = index;
-        switch (index)
-        {
-            case 1:
-                Nav.NavigateTo($"stuffs/{Slug}/{StuffTabs.Locations}");
-                break;
-            case 2:
-                Nav.NavigateTo($"stuffs/{Slug}/{StuffTabs.Purchases}");
-                break;
-            default:
-                Nav.NavigateTo($"stuffs/{Slug}");
-                break;
-        }
-
-    }
 
     async Task OnUploaded(UploadModel upload)
     {

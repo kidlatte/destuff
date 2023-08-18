@@ -15,7 +15,7 @@
         <MudTextField @bind-Value="login.Password" For="@(() => login.Password)" Disabled="loading" InputType="InputType.Password"
                       Label="Password" Variant="Variant.Outlined" />
         <MudCheckBox @bind-Checked="login.Remember" For="@(() => login.Remember)" Disabled="loading" Label="Remember me" Class="mx-auto"></MudCheckBox>
-        <LoadingButton Loading="loading" Label="Sign in" Variant="Variant.Filled" />
+        <LoadingButton Loading="loading" Label="Sign in" Variant="Variant.Filled" FullWidth="true" />
 
         <label class="text-danger">@error</label>
     </EditForm>

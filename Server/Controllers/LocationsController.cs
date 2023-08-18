@@ -141,10 +141,8 @@ public class LocationsController : BaseController<Location, LocationModel, Locat
         return NoContent();
     }
 
-    internal override async Task BeforeSaveAsync(Location entity, LocationRequest _)
-    {
-        entity.Data = await GenerateData(entity.ParentId);
-    }
+    internal override async Task BeforeSaveAsync(Location entity, LocationRequest _) 
+        => entity.Data = await GenerateData(entity.ParentId);
 
     private async Task<LocationData> GenerateData(int? parentId)
     {

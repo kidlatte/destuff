@@ -1,4 +1,4 @@
-@page "/suppliers/{Slug}"
+@page "/suppliers/{Slug}/{Tab?}"
 @attribute [Authorize]
 
 @inject NavigationManager Nav
@@ -14,66 +14,81 @@
             <MudButton Href="/suppliers" StartIcon="@Icons.Material.Rounded.ChevronLeft" Variant="Variant.Outlined">
                 Suppliers
             </MudButton>
-            <MudButton OnClick="OnUpdateClick" Variant="Variant.Outlined"
-                Color="Color.Primary">Edit</MudButton>
-            <MudButton OnClick="OnDeleteClick" Variant="Variant.Outlined"
-                Color="Color.Error">Delete</MudButton>
+            @if (Tab == null) {
+                <MudButton OnClick="OnUpdateClick" Variant="Variant.Outlined"
+                           Color="Color.Primary">Edit</MudButton>
+                <MudButton OnClick="OnDeleteClick" Variant="Variant.Outlined"
+                           Color="Color.Error">Delete</MudButton>
+            }
         </div>
         <div class="text-truncate me-auto order-0">
             <MudText Typo="Typo.h1" Class="text-truncate my-5 my-md-3">@Model.ShortName</MudText>
         </div>
     </div>
 
-    <div class="mw-100" style="width: 600px; max-width: 100%;">
-        <dl>
-            <dt>Name</dt>
-            <dd>@Model.Name</dd>
-        </dl>
+    <MudTabs ActivePanelIndex="activePanelIndex" ActivePanelIndexChanged="OnActivePanelIndexChanged"
+            Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+        <MudTabPanel Text="Details">
+            <div class="mw-100">
+                <dl>
+                    <dt>Name</dt>
+                    <dd>@Model.Name</dd>
+                </dl>
 
-        @if (!string.IsNullOrEmpty(Model.Url))
-        {
-            <dl>
-                <dt>URL</dt>
-                <dd class="text-truncate">
-                    <MudLink Href="@Model.Url" Target="_blank">
-                        @Model.Url
-                    </MudLink>
-                </dd>
-            </dl>
-        }
+                @if (!string.IsNullOrEmpty(Model.Url))
+                {
+                    <dl>
+                        <dt>URL</dt>
+                        <dd class="text-truncate">
+                            <MudLink Href="@Model.Url" Target="_blank">
+                                @Model.Url
+                            </MudLink>
+                        </dd>
+                    </dl>
+                }
 
-        @if (!string.IsNullOrEmpty(Model.Phone))
-        {
-            <dl>
-                <dt>Phone</dt>
-                <dd>
-                    <MudLink Href="@($"tel:{Model.Phone}")">
-                        @Model.Phone
-                    </MudLink>
-                </dd>
-            </dl>
-        }
+                @if (!string.IsNullOrEmpty(Model.Phone))
+                {
+                    <dl>
+                        <dt>Phone</dt>
+                        <dd>
+                            <MudLink Href="@($"tel:{Model.Phone}")">
+                                @Model.Phone
+                            </MudLink>
+                        </dd>
+                    </dl>
+                }
 
-        @if (!string.IsNullOrEmpty(Model.Address))
-        {
-            <dl>
-                <dt>Address</dt>
-                <dd>@Model.Address</dd>
-            </dl>
-        }
+                @if (!string.IsNullOrEmpty(Model.Address))
+                {
+                    <dl>
+                        <dt>Address</dt>
+                        <dd>@Model.Address</dd>
+                    </dl>
+                }
 
-        <div>@Model.Notes</div>
-    </div>
+                <div>@Model.Notes</div>
+            </div>
+        </MudTabPanel>
+        <MudTabPanel Text="Purchases">
+            <Purchases Model="Model" />
+        </MudTabPanel>
+    </MudTabs>
 }
 
 @code {
-    [Parameter]
-    public string? Slug { get; set; }
+    [Parameter] public string? Slug { get; set; }
+    [Parameter] public string? Tab { get; set; }
+    int activePanelIndex;
 
     SupplierModel? Model { get; set; }
 
+    protected override void OnParametersSet() => activePanelIndex = Tab switch {
+        "purchases" => 1,
+        _ => 0
+    };
 
-    protected override Task OnParametersSetAsync() => LoadData();
+    protected override Task OnInitializedAsync() => LoadData();
 
     async Task LoadData()
     {
@@ -87,6 +102,19 @@
                 Nav.NavigateTo($"/suppliers");
             else
                 throw;
+        }
+    }
+
+    void OnActivePanelIndexChanged(int index)
+    {
+        activePanelIndex = index;
+        switch (index) {
+            case 1:
+                Nav.NavigateTo($"suppliers/{Slug}/purchases");
+                break;
+            default:
+                Nav.NavigateTo($"suppliers/{Slug}");
+                break;
         }
     }
 

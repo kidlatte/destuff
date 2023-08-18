@@ -109,7 +109,7 @@ public abstract class BaseController<TEntity, TModel, TRequest> : BaseController
         if (entity is ISluggable)
         {
             var sluggable = entity as ISluggable;
-            if (sluggable != null)
+            if (sluggable != null) 
                 sluggable.Slug = sluggable.ToSlug();
         }
 
@@ -121,7 +121,6 @@ public abstract class BaseController<TEntity, TModel, TRequest> : BaseController
 
         return Mapper.Map<TModel>(entity);
     }
-
 
     [HttpPut("{hash}")]
     public async Task<ActionResult<TModel>> Update(string hash, [FromBody] TRequest model)

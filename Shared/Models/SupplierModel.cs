@@ -7,6 +7,7 @@ public interface ISupplierModel
     string Id { get; set; }
     string? Name { get; set; }
     string? ShortName { get; set; }
+    string Slug { get; set; }
 }
 
 public class SupplierRequest : IRequest
