@@ -1,19 +1,23 @@
-﻿@inject IHttpService Http
+﻿@inject NavigationManager Nav
+@inject IHttpService Http
 
-<MudDataGrid Items="list" SortMode="SortMode.None" Elevation="0">
+<MudDataGrid @ref="grid" T="PurchaseItemSupplier" ServerData="LoadServerData" CurrentPage="gridPage" RowsPerPage="PageSize" Loading="loading"
+             SortMode="SortMode.Single" Elevation="0">
     <Columns>
-        <PropertyColumn Property="x => x.DateTime" Title="Date">
+        <PropertyColumn Property="x => x!.DateTime" Title="Date">
             <CellTemplate>
-                <MudLink Href="@($"/purchases/{context.Item.Purchase.Id}")">
-                    @((context.Item.Purchase.Received ?? context.Item.Purchase.Receipt)?.ToShortDateString())
-                </MudLink>
+                @if (context.Item != null)
+                {
+                    <MudLink Href="@($"/purchases/{context.Item.Purchase.Id}")">
+                        @((context.Item.Purchase.Received ?? context.Item.Purchase.Receipt)?.ToShortDateString())
+                    </MudLink>
+                }
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.Purchase.Supplier" Title="Supplier">
+        <PropertyColumn Property="x => x!.Purchase.Supplier" Title="Supplier">
             <CellTemplate>
                 @{
-                    var supplier = context.Item.Purchase.Supplier;
-                    
+                    var supplier = context.Item?.Purchase.Supplier;
                     if (supplier != null)
                     {
                         <MudLink Href="@($"/suppliers/{supplier.Slug}")">
@@ -23,9 +27,17 @@
                 }
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.Quantity" />
-        <PropertyColumn Property="x => x.Price" Format="N2" />
+        <PropertyColumn Property="x => x!.Quantity" />
+        <PropertyColumn Property="x => x!.Price" Format="N2" />
     </Columns>
+    <PagerContent>
+        @if (PageCount > 1)
+        {
+            <div class="py-5 d-flex justify-center">
+                <MudPagination Count="PageCount" Selected="pagerPage" SelectedChanged="PageChanged" Color="Color.Primary" />
+            </div>
+        }
+    </PagerContent>
 </MudDataGrid>
 
 @code {
@@ -33,9 +45,56 @@
 
     IEnumerable<PurchaseItemSupplier>? list { get; set; }
 
+    [Parameter]
+    public int? Page { get; set; } = 1;
+    int gridPage => (Page ?? 1) - 1;
+    int pagerPage = 1;
+
+    public int PageSize => 10;
+    public int PageCount;
+
+    MudDataGrid<PurchaseItemSupplier>? grid;
+    bool loading;
+
+    protected override void OnInitialized() => PageCount = gridPage + 1;
+
     protected override async Task OnParametersSetAsync()
     {
-        list = await Http.GetAsync<IEnumerable<PurchaseItemSupplier>>($"{ApiRoutes.PurchaseItemsByStuff}/{Model.Id}");
+        pagerPage = Page ?? 1;
+        if (grid != null && Page == null) // BUG: ServerData doesn't auto reload
+            await grid.ReloadServerData();
+    }
+
+    async Task<GridData<PurchaseItemSupplier>> LoadServerData(GridState<PurchaseItemSupplier> state)
+    {
+        var sort = state.SortDefinitions.FirstOrDefault();
+        var query = new ListQuery
+            {
+                Page = gridPage, // BUG: state returns wrong page on first load.
+                PageSize = state.PageSize,
+                SortField = sort?.SortBy,
+                SortDir = sort?.Descending == true ? DestuffDirection.Descending : DestuffDirection.Ascending
+            };
+
+        loading = true;
+        var result = await Http.GetAsync<PagedList<PurchaseItemSupplier>>($"{ApiRoutes.PurchaseItemsByStuff}/{Model.Id}?{query}");
+        loading = false;
+
+        if (result == null)
+            throw new Exception("Result is null");
+
+        PageCount = (result.Count - 1) / PageSize + 1;
+        return new() {
+            Items = result.List,
+            TotalItems = result.Count
+        };
+    }
+
+    void PageChanged(int i)
+    {
+        if (pagerPage != i)
+            Nav.NavigateTo($"/stuffs/{Model.Slug}/purchases?{new ListQuery { Page = i }}");
+        pagerPage = i;
     }
 
 }

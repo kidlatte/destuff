@@ -5,7 +5,7 @@
 @inject IHttpService Http
 @inject IDialogService Dialog
 
-<PageTitle>@(Model == null ? "Suppliers" : $"{Model.ShortName} | Suppliers") | Destuff</PageTitle>
+<PageTitle>@(Model == null ? "" : $"{Model.ShortName} | ") Suppliers | Destuff</PageTitle>
 
 @if (Model != null)
 {

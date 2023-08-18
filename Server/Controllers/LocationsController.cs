@@ -107,22 +107,6 @@ public class LocationsController : BaseController<Location>
         return new PagedList<LocationLookupItem>(count, list);
     }
 
-    [HttpGet("{hash}")]
-    public async Task<ActionResult<LocationModel?>> Get(string hash)
-    {
-        int id = LocationId.Decode(hash);
-        var query = Query.Where(x => x.Id == id);
-
-        var model = await query
-            .ProjectTo<LocationModel>(Mapper.ConfigurationProvider)
-            .FirstOrDefaultAsync();
-
-        if (model == null)
-            return NotFound();
-
-        return model;
-    }
-
     [HttpGet(ApiRoutes.LocationSlug + "/{slug}")]
     public async Task<ActionResult<LocationModel>> GetLocationBySlug(string slug)
     {
@@ -158,6 +142,22 @@ public class LocationsController : BaseController<Location>
         await Context.SaveChangesAsync();
 
         return Mapper.Map<LocationModel>(entity);
+    }
+
+    [HttpGet("{hash}")]
+    public async Task<ActionResult<LocationModel?>> Get(string hash)
+    {
+        int id = LocationId.Decode(hash);
+        var query = Query.Where(x => x.Id == id);
+
+        var model = await query
+            .ProjectTo<LocationModel>(Mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync();
+
+        if (model == null)
+            return NotFound();
+
+        return model;
     }
 
     [HttpPut("{hash}")]

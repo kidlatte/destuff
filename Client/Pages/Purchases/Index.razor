@@ -49,12 +49,12 @@
         </TemplateColumn>
     </Columns>
     <PagerContent>
-        <div class="py-5 d-flex justify-center">
-            @if (PageCount > 1)
-            {
+        @if (PageCount > 1)
+        {
+            <div class="py-5 d-flex justify-center">
                 <MudPagination Count="PageCount" Selected="pagerPage" SelectedChanged="PageChanged" Color="Color.Primary" />
-            }
-        </div>
+            </div>
+        }
     </PagerContent>
 </MudDataGrid>
 

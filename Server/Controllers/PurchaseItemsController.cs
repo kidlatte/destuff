@@ -9,6 +9,7 @@ using Destuff.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace Destuff.Server.Controllers;
 
@@ -24,10 +25,10 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
     }
 
     [HttpGet]
-    public async Task<PagedList<PurchaseItemListItem>> Get([FromQuery(Name = "pid")] string purchaseId, [FromQuery] ListRequest? request, [FromServices] IPurchaseIdentifier hasher)
+    public async Task<PagedList<PurchaseItemListItem>> Get([FromQuery(Name = "pid")] string purchaseHash, [FromQuery] ListRequest? request, [FromServices] IPurchaseIdentifier hasher)
     {
-        var pid = hasher.Decode(purchaseId);
-        var query = Query.Where(x => x.PurchaseId == pid);
+        var purchaseId = hasher.Decode(purchaseHash);
+        var query = Query.Where(x => x.PurchaseId == purchaseId);
 
         request ??= new ListRequest();
         if (!string.IsNullOrEmpty(request.Search)) {
@@ -77,18 +78,41 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
         return model;
     }
 
-    [HttpGet(ApiRoutes.PurchaseItemsByStuff + "/{hash}")]
-    public async Task<IEnumerable<PurchaseItemSupplier?>> GetPurchases(string hash, [FromServices] IStuffIdentifier hasher)
+    [HttpGet(ApiRoutes.PurchaseItemsByStuff + "/{stuffHash}")]
+    public async Task<PagedList<PurchaseItemSupplier>> GetByStuff(string stuffHash, [FromQuery] ListRequest? request, [FromServices] IStuffIdentifier hasher)
     {
-        int id = hasher.Decode(hash);
-        var query = Context.PurchaseItems.Where(x => x.StuffId == id);
+        int stuffId = hasher.Decode(stuffHash);
+        var query = Query.Where(x => x.StuffId == stuffId);
 
-        var entities = await query.ToListAsync();
-        var models = Mapper.Map<List<PurchaseItemSupplier>>(entities);
+        request ??= new ListRequest();
+        if (!string.IsNullOrEmpty(request.Search))
+        {
+            var search = request.Search.ToLower();
+            query = query.Where(x => x.Stuff!.Name.ToLower().Contains(search) ||
+                x.Notes!.ToLower().Contains(search));
+        }
+        var count = await query.CountAsync();
 
-        return await query
+        var sortField = request.SortField ?? "";
+        switch (sortField)
+        {
+            case "":
+                query = query.OrderByDescending(x => x.Created);
+                break;
+            case nameof(PurchaseItemListItem.Stuff):
+                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Stuff) : query.OrderBy(x => x.Stuff);
+                break;
+            default:
+                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField);
+                break;
+        }
+
+        var list = await query
+            .Skip(request.Skip).Take(request.Take)
             .ProjectTo<PurchaseItemSupplier>(Mapper.ConfigurationProvider)
             .ToListAsync();
+
+        return new PagedList<PurchaseItemSupplier>(count, list);
     }
 
     [HttpPost]

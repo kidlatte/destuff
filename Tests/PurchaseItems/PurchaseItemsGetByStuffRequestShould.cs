@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Destuff.Tests.PurchaseItems;
 
 public class PurchaseItemsGetByStuffRequestShould : IntegrationTestBase
@@ -25,13 +23,13 @@ public class PurchaseItemsGetByStuffRequestShould : IntegrationTestBase
         Assert.NotNull(purchaseItem);
 
         // Act
-        var results = await AuthorizedGetAsync<IEnumerable<PurchaseItemSupplier>>($"{ApiRoutes.PurchaseItemsByStuff}/{stuff.Id}");
+        var results = await AuthorizedGetAsync<PagedList<PurchaseItemSupplier>>($"{ApiRoutes.PurchaseItemsByStuff}/{stuff.Id}");
 
         // Assert
         Assert.NotNull(results);
-        Assert.Single(results);
+        Assert.Single(results.List);
 
-        var result = results.First();
+        var result = results.List.First();
         Assert.Equal(purchaseItem.Id, result.Id);
         Assert.Equal(purchase.Id, result.Purchase.Id);
         Assert.Equal(supplier.Id, result.Purchase.Supplier?.Id);
