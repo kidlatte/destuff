@@ -42,3 +42,11 @@ public class PurchaseListItem: IPurchaseModel
     public decimal Price { get; set; }
     public SupplierListItem? Supplier { get; set; }
 }
+
+public class PurchaseBasicModel
+{
+    public required string Id { get; set; }
+    public DateTime? Receipt { get; set; }
+    public DateTime? Received { get; set; }
+    public decimal Price { get; set; }
+}

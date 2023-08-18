@@ -16,11 +16,11 @@ namespace Destuff.Server.Controllers;
 [ApiController, Authorize]
 public class PurchasesController : BaseController<Purchase>
 {
-    private IPurchaseIdentifier PurchaseId { get; }
+    private IPurchaseIdentifier Hasher { get; }
 
-    public PurchasesController(ApplicationDbContext context, IMapper mapper, IPurchaseIdentifier purchaseId) : base(context, mapper)
+    public PurchasesController(ApplicationDbContext context, IMapper mapper, IPurchaseIdentifier hasher) : base(context, mapper)
     {
-        PurchaseId = purchaseId;
+        Hasher = hasher;
     }
 
     [HttpGet]
@@ -65,7 +65,7 @@ public class PurchasesController : BaseController<Purchase>
     [HttpGet("{hash}")]
     public async Task<ActionResult<PurchaseModel?>> Get(string hash)
     {
-        int id = PurchaseId.Decode(hash);
+        int id = Hasher.Decode(hash);
         var query = Query.Where(x => x.Id == id);
 
         var model = await query
@@ -76,6 +76,17 @@ public class PurchasesController : BaseController<Purchase>
             return NotFound();
 
         return model;
+    }
+
+    [HttpGet(ApiRoutes.PurchasesBySupplier + "/{hash}")]
+    public async Task<IEnumerable<PurchaseBasicModel?>> GetBySupplier(string hash, [FromServices] ISupplierIdentifier hasher)
+    {
+        int id = hasher.Decode(hash);
+        var query = Query.Where(x => x.SupplierId == id);
+
+        return await query
+            .ProjectTo<PurchaseBasicModel>(Mapper.ConfigurationProvider)
+            .ToListAsync();
     }
 
     [HttpPost]
@@ -99,7 +110,7 @@ public class PurchasesController : BaseController<Purchase>
         if (!ModelState.IsValid)
             return BadRequest(model);
 
-        int id = PurchaseId.Decode(hash);
+        int id = Hasher.Decode(hash);
 
         var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
         if (entity == null)
@@ -115,7 +126,7 @@ public class PurchasesController : BaseController<Purchase>
     [HttpDelete("{hash}")]
     public async Task<IActionResult> Delete(string hash)
     {
-        int id = PurchaseId.Decode(hash);
+        int id = Hasher.Decode(hash);
         var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
         if (entity == null)
             return NotFound();

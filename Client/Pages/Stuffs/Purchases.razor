@@ -35,7 +35,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        list = await Http.GetAsync<IEnumerable<PurchaseItemSupplier>>($"{ApiRoutes.StuffPurchases}/{Model.Id}");
+        list = await Http.GetAsync<IEnumerable<PurchaseItemSupplier>>($"{ApiRoutes.PurchaseItemsByStuff}/{Model.Id}");
     }
 
 }

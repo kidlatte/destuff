@@ -16,11 +16,11 @@ namespace Destuff.Server.Controllers;
 [ApiController, Authorize]
 public class SuppliersController : BaseController<Supplier>
 {
-    private ISupplierIdentifier SupplierId { get; }
+    private ISupplierIdentifier Hasher { get; }
 
-    public SuppliersController(ApplicationDbContext context, IMapper mapper, ISupplierIdentifier supplierId) : base(context, mapper)
+    public SuppliersController(ApplicationDbContext context, IMapper mapper, ISupplierIdentifier hasher) : base(context, mapper)
     {
-        SupplierId = supplierId;
+        Hasher = hasher;
     }
 
     [HttpGet]
@@ -60,7 +60,7 @@ public class SuppliersController : BaseController<Supplier>
     [HttpGet("{hash}")]
     public async Task<ActionResult<SupplierModel?>> Get(string hash)
     {
-        int id = SupplierId.Decode(hash);
+        int id = Hasher.Decode(hash);
         var query = Query.Where(x => x.Id == id);
 
         var model = await query
@@ -115,7 +115,7 @@ public class SuppliersController : BaseController<Supplier>
         if (!ModelState.IsValid || model.ShortName == null)
             return BadRequest(model);
 
-        int id = SupplierId.Decode(hash);
+        int id = Hasher.Decode(hash);
         var slug = model.ShortName.ToSlug();
 
         var exists = await Query.AnyAsync(x => x.Id != id && x.Slug == slug);
@@ -137,7 +137,7 @@ public class SuppliersController : BaseController<Supplier>
     [HttpDelete("{hash}")]
     public async Task<IActionResult> Delete(string hash)
     {
-        int id = SupplierId.Decode(hash);
+        int id = Hasher.Decode(hash);
         var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
         if (entity == null)
             return NotFound();

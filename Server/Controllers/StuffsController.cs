@@ -91,20 +91,6 @@ public class StuffsController : BaseController<Stuff>
         return model;
     }
 
-    [HttpGet(ApiRoutes.StuffPurchases + "/{hash}")]
-    public async Task<IEnumerable<PurchaseItemSupplier?>> GetPurchases(string hash)
-    {
-        int id = Hasher.Decode(hash);
-        var query = Context.PurchaseItems.Where(x => x.StuffId == id);
-
-        var entities = await query.ToListAsync();
-        var models = Mapper.Map<List<PurchaseItemSupplier>>(entities);
-
-        return await query
-            .ProjectTo<PurchaseItemSupplier>(Mapper.ConfigurationProvider)
-            .ToListAsync();
-    }
-
     [HttpPost]
     public async Task<ActionResult<StuffModel>> Create([FromBody] StuffRequest model)
     {

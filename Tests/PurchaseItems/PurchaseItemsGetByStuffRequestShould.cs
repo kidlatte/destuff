@@ -1,15 +1,15 @@
 using System.Collections.Generic;
 
-namespace Destuff.Tests.Stuffs;
+namespace Destuff.Tests.PurchaseItems;
 
-public class StuffsGetPurchasesRequestShould : IntegrationTestBase
+public class PurchaseItemsGetByStuffRequestShould : IntegrationTestBase
 {
-    public StuffsGetPurchasesRequestShould() : base(HttpMethod.Get, ApiRoutes.StuffPurchases)
+    public PurchaseItemsGetByStuffRequestShould() : base(HttpMethod.Get, ApiRoutes.PurchaseItemsByStuff)
     {
     }
 
     [Fact]
-    public async Task Get_Stuff_Details()
+    public async Task Get_PurchaseItems()
     {
         // Arrange
         var stuff = await AuthorizedSendAsync<StuffModel>(new StuffRequest { Name = "Stuff 001" }, HttpMethod.Post, ApiRoutes.Stuffs);
@@ -25,7 +25,7 @@ public class StuffsGetPurchasesRequestShould : IntegrationTestBase
         Assert.NotNull(purchaseItem);
 
         // Act
-        var results = await AuthorizedGetAsync<IEnumerable<PurchaseItemSupplier>>($"{ApiRoutes.StuffPurchases}/{stuff.Id}");
+        var results = await AuthorizedGetAsync<IEnumerable<PurchaseItemSupplier>>($"{ApiRoutes.PurchaseItemsByStuff}/{stuff.Id}");
 
         // Assert
         Assert.NotNull(results);

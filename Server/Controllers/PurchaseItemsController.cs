@@ -16,19 +16,17 @@ namespace Destuff.Server.Controllers;
 [ApiController, Authorize]
 public class PurchaseItemsController : BaseController<PurchaseItem>
 {
-    private IPurchaseIdentifier PurchaseId { get; }
-    private IPurchaseItemIdentifier PurchaseItemId { get; }
+    private IPurchaseItemIdentifier Hasher { get; }
 
-    public PurchaseItemsController(ApplicationDbContext context, IMapper mapper, IPurchaseIdentifier purchaseId, IPurchaseItemIdentifier supplierId) : base(context, mapper)
+    public PurchaseItemsController(ApplicationDbContext context, IMapper mapper, IPurchaseItemIdentifier hasher) : base(context, mapper)
     {
-        PurchaseId = purchaseId;
-        PurchaseItemId = supplierId;
+        Hasher = hasher;
     }
 
     [HttpGet]
-    public async Task<PagedList<PurchaseItemListItem>> Get([FromQuery(Name = "pid")] string purchaseId, [FromQuery] ListRequest? request)
+    public async Task<PagedList<PurchaseItemListItem>> Get([FromQuery(Name = "pid")] string purchaseId, [FromQuery] ListRequest? request, [FromServices] IPurchaseIdentifier hasher)
     {
-        var pid = PurchaseId.Decode(purchaseId);
+        var pid = hasher.Decode(purchaseId);
         var query = Query.Where(x => x.PurchaseId == pid);
 
         request ??= new ListRequest();
@@ -66,7 +64,7 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
     [HttpGet("{hash}")]
     public async Task<ActionResult<PurchaseItemModel?>> Get(string hash)
     {
-        int id = PurchaseItemId.Decode(hash);
+        int id = Hasher.Decode(hash);
         var query = Query.Where(x => x.Id == id);
 
         var model = await query
@@ -77,6 +75,20 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
             return NotFound();
 
         return model;
+    }
+
+    [HttpGet(ApiRoutes.PurchaseItemsByStuff + "/{hash}")]
+    public async Task<IEnumerable<PurchaseItemSupplier?>> GetPurchases(string hash, [FromServices] IStuffIdentifier hasher)
+    {
+        int id = hasher.Decode(hash);
+        var query = Context.PurchaseItems.Where(x => x.StuffId == id);
+
+        var entities = await query.ToListAsync();
+        var models = Mapper.Map<List<PurchaseItemSupplier>>(entities);
+
+        return await query
+            .ProjectTo<PurchaseItemSupplier>(Mapper.ConfigurationProvider)
+            .ToListAsync();
     }
 
     [HttpPost]
@@ -102,7 +114,7 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
         if (!ModelState.IsValid)
             return BadRequest(model);
 
-        int id = PurchaseItemId.Decode(hash);
+        int id = Hasher.Decode(hash);
 
         var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
         if (entity == null)
@@ -120,7 +132,7 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
     [HttpDelete("{hash}")]
     public async Task<IActionResult> Delete(string hash)
     {
-        int id = PurchaseItemId.Decode(hash);
+        int id = Hasher.Decode(hash);
         var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
         if (entity == null)
             return NotFound();
