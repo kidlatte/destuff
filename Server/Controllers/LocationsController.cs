@@ -14,7 +14,7 @@ namespace Destuff.Server.Controllers;
 
 [Route(ApiRoutes.Locations)]
 [ApiController, Authorize]
-public class LocationsController : BaseController<Location>
+public class LocationsController : BaseController<Location, LocationModel>
 {
     public LocationsController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Location> hasher) : base(context, mapper, hasher)
     {
@@ -139,22 +139,6 @@ public class LocationsController : BaseController<Location>
         await Context.SaveChangesAsync();
 
         return Mapper.Map<LocationModel>(entity);
-    }
-
-    [HttpGet("{hash}")]
-    public async Task<ActionResult<LocationModel?>> Get(string hash)
-    {
-        int id = Hasher.Decode(hash);
-        var query = Query.Where(x => x.Id == id);
-
-        var model = await query
-            .ProjectTo<LocationModel>(Mapper.ConfigurationProvider)
-            .FirstOrDefaultAsync();
-
-        if (model == null)
-            return NotFound();
-
-        return model;
     }
 
     [HttpPut("{hash}")]

@@ -11,7 +11,7 @@ public interface IStuffModel
     public string? Name { get; set; }
 }
 
-public class StuffRequest
+public class StuffRequest : IRequest
 {
     [Required]
     [StringLength(1023)]
@@ -24,7 +24,7 @@ public class StuffRequest
     public string? LocationId { get; set; }
 }
 
-public class StuffModel : IStuffModel
+public class StuffModel : IModel, IStuffModel
 {
     public required string Id { get; set; }
     public required string Slug { get; set; }

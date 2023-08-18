@@ -8,7 +8,7 @@ public interface IPurchaseModel
     SupplierListItem? Supplier { get; set; }
 }
 
-public class PurchaseRequest
+public class PurchaseRequest : IRequest
 {
     public string? SupplierId { get; set; }
     public DateTime? Receipt { get; set; }
@@ -16,7 +16,7 @@ public class PurchaseRequest
     public string? Notes { get; set; }
 }
 
-public class PurchaseModel : PurchaseRequest, IPurchaseModel
+public class PurchaseModel : PurchaseRequest, IModel, IPurchaseModel
 {
     public required string Id { get; set; }
     public decimal Price { get; set; }

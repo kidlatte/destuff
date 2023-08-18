@@ -15,7 +15,7 @@ namespace Destuff.Server.Controllers;
 
 [Route(ApiRoutes.PurchaseItems)]
 [ApiController, Authorize]
-public class PurchaseItemsController : BaseController<PurchaseItem>
+public class PurchaseItemsController : BaseController<PurchaseItem, PurchaseItemModel>
 {
     public PurchaseItemsController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<PurchaseItem> hasher) : base(context, mapper, hasher)
     {
@@ -96,22 +96,6 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
         return new PagedList<PurchaseItemSupplier>(count, list);
     }
 
-    [HttpGet("{hash}")]
-    public async Task<ActionResult<PurchaseItemModel>> Get(string hash)
-    {
-        int id = Hasher.Decode(hash);
-        var query = Query.Where(x => x.Id == id);
-
-        var model = await query
-            .ProjectTo<PurchaseItemModel>(Mapper.ConfigurationProvider)
-            .FirstOrDefaultAsync();
-
-        if (model == null)
-            return NotFound();
-
-        return model;
-    }
-
     [HttpPost]
     public async Task<ActionResult<PurchaseItemModel>> Create([FromBody] PurchaseItemRequest model)
     {
@@ -151,9 +135,9 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
     }
 
     [HttpDelete("{hash}")]
-    public override async Task<IActionResult> Delete(string hash)
+    public override async Task<IActionResult> Delete(string hash, [FromServices] IIdentityHasher<PurchaseItem> hasher)
     {
-        int id = Hasher.Decode(hash);
+        int id = hasher.Decode(hash);
         var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
         if (entity == null)
             return NotFound();

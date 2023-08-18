@@ -9,7 +9,7 @@ public interface ISupplierModel
     string? ShortName { get; set; }
 }
 
-public class SupplierRequest
+public class SupplierRequest : IRequest
 {
     [Required]
     [MaxLength(255)]
@@ -31,7 +31,7 @@ public class SupplierRequest
     public string? Notes { get; set; }
 }
 
-public class SupplierModel : SupplierRequest, ISupplierModel
+public class SupplierModel : SupplierRequest, IModel, ISupplierModel
 {
     public required string Id { get; set; }
     public required string Slug { get; set; }

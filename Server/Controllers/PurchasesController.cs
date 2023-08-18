@@ -14,7 +14,7 @@ namespace Destuff.Server.Controllers;
 
 [Route(ApiRoutes.Purchases)]
 [ApiController, Authorize]
-public class PurchasesController : BaseController<Purchase>
+public class PurchasesController : BaseController<Purchase, PurchaseModel>
 {
     public PurchasesController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Purchase> hasher) : base(context, mapper, hasher)
     {
@@ -97,22 +97,6 @@ public class PurchasesController : BaseController<Purchase>
             .ToListAsync();
 
         return new PagedList<PurchaseBasicModel>(count, list);
-    }
-
-    [HttpGet("{hash}")]
-    public async Task<ActionResult<PurchaseModel>> Get(string hash)
-    {
-        int id = Hasher.Decode(hash);
-        var query = Query.Where(x => x.Id == id);
-
-        var model = await query
-            .ProjectTo<PurchaseModel>(Mapper.ConfigurationProvider)
-            .FirstOrDefaultAsync();
-
-        if (model == null)
-            return NotFound();
-
-        return model;
     }
 
     [HttpPost]

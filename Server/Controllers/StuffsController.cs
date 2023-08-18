@@ -14,7 +14,7 @@ namespace Destuff.Server.Controllers;
 
 [Route(ApiRoutes.Stuffs)]
 [ApiController, Authorize]
-public class StuffsController : BaseController<Stuff>
+public class StuffsController : BaseController<Stuff, StuffModel>
 {
     private IIdentityHasher<Location> LocationId { get; }
 
@@ -56,22 +56,6 @@ public class StuffsController : BaseController<Stuff>
             .ToListAsync();
 
         return new PagedList<StuffListItem>(count, list);
-    }
-
-    [HttpGet("{hash}")]
-    public async Task<ActionResult<StuffModel?>> Get(string hash)
-    {
-        int id = Hasher.Decode(hash);
-        var query = Query.Where(x => x.Id == id);
-
-        var model = await query
-            .ProjectTo<StuffModel>(Mapper.ConfigurationProvider)
-            .FirstOrDefaultAsync();
-
-        if (model == null)
-            return NotFound();
-
-        return model;
     }
 
     [HttpGet(ApiRoutes.StuffSlug + "/{slug}")]

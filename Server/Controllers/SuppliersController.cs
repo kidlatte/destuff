@@ -14,7 +14,7 @@ namespace Destuff.Server.Controllers;
 
 [Route(ApiRoutes.Suppliers)]
 [ApiController, Authorize]
-public class SuppliersController : BaseController<Supplier>
+public class SuppliersController : BaseController<Supplier, SupplierModel>
 {
     public SuppliersController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Supplier> hasher) : base(context, mapper, hasher)
     {
@@ -52,22 +52,6 @@ public class SuppliersController : BaseController<Supplier>
             .ToListAsync();
 
         return new PagedList<SupplierListItem>(count, list);
-    }
-
-    [HttpGet("{hash}")]
-    public async Task<ActionResult<SupplierModel?>> Get(string hash)
-    {
-        int id = Hasher.Decode(hash);
-        var query = Query.Where(x => x.Id == id);
-
-        var model = await query
-            .ProjectTo<SupplierModel>(Mapper.ConfigurationProvider)
-            .FirstOrDefaultAsync();
-
-        if (model == null)
-            return NotFound();
-
-        return model;
     }
 
     [HttpGet(ApiRoutes.SupplierSlug + "/{slug}")]

@@ -14,7 +14,7 @@ public interface IPurchaseItemModel
     PurchaseItemRequest ToRequest();
 }
 
-public class PurchaseItemRequest
+public class PurchaseItemRequest : IRequest
 {
     [Required]
     public required string PurchaseId { get; set; }
@@ -31,7 +31,7 @@ public class PurchaseItemRequest
     public string? Notes { get; set; }
 }
 
-public class PurchaseItemModel : PurchaseItemRequest, IPurchaseItemModel
+public class PurchaseItemModel : PurchaseItemRequest, IModel, IPurchaseItemModel
 {
     public required string Id { get; set; }
     public required StuffModel Stuff { get; set; }
