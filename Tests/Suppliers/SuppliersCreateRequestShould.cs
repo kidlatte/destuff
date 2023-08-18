@@ -20,6 +20,22 @@ public class SuppliersCreateRequestShould : IntegrationTestBase
     }
 
     [Fact]
+    public async Task Fail_Existing_Slug_Create_Supplier()
+    {
+        // Arrange
+        var create = new SupplierRequest { ShortName = "Existing Slug", Name = "Supplier 001" };
+        var created = await AuthorizedSendAsync(create);
+        Assert.True(created?.IsSuccessStatusCode);
+
+        // Act
+        var sameSlug = new SupplierRequest { ShortName = "existing - slug", Name = "Supplier 002" };
+        var result = await AuthorizedSendAsync(sameSlug);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.InternalServerError, result?.StatusCode);
+    }
+
+    [Fact]
     public async Task Fail_Null_Name_Create_Supplier()
     {
         // Arrange

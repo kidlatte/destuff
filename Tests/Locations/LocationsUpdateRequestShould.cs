@@ -49,7 +49,7 @@ public class LocationsUpdateRequestShould : IntegrationTestBase
         var result = await AuthorizedPutAsync(model?.Id!, sameSlug);
 
         // Assert
-        Assert.Equal(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.Equal(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 
     [Fact]

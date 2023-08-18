@@ -14,7 +14,7 @@ namespace Destuff.Server.Controllers;
 
 [Route(ApiRoutes.Suppliers)]
 [ApiController, Authorize]
-public class SuppliersController : BaseController<Supplier, SupplierModel>
+public class SuppliersController : BaseController<Supplier, SupplierModel, SupplierRequest>
 {
     public SuppliersController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Supplier> hasher) : base(context, mapper, hasher)
     {
@@ -67,51 +67,5 @@ public class SuppliersController : BaseController<Supplier, SupplierModel>
             return NotFound();
 
         return model;
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<SupplierModel>> Create([FromBody] SupplierRequest model)
-    {
-        if (!ModelState.IsValid || model.ShortName == null)
-            return BadRequest(model);
-
-        var slug = model.ShortName.ToSlug();
-        var exists = await Query.AnyAsync(x => x.Slug == slug);
-        if (exists)
-            return BadRequest("Name already exists.");
-
-        var entity = Mapper.Map<Supplier>(model);
-        entity.Slug = slug;
-        Audit(entity);
-
-        Context.Add(entity);
-        await Context.SaveChangesAsync();
-
-        return Mapper.Map<SupplierModel>(entity);
-    }
-
-    [HttpPut("{hash}")]
-    public async Task<ActionResult<SupplierModel>> Update(string hash, [FromBody] SupplierRequest model)
-    {
-        if (!ModelState.IsValid || model.ShortName == null)
-            return BadRequest(model);
-
-        int id = Hasher.Decode(hash);
-        var slug = model.ShortName.ToSlug();
-
-        var exists = await Query.AnyAsync(x => x.Id != id && x.Slug == slug);
-        if (exists)
-            return BadRequest("Account name already exists.");
-
-        var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
-        if (entity == null)
-            return NotFound();
-
-        Mapper.Map(model, entity);
-        entity.Slug = slug;
-        Audit(entity);
-        await Context.SaveChangesAsync();
-
-        return Mapper.Map<SupplierModel>(entity);
     }
 }

@@ -1,10 +1,11 @@
+using Destuff.Server.Services;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
 namespace Destuff.Server.Data.Entities;
 
 [Index(nameof(Slug), IsUnique = true)]
-public class Supplier : Entity
+public class Supplier : Entity, ISluggable
 {
     [Required, MaxLength(255)]
     public required string Slug { get; set; }
@@ -27,5 +28,7 @@ public class Supplier : Entity
     public string? Notes { get; set; }
 
     public ICollection<Purchase>? Purchases { get; set; }
+
+    public string ToSlug() => ShortName.ToSlug();
 
 }

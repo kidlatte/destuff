@@ -50,11 +50,17 @@ public abstract class BaseController<TEntity> : BaseController where TEntity : E
         if (entity == null)
             return NotFound();
 
+        await BeforeDeleteAsync(entity);
         Context.Remove(entity);
         await Context.SaveChangesAsync();
+        await AfterDeleteAsync(entity);
 
         return NoContent();
     }
+
+    internal virtual Task BeforeDeleteAsync(TEntity entity) => Task.CompletedTask;
+
+    internal virtual Task AfterDeleteAsync(TEntity entity) => Task.CompletedTask;
 }
 
 public abstract class BaseController<TEntity, TModel> : BaseController<TEntity>
@@ -81,4 +87,72 @@ public abstract class BaseController<TEntity, TModel> : BaseController<TEntity>
         return model;
     }
 
+}
+
+public abstract class BaseController<TEntity, TModel, TRequest> : BaseController<TEntity, TModel>
+    where TEntity : Entity
+    where TModel : class, IModel
+    where TRequest : class, IRequest
+{
+    public BaseController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<TEntity> hasher) : base(context, mapper, hasher)
+    {
+    }
+
+    [HttpPost]
+    public virtual async Task<ActionResult<TModel>> Create([FromBody] TRequest model)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(model);
+
+        var entity = Mapper.Map<TEntity>(model);
+
+        if (entity is ISluggable)
+        {
+            var sluggable = entity as ISluggable;
+            if (sluggable != null)
+                sluggable.Slug = sluggable.ToSlug();
+        }
+
+        await BeforeSaveAsync(entity, model);
+        Audit(entity);
+        Context.Add(entity);
+        await Context.SaveChangesAsync();
+        await AfterSaveAsync(entity);
+
+        return Mapper.Map<TModel>(entity);
+    }
+
+
+    [HttpPut("{hash}")]
+    public async Task<ActionResult<TModel>> Update(string hash, [FromBody] TRequest model)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(model);
+
+        int id = Hasher.Decode(hash);
+        var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
+        if (entity == null)
+            return NotFound();
+
+        Mapper.Map(model, entity);
+
+        if (entity is ISluggable)
+        {
+            var sluggable = entity as ISluggable;
+            if (sluggable != null)
+                sluggable.Slug = sluggable.ToSlug();
+        }
+
+        await BeforeSaveAsync(entity, model);
+        Audit(entity);
+        await Context.SaveChangesAsync();
+        await AfterSaveAsync(entity);
+
+        return Mapper.Map<TModel>(entity);
+    }
+
+    internal virtual Task BeforeSaveAsync(TEntity entity, TRequest request) => BeforeSaveAsync(entity);
+    internal virtual Task BeforeSaveAsync(TEntity entity) => Task.CompletedTask;
+    internal virtual Task AfterSaveAsync(TEntity entity, TRequest request) => AfterSaveAsync(entity);
+    internal virtual Task AfterSaveAsync(TEntity entity) => Task.CompletedTask;
 }

@@ -14,7 +14,7 @@ namespace Destuff.Server.Controllers;
 
 [Route(ApiRoutes.Purchases)]
 [ApiController, Authorize]
-public class PurchasesController : BaseController<Purchase, PurchaseModel>
+public class PurchasesController : BaseController<Purchase, PurchaseModel, PurchaseRequest>
 {
     public PurchasesController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Purchase> hasher) : base(context, mapper, hasher)
     {
@@ -97,39 +97,5 @@ public class PurchasesController : BaseController<Purchase, PurchaseModel>
             .ToListAsync();
 
         return new PagedList<PurchaseBasicModel>(count, list);
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<PurchaseModel>> Create([FromBody] PurchaseRequest model)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest(model);
-
-        var entity = Mapper.Map<Purchase>(model);
-        Audit(entity);
-
-        Context.Add(entity);
-        await Context.SaveChangesAsync();
-
-        return Mapper.Map<PurchaseModel>(entity);
-    }
-
-    [HttpPut("{hash}")]
-    public async Task<ActionResult<PurchaseModel>> Update(string hash, [FromBody] PurchaseRequest model)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest(model);
-
-        int id = Hasher.Decode(hash);
-
-        var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
-        if (entity == null)
-            return NotFound();
-
-        Mapper.Map(model, entity);
-        Audit(entity);
-        await Context.SaveChangesAsync();
-
-        return Mapper.Map<PurchaseModel>(entity);
     }
 }

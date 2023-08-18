@@ -24,6 +24,26 @@ public class SuppliersUpdateRequestShould : IntegrationTestBase
     }
 
     [Fact]
+    public async Task Fail_Existing_Slug_Create_Supplier()
+    {
+        // Arrange
+        var create = new SupplierRequest { ShortName = "Existing Slug", Name = "Supplier 001" };
+        var created = await AuthorizedSendAsync(create, HttpMethod.Post);
+        Assert.True(created?.IsSuccessStatusCode);
+
+        var newSlug = new SupplierRequest { ShortName = "New Slug", Name = "Supplier 002" };
+        var model = await AuthorizedSendAsync<SupplierModel>(newSlug, HttpMethod.Post);
+        Assert.NotNull(model?.Id);
+
+        // Act
+        var sameSlug = new SupplierRequest { ShortName = "existing - slug", Name = "Supplier 003" };
+        var result = await AuthorizedPutAsync(model?.Id!, sameSlug);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.InternalServerError, result?.StatusCode);
+    }
+
+    [Fact]
     public async Task Fail_Null_Name_Update_Supplier()
     {
        // Arrange

@@ -15,7 +15,7 @@ namespace Destuff.Server.Controllers;
 
 [Route(ApiRoutes.PurchaseItems)]
 [ApiController, Authorize]
-public class PurchaseItemsController : BaseController<PurchaseItem, PurchaseItemModel>
+public class PurchaseItemsController : BaseController<PurchaseItem, PurchaseItemModel, PurchaseItemRequest>
 {
     public PurchaseItemsController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<PurchaseItem> hasher) : base(context, mapper, hasher)
     {
@@ -96,59 +96,11 @@ public class PurchaseItemsController : BaseController<PurchaseItem, PurchaseItem
         return new PagedList<PurchaseItemSupplier>(count, list);
     }
 
-    [HttpPost]
-    public async Task<ActionResult<PurchaseItemModel>> Create([FromBody] PurchaseItemRequest model)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest(model);
+    internal override async Task AfterSaveAsync(PurchaseItem entity) 
+        => await ComputePurchasePrice(entity.PurchaseId);
 
-        var entity = Mapper.Map<PurchaseItem>(model);
-        Audit(entity);
-
-        Context.Add(entity);
-        await Context.SaveChangesAsync();
-
-        await ComputePurchasePrice(entity.PurchaseId);
-
-        return Mapper.Map<PurchaseItemModel>(entity);
-    }
-
-    [HttpPut("{hash}")]
-    public async Task<ActionResult<PurchaseItemModel>> Update(string hash, [FromBody] PurchaseItemRequest model)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest(model);
-
-        int id = Hasher.Decode(hash);
-
-        var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
-        if (entity == null)
-            return NotFound();
-
-        Mapper.Map(model, entity);
-        Audit(entity);
-        await Context.SaveChangesAsync();
-
-        await ComputePurchasePrice(entity.PurchaseId);
-
-        return Mapper.Map<PurchaseItemModel>(entity);
-    }
-
-    [HttpDelete("{hash}")]
-    public override async Task<IActionResult> Delete(string hash, [FromServices] IIdentityHasher<PurchaseItem> hasher)
-    {
-        int id = hasher.Decode(hash);
-        var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
-        if (entity == null)
-            return NotFound();
-
-        Context.Remove(entity);
-        await Context.SaveChangesAsync();
-
-        await ComputePurchasePrice(entity.PurchaseId);
-
-        return NoContent();
-    }
+    internal override async Task AfterDeleteAsync(PurchaseItem entity) 
+        => await ComputePurchasePrice(entity.PurchaseId);
 
     private async Task ComputePurchasePrice(int purchaseId)
     {

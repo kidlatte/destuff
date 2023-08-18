@@ -14,7 +14,7 @@ namespace Destuff.Server.Controllers;
 
 [Route(ApiRoutes.Locations)]
 [ApiController, Authorize]
-public class LocationsController : BaseController<Location, LocationModel>
+public class LocationsController : BaseController<Location, LocationModel, LocationRequest>
 {
     public LocationsController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Location> hasher) : base(context, mapper, hasher)
     {
@@ -119,70 +119,6 @@ public class LocationsController : BaseController<Location, LocationModel>
         return model;
     }
 
-    [HttpPost]
-    public async Task<ActionResult<LocationModel>> Create([FromBody] LocationRequest model)
-    {
-        if (!ModelState.IsValid || model.Name == null)
-            return BadRequest(model);
-
-        var slug = model.Name.ToSlug();
-        var exists = await Query.AnyAsync(x => x.Slug == slug);
-        if (exists)
-            return BadRequest("Name already exists.");
-
-        var entity = Mapper.Map<Location>(model);
-        entity.Slug = slug;
-        entity.Data = await GenerateData(entity.ParentId);
-        Audit(entity);
-
-        Context.Add(entity);
-        await Context.SaveChangesAsync();
-
-        return Mapper.Map<LocationModel>(entity);
-    }
-
-    [HttpPut("{hash}")]
-    public async Task<ActionResult<LocationModel>> Update(string hash, [FromBody] LocationRequest model)
-    {
-        if (!ModelState.IsValid || model.Name == null)
-            return BadRequest(model);
-
-        int id = Hasher.Decode(hash);
-        var slug = model.Name.ToSlug();
-
-        var exists = await Query.AnyAsync(x => x.Id != id && x.Slug == slug);
-        if (exists)
-            return BadRequest("Account name already exists.");
-
-        var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
-        if (entity == null)
-            return NotFound();
-
-        Mapper.Map(model, entity);
-        entity.Slug = slug;
-        Audit(entity);
-        await Context.SaveChangesAsync();
-
-        return Mapper.Map<LocationModel>(entity);
-    }
-
-    private async Task<LocationData> GenerateData(int? parentId)
-    {
-        if (parentId == null)
-            return new LocationData { Path = new List<LocationListItem>() };
-
-        var parent = await Context.Locations.Where(x => x.Id == parentId).FirstOrDefaultAsync();
-        if (parent == null)
-            return new LocationData { Path = new List<LocationListItem>() };
-
-        if (parent.Data == null)
-            return new LocationData { Path = new[] { Mapper.Map<LocationListItem>(parent) } };
-
-        var path = parent.Data.Path?.ToList() ?? new List<LocationListItem>();
-        path.Add(Mapper.Map<LocationListItem>(parent));
-        return new LocationData { Path = path };
-    }
-
     [HttpPut(ApiRoutes.LocationMap)]
     public async Task<IActionResult> MapPaths()
     {
@@ -203,5 +139,27 @@ public class LocationsController : BaseController<Location, LocationModel>
         await Context.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    internal override async Task BeforeSaveAsync(Location entity, LocationRequest _)
+    {
+        entity.Data = await GenerateData(entity.ParentId);
+    }
+
+    private async Task<LocationData> GenerateData(int? parentId)
+    {
+        if (parentId == null)
+            return new LocationData { Path = new List<LocationListItem>() };
+
+        var parent = await Context.Locations.Where(x => x.Id == parentId).FirstOrDefaultAsync();
+        if (parent == null)
+            return new LocationData { Path = new List<LocationListItem>() };
+
+        if (parent.Data == null)
+            return new LocationData { Path = new[] { Mapper.Map<LocationListItem>(parent) } };
+
+        var path = parent.Data.Path?.ToList() ?? new List<LocationListItem>();
+        path.Add(Mapper.Map<LocationListItem>(parent));
+        return new LocationData { Path = path };
     }
 }

@@ -1,12 +1,12 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
+using Destuff.Server.Services;
 using Destuff.Shared.Models;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace Destuff.Server.Data.Entities;
 
 [Index(nameof(Slug), IsUnique = true)]
-public class Location: Entity
+public class Location: Entity, ISluggable
 {
     [Required]
     [MaxLength(255)]
@@ -32,6 +32,8 @@ public class Location: Entity
     public ICollection<StuffLocation>? StuffLocations { get; set; }
     public ICollection<Upload>? Uploads { get; set; }
     public ICollection<Tag>? Tags { get; set; }
+
+    public string ToSlug() => Name.ToSlug();
 }
 
 [Flags]

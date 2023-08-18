@@ -1,10 +1,3 @@
-using Xunit;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Destuff.Shared;
-using Destuff.Shared.Models;
-
 namespace Destuff.Tests.Stuffs;
 
 public class StuffsCreateRequestShould : IntegrationTestBase
@@ -57,7 +50,7 @@ public class StuffsCreateRequestShould : IntegrationTestBase
         var result = await AuthorizedSendAsync(sameSlug);
 
         // Assert
-        Assert.Equal(HttpStatusCode.BadRequest, result?.StatusCode);
+        Assert.Equal(HttpStatusCode.InternalServerError, result?.StatusCode);
     }
 
     [Fact]

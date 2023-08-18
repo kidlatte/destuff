@@ -111,20 +111,11 @@ public class UploadsController : BaseController<Upload>
         }
     }
 
-    [HttpDelete("{hash}")]
-    public override async Task<IActionResult> Delete(string hash, [FromServices] IIdentityHasher<Upload> hasher)
+    internal override Task BeforeDeleteAsync(Upload entity)
     {
-        int id = hasher.Decode(hash);
-        var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
-        if (entity == null)
-            return NotFound();
-
         if (entity.Path != null)
             Files.Delete(entity.Path);
 
-        Context.Remove(entity);
-        await Context.SaveChangesAsync();
-
-        return NoContent();
-    }    
+        return Task.CompletedTask;
+    }
 }

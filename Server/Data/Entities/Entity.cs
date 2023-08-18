@@ -14,3 +14,10 @@ public abstract class Entity
 
     public DateTime Updated { get; set; }
 }
+
+public interface ISluggable
+{
+    string Slug { get; set; }
+
+    string ToSlug();
+}
