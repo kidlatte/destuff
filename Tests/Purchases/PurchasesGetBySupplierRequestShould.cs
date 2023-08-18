@@ -19,13 +19,13 @@ public class PurchasesGetBySupplierRequestShould : IntegrationTestBase
         Assert.NotNull(purchase);
 
         // Act
-        var result = await AuthorizedGetAsync<IEnumerable<PurchaseBasicModel>>($"{ApiRoutes.PurchasesBySupplier}/{supplier?.Id}");
+        var result = await AuthorizedGetAsync<PagedList<PurchaseBasicModel>>($"{ApiRoutes.PurchasesBySupplier}/{supplier?.Id}");
 
         // Assert
         Assert.NotNull(result);
-        Assert.Single(result);
+        Assert.Single(result.List);
 
-        var single = result.First();
+        var single = result.List.First();
         Assert.Equal(purchase?.Id, single?.Id);
     }
 }

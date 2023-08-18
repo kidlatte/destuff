@@ -62,8 +62,48 @@ public class PurchasesController : BaseController<Purchase>
         return new PagedList<PurchaseListItem>(count, list);
     }
 
+    [HttpGet(ApiRoutes.PurchasesBySupplier + "/{hash}")]
+    public async Task<PagedList<PurchaseBasicModel>> GetBySupplier(string hash, [FromQuery] ListRequest? request, [FromServices] IIdentityHasher<Supplier> hasher)
+    {
+        int id = hasher.Decode(hash);
+        var query = Query.Where(x => x.SupplierId == id);
+
+        request ??= new ListRequest();
+        if (!string.IsNullOrEmpty(request.Search))
+        {
+            var search = request.Search.ToLower();
+            query = query.Where(x => x.Supplier!.ShortName.ToLower().Contains(search) ||
+                x.Notes!.ToLower().Contains(search) ||
+                x.Supplier!.Name.ToLower().Contains(search));
+        }
+
+        var sortField = request.SortField ?? "";
+        switch (sortField)
+        {
+            case "":
+                query = query.OrderByDescending(x => x.Received == null && x.Receipt == null)
+                    .ThenByDescending(x => x.Received ?? x.Receipt);
+                break;
+            case nameof(PurchaseBasicModel.Received):
+                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Received ?? x.Receipt) : query.OrderBy(x => x.Received ?? x.Receipt);
+                break;
+            default:
+                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField);
+                break;
+
+        }
+
+        var count = await query.CountAsync();
+        var list = await query
+            .Skip(request.Skip).Take(request.Take)
+            .ProjectTo<PurchaseBasicModel>(Mapper.ConfigurationProvider)
+            .ToListAsync();
+
+        return new PagedList<PurchaseBasicModel>(count, list);
+    }
+
     [HttpGet("{hash}")]
-    public async Task<ActionResult<PurchaseModel?>> Get(string hash)
+    public async Task<ActionResult<PurchaseModel>> Get(string hash)
     {
         int id = Hasher.Decode(hash);
         var query = Query.Where(x => x.Id == id);
@@ -76,17 +116,6 @@ public class PurchasesController : BaseController<Purchase>
             return NotFound();
 
         return model;
-    }
-
-    [HttpGet(ApiRoutes.PurchasesBySupplier + "/{hash}")]
-    public async Task<IEnumerable<PurchaseBasicModel?>> GetBySupplier(string hash, [FromServices] ISupplierIdentifier hasher)
-    {
-        int id = hasher.Decode(hash);
-        var query = Query.Where(x => x.SupplierId == id);
-
-        return await query
-            .ProjectTo<PurchaseBasicModel>(Mapper.ConfigurationProvider)
-            .ToListAsync();
     }
 
     [HttpPost]
