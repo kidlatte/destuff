@@ -16,11 +16,8 @@ namespace Destuff.Server.Controllers;
 [ApiController, Authorize]
 public class SuppliersController : BaseController<Supplier>
 {
-    private IIdentityHasher<Supplier> Hasher { get; }
-
-    public SuppliersController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Supplier> hasher) : base(context, mapper)
+    public SuppliersController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Supplier> hasher) : base(context, mapper, hasher)
     {
-        Hasher = hasher;
     }
 
     [HttpGet]
@@ -133,18 +130,4 @@ public class SuppliersController : BaseController<Supplier>
 
         return Mapper.Map<SupplierModel>(entity);
     }
-
-    [HttpDelete("{hash}")]
-    public async Task<IActionResult> Delete(string hash)
-    {
-        int id = Hasher.Decode(hash);
-        var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
-        if (entity == null)
-            return NotFound();
-
-        Context.Remove(entity);
-        await Context.SaveChangesAsync();
-
-        return NoContent();
-    }    
 }

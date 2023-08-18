@@ -16,11 +16,8 @@ namespace Destuff.Server.Controllers;
 [ApiController, Authorize]
 public class LocationsController : BaseController<Location>
 {
-    private IIdentityHasher<Location> Hasher { get; }
-
-    public LocationsController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Location> hasher) : base(context, mapper)
+    public LocationsController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Location> hasher) : base(context, mapper, hasher)
     {
-        Hasher = hasher;
     }
 
     [HttpGet]
@@ -223,19 +220,4 @@ public class LocationsController : BaseController<Location>
 
         return NoContent();
     }
-
-    [HttpDelete("{id}")]
-    public async Task<ActionResult<LocationModel>> Delete(string id)
-    {
-        int actualId = Hasher.Decode(id);
-        var entity = await Query.Where(x => x.Id == actualId).FirstOrDefaultAsync();
-        if (entity == null)
-            return NotFound();
-
-        Context.Remove(entity);
-        await Context.SaveChangesAsync();
-
-        return Mapper.Map<LocationModel>(entity);
-    }
-
 }

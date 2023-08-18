@@ -19,15 +19,13 @@ public class UploadsController : BaseController<Upload>
 {
     private IIdentityHasher<Stuff> StuffId { get; }
     private IIdentityHasher<Location> LocationId { get; }
-    private IIdentityHasher<Upload> UploadId { get; }
     private IFileService Files { get; }
 
-    public UploadsController(ApplicationDbContext context, IMapper mapper,
-        IIdentityHasher<Stuff> stuffId, IIdentityHasher<Location> locationId, IIdentityHasher<Upload> uploadId, IFileService file) : base(context, mapper)
+    public UploadsController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Upload> hasher,
+        IIdentityHasher<Stuff> stuffId, IIdentityHasher<Location> locationId, IFileService file) : base(context, mapper, hasher)
     {
         StuffId = stuffId;
         LocationId = locationId;
-        UploadId = uploadId;
         Files = file;
     }
 
@@ -35,7 +33,7 @@ public class UploadsController : BaseController<Upload>
     [HttpGet(ApiRoutes.UploadFiles + "/{id}/{name}")]
     public async Task<IActionResult> Get(string id, string name)
     {
-        int actualId = UploadId.Decode(id);
+        int actualId = Hasher.Decode(id);
         var query = Query.Where(x => x.Id == actualId);
 
         var entity = await query.FirstOrDefaultAsync();
@@ -113,11 +111,11 @@ public class UploadsController : BaseController<Upload>
         }
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(string id)
+    [HttpDelete("{hash}")]
+    public override async Task<IActionResult> Delete(string hash)
     {
-        int actualId = UploadId.Decode(id);
-        var entity = await Query.Where(x => x.Id == actualId).FirstOrDefaultAsync();
+        int id = Hasher.Decode(hash);
+        var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
         if (entity == null)
             return NotFound();
 

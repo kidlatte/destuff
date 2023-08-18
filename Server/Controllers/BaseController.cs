@@ -1,7 +1,9 @@
 using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
 using Destuff.Server.Data;
 using Destuff.Server.Data.Entities;
+using Destuff.Server.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Destuff.Server.Controllers;
 
@@ -31,8 +33,24 @@ public abstract class BaseController : ControllerBase
 public abstract class BaseController<T> : BaseController where T : Entity
 {
     internal IQueryable<T> Query => Context.Set<T>();
-    
-    public BaseController(ApplicationDbContext context, IMapper mapper): base(context, mapper)
+    internal IIdentityHasher<T> Hasher { get; }
+
+    public BaseController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<T> hasher) : base(context, mapper)
     {
+        Hasher = hasher;
+    }
+
+    [HttpDelete("{hash}")]
+    public async virtual Task<IActionResult> Delete(string hash)
+    {
+        int id = Hasher.Decode(hash);
+        var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
+        if (entity == null)
+            return NotFound();
+
+        Context.Remove(entity);
+        await Context.SaveChangesAsync();
+
+        return NoContent();
     }
 }
