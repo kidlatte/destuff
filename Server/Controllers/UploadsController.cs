@@ -17,13 +17,13 @@ namespace Destuff.Server.Controllers;
 [ApiController, Authorize]
 public class UploadsController : BaseController<Upload>
 {
-    private IStuffIdentifier StuffId { get; }
-    private ILocationIdentifier LocationId { get; }
-    private IUploadIdentifier UploadId { get; }
+    private IIdentityHasher<Stuff> StuffId { get; }
+    private IIdentityHasher<Location> LocationId { get; }
+    private IIdentityHasher<Upload> UploadId { get; }
     private IFileService Files { get; }
 
     public UploadsController(ApplicationDbContext context, IMapper mapper,
-        IStuffIdentifier stuffId, ILocationIdentifier locationId, IUploadIdentifier uploadId, IFileService file) : base(context, mapper)
+        IIdentityHasher<Stuff> stuffId, IIdentityHasher<Location> locationId, IIdentityHasher<Upload> uploadId, IFileService file) : base(context, mapper)
     {
         StuffId = stuffId;
         LocationId = locationId;

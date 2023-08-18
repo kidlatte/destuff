@@ -16,9 +16,9 @@ namespace Destuff.Server.Controllers;
 [ApiController, Authorize]
 public class SuppliersController : BaseController<Supplier>
 {
-    private ISupplierIdentifier Hasher { get; }
+    private IIdentityHasher<Supplier> Hasher { get; }
 
-    public SuppliersController(ApplicationDbContext context, IMapper mapper, ISupplierIdentifier hasher) : base(context, mapper)
+    public SuppliersController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Supplier> hasher) : base(context, mapper)
     {
         Hasher = hasher;
     }

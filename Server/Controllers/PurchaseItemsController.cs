@@ -17,15 +17,15 @@ namespace Destuff.Server.Controllers;
 [ApiController, Authorize]
 public class PurchaseItemsController : BaseController<PurchaseItem>
 {
-    private IPurchaseItemIdentifier Hasher { get; }
+    private IIdentityHasher<PurchaseItem> Hasher { get; }
 
-    public PurchaseItemsController(ApplicationDbContext context, IMapper mapper, IPurchaseItemIdentifier hasher) : base(context, mapper)
+    public PurchaseItemsController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<PurchaseItem> hasher) : base(context, mapper)
     {
         Hasher = hasher;
     }
 
     [HttpGet]
-    public async Task<PagedList<PurchaseItemListItem>> Get([FromQuery(Name = "pid")] string purchaseHash, [FromQuery] ListRequest? request, [FromServices] IPurchaseIdentifier hasher)
+    public async Task<PagedList<PurchaseItemListItem>> Get([FromQuery(Name = "pid")] string purchaseHash, [FromQuery] ListRequest? request, [FromServices] IIdentityHasher<Purchase> hasher)
     {
         var purchaseId = hasher.Decode(purchaseHash);
         var query = Query.Where(x => x.PurchaseId == purchaseId);
@@ -62,24 +62,8 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
         return new PagedList<PurchaseItemListItem>(count, list);
     }
 
-    [HttpGet("{hash}")]
-    public async Task<ActionResult<PurchaseItemModel?>> Get(string hash)
-    {
-        int id = Hasher.Decode(hash);
-        var query = Query.Where(x => x.Id == id);
-
-        var model = await query
-            .ProjectTo<PurchaseItemModel>(Mapper.ConfigurationProvider)
-            .FirstOrDefaultAsync();
-
-        if (model == null)
-            return NotFound();
-
-        return model;
-    }
-
     [HttpGet(ApiRoutes.PurchaseItemsByStuff + "/{stuffHash}")]
-    public async Task<PagedList<PurchaseItemSupplier>> GetByStuff(string stuffHash, [FromQuery] ListRequest? request, [FromServices] IStuffIdentifier hasher)
+    public async Task<PagedList<PurchaseItemSupplier>> GetByStuff(string stuffHash, [FromQuery] ListRequest? request, [FromServices] IIdentityHasher<Stuff> hasher)
     {
         int stuffId = hasher.Decode(stuffHash);
         var query = Query.Where(x => x.StuffId == stuffId);
@@ -99,8 +83,8 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
             case "":
                 query = query.OrderByDescending(x => x.Created);
                 break;
-            case nameof(PurchaseItemListItem.Stuff):
-                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Stuff) : query.OrderBy(x => x.Stuff);
+            case $"({nameof(PurchaseItemSupplier.Purchase)}.{nameof(PurchaseItemSupplier.Purchase.Supplier)})":
+                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Purchase!.Supplier!.Name) : query.OrderBy(x => x.Purchase!.Supplier!.Name);
                 break;
             default:
                 query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField);
@@ -113,6 +97,22 @@ public class PurchaseItemsController : BaseController<PurchaseItem>
             .ToListAsync();
 
         return new PagedList<PurchaseItemSupplier>(count, list);
+    }
+
+    [HttpGet("{hash}")]
+    public async Task<ActionResult<PurchaseItemModel>> Get(string hash)
+    {
+        int id = Hasher.Decode(hash);
+        var query = Query.Where(x => x.Id == id);
+
+        var model = await query
+            .ProjectTo<PurchaseItemModel>(Mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync();
+
+        if (model == null)
+            return NotFound();
+
+        return model;
     }
 
     [HttpPost]

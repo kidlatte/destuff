@@ -7,8 +7,13 @@ namespace Destuff.Server.Services;
 
 public class MapperProfile : Profile
 {
-    public MapperProfile(ILocationIdentifier locationId, IStuffIdentifier stuffId, IUploadIdentifier uploadId, 
-        ISupplierIdentifier supplierId, IPurchaseIdentifier purchaseId, IPurchaseItemIdentifier purchaseItemId)
+    public MapperProfile(
+        IIdentityHasher<Location> locationId, 
+        IIdentityHasher<Stuff> stuffId, 
+        IIdentityHasher<Upload> uploadId, 
+        IIdentityHasher<Supplier> supplierId, 
+        IIdentityHasher<Purchase> purchaseId, 
+        IIdentityHasher<PurchaseItem> purchaseItemId)
     {
         CreateMap<LocationRequest, Location>()
             .ForMember(e => e.ParentId, o => o.MapFrom(m => m.ParentId != null ? locationId.Decode(m.ParentId) :  default(int?)));

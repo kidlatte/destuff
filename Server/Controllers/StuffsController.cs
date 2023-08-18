@@ -16,10 +16,10 @@ namespace Destuff.Server.Controllers;
 [ApiController, Authorize]
 public class StuffsController : BaseController<Stuff>
 {
-    private IStuffIdentifier Hasher { get; }
-    private ILocationIdentifier LocationId { get; }
+    private IIdentityHasher<Stuff> Hasher { get; }
+    private IIdentityHasher<Location> LocationId { get; }
 
-    public StuffsController(ApplicationDbContext context, IMapper mapper, IStuffIdentifier stuffId, ILocationIdentifier locationId) : base(context, mapper)
+    public StuffsController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Stuff> stuffId, IIdentityHasher<Location> locationId) : base(context, mapper)
     {
         Hasher = stuffId;
         LocationId = locationId;

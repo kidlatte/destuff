@@ -16,9 +16,9 @@ namespace Destuff.Server.Controllers;
 [ApiController, Authorize]
 public class PurchasesController : BaseController<Purchase>
 {
-    private IPurchaseIdentifier Hasher { get; }
+    private IIdentityHasher<Purchase> Hasher { get; }
 
-    public PurchasesController(ApplicationDbContext context, IMapper mapper, IPurchaseIdentifier hasher) : base(context, mapper)
+    public PurchasesController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Purchase> hasher) : base(context, mapper)
     {
         Hasher = hasher;
     }

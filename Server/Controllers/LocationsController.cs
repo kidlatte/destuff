@@ -16,11 +16,11 @@ namespace Destuff.Server.Controllers;
 [ApiController, Authorize]
 public class LocationsController : BaseController<Location>
 {
-    private ILocationIdentifier LocationId { get; }
+    private IIdentityHasher<Location> Hasher { get; }
 
-    public LocationsController(ApplicationDbContext context, IMapper mapper, ILocationIdentifier locationId) : base(context, mapper)
+    public LocationsController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Location> hasher) : base(context, mapper)
     {
-        LocationId = locationId;
+        Hasher = hasher;
     }
 
     [HttpGet]
@@ -53,7 +53,7 @@ public class LocationsController : BaseController<Location>
     [HttpGet(ApiRoutes.LocationTree + "/{hash}")]
     public async Task<ActionResult<LocationTreeModel?>> GetLocationTree(string hash)
     {
-        int id = LocationId.Decode(hash);
+        int id = Hasher.Decode(hash);
         var query = Query.Include(x => x.Children).Where(x => x.Id == id);
 
         var model = await query
@@ -147,7 +147,7 @@ public class LocationsController : BaseController<Location>
     [HttpGet("{hash}")]
     public async Task<ActionResult<LocationModel?>> Get(string hash)
     {
-        int id = LocationId.Decode(hash);
+        int id = Hasher.Decode(hash);
         var query = Query.Where(x => x.Id == id);
 
         var model = await query
@@ -166,7 +166,7 @@ public class LocationsController : BaseController<Location>
         if (!ModelState.IsValid || model.Name == null)
             return BadRequest(model);
 
-        int id = LocationId.Decode(hash);
+        int id = Hasher.Decode(hash);
         var slug = model.Name.ToSlug();
 
         var exists = await Query.AnyAsync(x => x.Id != id && x.Slug == slug);
@@ -227,7 +227,7 @@ public class LocationsController : BaseController<Location>
     [HttpDelete("{id}")]
     public async Task<ActionResult<LocationModel>> Delete(string id)
     {
-        int actualId = LocationId.Decode(id);
+        int actualId = Hasher.Decode(id);
         var entity = await Query.Where(x => x.Id == actualId).FirstOrDefaultAsync();
         if (entity == null)
             return NotFound();
