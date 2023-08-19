@@ -65,7 +65,7 @@ public class StuffsController : BaseController<Stuff, StuffModel, StuffRequest>
 
         var query = Context.Suppliers.Where(x => x.Id == supplierId)
             .SelectMany(x => x.Purchases).SelectMany(x => x.Items!)
-            .Select(x => x.Stuff);
+            .Select(x => x.Stuff!);
 
         request ??= new ListRequest();
         if (!string.IsNullOrEmpty(request.Search)) {

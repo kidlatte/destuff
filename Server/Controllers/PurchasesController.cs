@@ -33,20 +33,23 @@ public class PurchasesController : BaseController<Purchase, PurchaseModel, Purch
                 x.Supplier!.Name.ToLower().Contains(search));
         }
 
-        switch (request.SortField)
-        {
+        var sortField = request.SortField ?? "";
+        switch (sortField) {
+            case "":
+                query = query.OrderByDescending(x => x.Received == null && x.Receipt == null)
+                    .ThenByDescending(x => x.Received ?? x.Receipt);
+                break;
             case nameof(PurchaseListItem.Received):
                 query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Received ?? x.Receipt) : query.OrderBy(x => x.Received ?? x.Receipt);
                 break;
             case nameof(PurchaseListItem.Supplier):
                 query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Supplier!.ShortName) : query.OrderBy(x => x.Supplier!.ShortName);
                 break;
-            case nameof(PurchaseListItem.Price):
-                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Price) : query.OrderBy(x => x.Price);
+            case nameof(PurchaseListItem.ItemCount):
+                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Items!.Count()) : query.OrderBy(x => x.Items!.Count());
                 break;
             default:
-                query = query.OrderByDescending(x => x.Received == null && x.Receipt == null)
-                    .ThenByDescending(x => x.Received ?? x.Receipt);
+                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField);
                 break;
         }
 
@@ -97,5 +100,17 @@ public class PurchasesController : BaseController<Purchase, PurchaseModel, Purch
             .ToListAsync();
 
         return new PagedList<PurchaseBasicModel>(count, list);
+    }
+
+    internal override async Task BeforeSaveAsync(Purchase entity)
+    {
+        var items = await Context.PurchaseItems.Where(x => x.PurchaseId == entity.Id)
+            .Select(x => new PurchaseItem() { Id = x.Id, DateTime = x.DateTime })
+            .ToListAsync();
+
+        foreach (var item in items) {
+            Context.Attach(item);
+            item.DateTime = entity.Received ?? entity.Receipt ?? entity.Created;
+        }
     }
 }

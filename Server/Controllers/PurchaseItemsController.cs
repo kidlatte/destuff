@@ -30,7 +30,7 @@ public class PurchaseItemsController : BaseController<PurchaseItem, PurchaseItem
         request ??= new ListRequest();
         if (!string.IsNullOrEmpty(request.Search)) {
             var search = request.Search.ToLower();
-            query = query.Where(x => x.Stuff.Name.ToLower().Contains(search) ||
+            query = query.Where(x => x.Stuff!.Name.ToLower().Contains(search) ||
                 x.Notes!.ToLower().Contains(search));
         }
 
@@ -69,7 +69,7 @@ public class PurchaseItemsController : BaseController<PurchaseItem, PurchaseItem
         if (!string.IsNullOrEmpty(request.Search))
         {
             var search = request.Search.ToLower();
-            query = query.Where(x => x.Stuff.Name.ToLower().Contains(search) ||
+            query = query.Where(x => x.Stuff!.Name.ToLower().Contains(search) ||
                 x.Notes!.ToLower().Contains(search));
         }
         var count = await query.CountAsync();
@@ -81,7 +81,7 @@ public class PurchaseItemsController : BaseController<PurchaseItem, PurchaseItem
                 query = query.OrderByDescending(x => x.Created);
                 break;
             case $"({nameof(PurchaseItemSupplier.Purchase)}.{nameof(PurchaseItemSupplier.Purchase.Supplier)})":
-                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Purchase.Supplier!.Name) : query.OrderBy(x => x.Purchase.Supplier!.Name);
+                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Purchase!.Supplier!.Name) : query.OrderBy(x => x.Purchase!.Supplier!.Name);
                 break;
             default:
                 query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField);
@@ -96,11 +96,24 @@ public class PurchaseItemsController : BaseController<PurchaseItem, PurchaseItem
         return new PagedList<PurchaseItemSupplier>(count, list);
     }
 
-    internal override async Task AfterSaveAsync(PurchaseItem entity) 
-        => await ComputePurchasePrice(entity.PurchaseId);
+    internal override async Task BeforeSaveAsync(PurchaseItem entity)
+    {
+        var result = await Context.Purchases.Where(x => x.Id == entity.PurchaseId).Select(x => new
+        {
+            x.Received,
+            x.Receipt,
+            x.Created
+        }).FirstOrDefaultAsync();
 
-    internal override async Task AfterDeleteAsync(PurchaseItem entity) 
-        => await ComputePurchasePrice(entity.PurchaseId);
+        if (result != null)
+            entity.DateTime = result.Received ?? result.Receipt ?? result.Created;
+    }
+
+    internal override Task AfterSaveAsync(PurchaseItem entity) 
+        => ComputePurchasePrice(entity.PurchaseId);
+
+    internal override Task AfterDeleteAsync(PurchaseItem entity) 
+        => ComputePurchasePrice(entity.PurchaseId);
 
     private async Task ComputePurchasePrice(int purchaseId)
     {

@@ -12,7 +12,7 @@ public interface IEvent
     string? Notes { get; set; }
 
     int StuffId { get; set; }
-    Stuff Stuff { get; set; }
+    Stuff? Stuff { get; set; }
 }
 
 public enum EventType
@@ -37,7 +37,7 @@ public class Event : Entity, IEvent
     public EventData? Data { get; set; }
 
     public int StuffId { get; set; }
-    public required Stuff Stuff { get; set; }
+    public Stuff? Stuff { get; set; }
 
     public int LocationId { get; set; }
     public Location? Location { get; set; }

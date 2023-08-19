@@ -105,6 +105,7 @@ public abstract class BaseController<TEntity, TModel, TRequest> : BaseController
             return BadRequest(model);
 
         var entity = Mapper.Map<TEntity>(model);
+        Context.Add(entity);
 
         if (entity is ISluggable)
         {
@@ -115,7 +116,6 @@ public abstract class BaseController<TEntity, TModel, TRequest> : BaseController
 
         await BeforeSaveAsync(entity, model);
         Audit(entity);
-        Context.Add(entity);
         await Context.SaveChangesAsync();
         await AfterSaveAsync(entity);
 

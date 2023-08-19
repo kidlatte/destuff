@@ -9,7 +9,7 @@
                 @if (context.Item != null)
                 {
                     <MudLink Href="@($"/purchases/{context.Item.Purchase.Id}")">
-                        @((context.Item.Purchase.Received ?? context.Item.Purchase.Receipt)?.ToShortDateString())
+                        @context.Item.DateTime.ToShortDateString()
                     </MudLink>
                 }
             </CellTemplate>

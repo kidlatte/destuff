@@ -31,7 +31,7 @@
                 }
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x!.PurchaseCount">
+        <PropertyColumn Property="x => x!.PurchaseCount" Title="Purchases" Class="text-center">
             <CellTemplate>
                 @if (context.Item != null) {
                     <MudLink Href="@($"/suppliers/{context.Item.Slug}/purchases")">

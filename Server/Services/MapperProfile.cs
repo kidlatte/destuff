@@ -55,9 +55,11 @@ public class MapperProfile : Profile
             .ForMember(m => m.Id, o => o.MapFrom(e => purchaseId.Encode(e.Id)))
             .ForMember(m => m.SupplierId, o => o.MapFrom(e => e.SupplierId.HasValue ? supplierId.Encode(e.SupplierId.Value) : default));
         CreateMap<Purchase, PurchaseListItem>().IncludeAllDerived()
-            .ForMember(m => m.Id, o => o.MapFrom(e => purchaseId.Encode(e.Id)));
+            .ForMember(m => m.Id, o => o.MapFrom(e => purchaseId.Encode(e.Id)))
+            .ForMember(m => m.ItemCount, o => o.MapFrom(e => e.Items!.Count()));
         CreateMap<Purchase, PurchaseBasicModel>().IncludeAllDerived()
-            .ForMember(m => m.Id, o => o.MapFrom(e => purchaseId.Encode(e.Id)));
+            .ForMember(m => m.Id, o => o.MapFrom(e => purchaseId.Encode(e.Id)))
+            .ForMember(m => m.ItemCount, o => o.MapFrom(e => e.Items!.Count()));
 
         CreateMap<PurchaseItemRequest, PurchaseItem>()
             .ForMember(e => e.PurchaseId, o => o.MapFrom(m => purchaseId.Decode(m.PurchaseId)))

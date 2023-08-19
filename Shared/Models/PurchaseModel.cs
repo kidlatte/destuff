@@ -41,6 +41,8 @@ public class PurchaseListItem: IPurchaseModel
     public DateTime? Received { get; set; }
     public decimal Price { get; set; }
     public SupplierBasicModel? Supplier { get; set; }
+
+    public int ItemCount { get; set; }
 }
 
 public class PurchaseBasicModel
@@ -49,4 +51,6 @@ public class PurchaseBasicModel
     public DateTime? Receipt { get; set; }
     public DateTime? Received { get; set; }
     public decimal Price { get; set; }
+
+    public int ItemCount { get; set; }
 }
