@@ -37,18 +37,12 @@ public class StuffsController : BaseController<Stuff, StuffModel, StuffRequest>
         }
 
         var sortField = request.SortField ?? "";
-        switch (sortField) {
-            case "":
-                query = query.OrderByDescending(x => x.Created);
-                break;
-            case nameof(StuffListItem.Locations):
-                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Locations!.First().Name) : query.OrderBy(x => x.Locations!.First().Name);
-                break;
-            default:
-                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField);
-                break;
-        }
-
+        query = sortField switch {
+            "" => query.OrderByDescending(x => x.Created),
+            nameof(StuffListItem.Locations) => request.SortDir == SortDirection.Descending ? 
+                query.OrderByDescending(x => x.Locations!.First().Name) : query.OrderBy(x => x.Locations!.First().Name),
+            _ => request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField),
+        };
         var count = await query.CountAsync();
         var list = await query
             .Skip(request.Skip).Take(request.Take)
@@ -76,14 +70,10 @@ public class StuffsController : BaseController<Stuff, StuffModel, StuffRequest>
         }
 
         var sortField = request.SortField ?? "";
-        switch (sortField) {
-            case "":
-                query = query.OrderByDescending(x => x.Created);
-                break;
-            default:
-                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField);
-                break;
-        }
+        query = sortField switch {
+            "" => query.OrderByDescending(x => x.Created),
+            _ => request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField),
+        };
 
         var count = await query.CountAsync();
         var list = await query

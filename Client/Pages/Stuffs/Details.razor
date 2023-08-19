@@ -64,12 +64,9 @@
                     <dl>
                         <dt>Location</dt>
                         <dd>
-                            <a href="@($"/locations/{Model.FirstLocation.Slug}")">
+                            <MudLink Href="@($"/locations/{Model.FirstLocation.Slug}")">
                                 @Model.FirstLocation.Name
-                            </a>
-                            <small class="muted">
-                                (<a href="@($"/stuffs/{Slug}/locations")">more</a>)
-                            </small>
+                            </MudLink>
                         </dd>
                     </dl>
                 }
@@ -78,9 +75,9 @@
                     <dl>
                         <dt>Count</dt>
                         <dd>
-                            <a href="@($"/stuffs/{Slug}/locations")">
+                            <MudLink Href="@($"/stuffs/{Slug}/locations")">
                                 @Model.StuffLocations.Sum(x => x.Count)
-                            </a>
+                            </MudLink>
                         </dd>
                     </dl>
                     <dl>
@@ -90,9 +87,9 @@
                             {
                                 @if (i > 0) { <text>, </text> }
 
-                                <a href="@($"/locations/{item.Location.Slug}")">
+                                <MudLink Href="@($"/locations/{item.Location.Slug}")">
                                     @item.Location.Name
-                                </a>
+                                </MudLink>
 
                                 @if (item.Count > 1)
                                 {

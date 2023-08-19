@@ -107,12 +107,8 @@ public abstract class BaseController<TEntity, TModel, TRequest> : BaseController
         var entity = Mapper.Map<TEntity>(model);
         Context.Add(entity);
 
-        if (entity is ISluggable)
-        {
-            var sluggable = entity as ISluggable;
-            if (sluggable != null) 
-                sluggable.Slug = sluggable.ToSlug();
-        }
+        if (entity is ISluggable sluggable)
+            sluggable.Slug = sluggable.ToSlug();
 
         await BeforeSaveAsync(entity, model);
         Audit(entity);
@@ -135,12 +131,8 @@ public abstract class BaseController<TEntity, TModel, TRequest> : BaseController
 
         Mapper.Map(model, entity);
 
-        if (entity is ISluggable)
-        {
-            var sluggable = entity as ISluggable;
-            if (sluggable != null)
-                sluggable.Slug = sluggable.ToSlug();
-        }
+        if (entity is ISluggable sluggable)
+            sluggable.Slug = sluggable.ToSlug();
 
         await BeforeSaveAsync(entity, model);
         Audit(entity);

@@ -9,7 +9,6 @@ using Destuff.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
 namespace Destuff.Server.Controllers;
 
@@ -34,21 +33,12 @@ public class PurchaseItemsController : BaseController<PurchaseItem, PurchaseItem
                 x.Notes!.ToLower().Contains(search));
         }
 
-        switch (request.SortField)
-        {
-            case nameof(PurchaseItemListItem.Stuff):
-                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Stuff) : query.OrderBy(x => x.Stuff);
-                break;
-            case nameof(PurchaseItemListItem.Quantity):
-                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Quantity) : query.OrderBy(x => x.Quantity);
-                break;
-            case nameof(PurchaseItemListItem.Price):
-                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Price) : query.OrderBy(x => x.Price);
-                break;
-            default:
-                query = query.OrderByDescending(x => x.Created);
-                break;
-        }
+        var sortField = request.SortField ?? "";
+        query = sortField switch {
+            "" => query.OrderByDescending(x => x.Created),
+            nameof(PurchaseItemListItem.Stuff) => request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Stuff!.Name) : query.OrderBy(x => x.Stuff!.Name),
+            _ => request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField),
+        };
 
         var count = await query.CountAsync();
         var list = await query
@@ -75,19 +65,11 @@ public class PurchaseItemsController : BaseController<PurchaseItem, PurchaseItem
         var count = await query.CountAsync();
 
         var sortField = request.SortField ?? "";
-        switch (sortField)
-        {
-            case "":
-                query = query.OrderByDescending(x => x.Created);
-                break;
-            case $"({nameof(PurchaseItemSupplier.Purchase)}.{nameof(PurchaseItemSupplier.Purchase.Supplier)})":
-                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Purchase!.Supplier!.Name) : query.OrderBy(x => x.Purchase!.Supplier!.Name);
-                break;
-            default:
-                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField);
-                break;
-        }
-
+        query = sortField switch {
+            "" => query.OrderByDescending(x => x.Created),
+            $"({nameof(PurchaseItemSupplier.Purchase)}.{nameof(PurchaseItemSupplier.Purchase.Supplier)})" => request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Purchase!.Supplier!.Name) : query.OrderBy(x => x.Purchase!.Supplier!.Name),
+            _ => request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField),
+        };
         var list = await query
             .Skip(request.Skip).Take(request.Take)
             .ProjectTo<PurchaseItemSupplier>(Mapper.ConfigurationProvider)

@@ -34,25 +34,16 @@ public class PurchasesController : BaseController<Purchase, PurchaseModel, Purch
         }
 
         var sortField = request.SortField ?? "";
-        switch (sortField) {
-            case "":
-                query = query.OrderByDescending(x => x.Received == null && x.Receipt == null)
-                    .ThenByDescending(x => x.Received ?? x.Receipt);
-                break;
-            case nameof(PurchaseListItem.Received):
-                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Received ?? x.Receipt) : query.OrderBy(x => x.Received ?? x.Receipt);
-                break;
-            case nameof(PurchaseListItem.Supplier):
-                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Supplier!.ShortName) : query.OrderBy(x => x.Supplier!.ShortName);
-                break;
-            case nameof(PurchaseListItem.ItemCount):
-                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Items!.Count()) : query.OrderBy(x => x.Items!.Count());
-                break;
-            default:
-                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField);
-                break;
-        }
-
+        query = sortField switch {
+            "" => query.OrderByDescending(x => x.Received == null && x.Receipt == null).ThenByDescending(x => x.Received ?? x.Receipt),
+            nameof(PurchaseListItem.Received) => request.SortDir == SortDirection.Descending ? 
+                query.OrderByDescending(x => x.Received ?? x.Receipt) : query.OrderBy(x => x.Received ?? x.Receipt),
+            nameof(PurchaseListItem.Supplier) => request.SortDir == SortDirection.Descending ? 
+                query.OrderByDescending(x => x.Supplier!.ShortName) : query.OrderBy(x => x.Supplier!.ShortName),
+            nameof(PurchaseListItem.ItemCount) => request.SortDir == SortDirection.Descending ? 
+                query.OrderByDescending(x => x.Items!.Count()) : query.OrderBy(x => x.Items!.Count()),
+            _ => request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField),
+        };
         var count = await query.CountAsync();
         var list = await query
             .Skip(request.Skip).Take(request.Take)
@@ -78,20 +69,12 @@ public class PurchasesController : BaseController<Purchase, PurchaseModel, Purch
         }
 
         var sortField = request.SortField ?? "";
-        switch (sortField)
-        {
-            case "":
-                query = query.OrderByDescending(x => x.Received == null && x.Receipt == null)
-                    .ThenByDescending(x => x.Received ?? x.Receipt);
-                break;
-            case nameof(PurchaseBasicModel.Received):
-                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Received ?? x.Receipt) : query.OrderBy(x => x.Received ?? x.Receipt);
-                break;
-            default:
-                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField);
-                break;
-
-        }
+        query = sortField switch {
+            "" => query.OrderByDescending(x => x.Received == null && x.Receipt == null).ThenByDescending(x => x.Received ?? x.Receipt),
+            nameof(PurchaseBasicModel.Received) => request.SortDir == SortDirection.Descending ? 
+                query.OrderByDescending(x => x.Received ?? x.Receipt) : query.OrderBy(x => x.Received ?? x.Receipt),
+            _ => request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField),
+        };
 
         var count = await query.CountAsync();
         var list = await query

@@ -35,19 +35,12 @@ public class SuppliersController : BaseController<Supplier, SupplierModel, Suppl
         }
 
         var sortField = request.SortField ?? "";
-        switch (sortField)
-        {
-            case "":
-                query = query.OrderByDescending(x => x.Created);
-                break;
-            case nameof(SupplierListItem.PurchaseCount):
-                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Purchases.Count()) : query.OrderBy(x => x.Purchases.Count());
-                break;
-            default:
-                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField);
-                break;
-        }
-
+        query = sortField switch {
+            "" => query.OrderByDescending(x => x.Created),
+            nameof(SupplierListItem.PurchaseCount) => request.SortDir == SortDirection.Descending ? 
+                query.OrderByDescending(x => x.Purchases.Count()) : query.OrderBy(x => x.Purchases.Count()),
+            _ => request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField),
+        };
         var count = await query.CountAsync();
         var list = await query
             .Skip(request.Skip).Take(request.Take)

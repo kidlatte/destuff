@@ -44,7 +44,7 @@ public class StuffModel : IModel, IStuffModel
     {
         get 
         {
-            var count = StuffLocations.Count();
+            var count = StuffLocations.Count;
             return count == 0 || count == 1 && StuffLocations.First().Count == 1;
         }
     }
