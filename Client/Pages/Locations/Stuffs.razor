@@ -30,7 +30,7 @@
     [Parameter] public required ILocationModel Model { get; set; }
 
     [Parameter]
-    public int? Page { get; set; } = 1;
+    public int? Page { get; set; }
     int gridPage => (Page ?? 1) - 1;
     int pagerPage = 1;
 

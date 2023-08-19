@@ -16,6 +16,7 @@ public class ApiRoutes
 
     public const string Stuffs = "/api/stuffs";
     public const string StuffSlug = "/api/stuffs/s";
+    public const string StuffsBySupplier = "/api/stuffs/supplier";
     public const string StuffLocations = "/api/stuff-locations";
 
     public const string Uploads = "/api/uploads";

@@ -44,7 +44,7 @@
     [Parameter] public required IStuffModel Model { get; set; }
 
     [Parameter]
-    public int? Page { get; set; } = 1;
+    public int? Page { get; set; }
     int gridPage => (Page ?? 1) - 1;
     int pagerPage = 1;
 
@@ -56,12 +56,7 @@
 
     protected override void OnInitialized() => PageCount = gridPage + 1;
 
-    protected override async Task OnParametersSetAsync()
-    {
-        pagerPage = Page ?? 1;
-        if (grid != null && Page == null) // BUG: ServerData doesn't auto reload
-            await grid.ReloadServerData();
-    }
+    protected override void OnParametersSet() => pagerPage = Page ?? 1;
 
     async Task<GridData<PurchaseItemSupplier>> LoadServerData(GridState<PurchaseItemSupplier> state)
     {

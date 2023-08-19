@@ -36,12 +36,15 @@
         </ItemTemplate>
     </MudTreeView>
 
-    <Stuffs Model="Model" />
+    <Stuffs Model="Model" Page="Page" />
 }
 
 @code {
     [Parameter]
     public string? Slug { get; set; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "p")]
+    public int? Page { get; set; }
 
     LocationModel? Model { get; set; }
 

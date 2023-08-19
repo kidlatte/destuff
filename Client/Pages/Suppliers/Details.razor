@@ -70,8 +70,11 @@
                 <div>@Model.Notes</div>
             </div>
         </MudTabPanel>
+        <MudTabPanel Text="Stuffs">
+            <Stuffs Model="Model" Page="Page" />
+        </MudTabPanel>
         <MudTabPanel Text="Purchases">
-            <Purchases Model="Model" />
+            <Purchases Model="Model" Page="Page" />
         </MudTabPanel>
     </MudTabs>
 }
@@ -81,10 +84,14 @@
     [Parameter] public string? Tab { get; set; }
     int activePanelIndex;
 
+    [Parameter, SupplyParameterFromQuery(Name = "p")]
+    public int? Page { get; set; }
+
     SupplierModel? Model { get; set; }
 
     protected override void OnParametersSet() => activePanelIndex = Tab switch {
-        "purchases" => 1,
+        "stuffs" => 1,
+        "purchases" => 2,
         _ => 0
     };
 
@@ -110,6 +117,9 @@
         activePanelIndex = index;
         switch (index) {
             case 1:
+                Nav.NavigateTo($"suppliers/{Slug}/stuffs");
+                break;
+            case 2:
                 Nav.NavigateTo($"suppliers/{Slug}/purchases");
                 break;
             default:

@@ -1,20 +1,19 @@
 ﻿@inject NavigationManager Nav
 @inject IHttpService Http
 
-<MudDataGrid @ref="grid" T="PurchaseBasicModel" ServerData="LoadServerData" CurrentPage="gridPage" RowsPerPage="PageSize" Loading="loading"
+<MudDataGrid @ref="grid" T="StuffBasicModel" ServerData="LoadServerData" CurrentPage="gridPage" RowsPerPage="PageSize" Loading="loading"
              SortMode="SortMode.Single" Elevation="0">
     <Columns>
-        <PropertyColumn Property="x => x.Received ?? x.Receipt" Title="Date">
+        <PropertyColumn Property="x => x.Name">
             <CellTemplate>
                 @if (context.Item != null)
                 {
-                    <MudLink Href="@($"/purchases/{context.Item.Id}")">
-                        @((context.Item.Received ?? context.Item.Receipt)?.ToShortDateString())
+                    <MudLink Href="@($"/stuffs/{context.Item.Slug}")">
+                        @context.Item.Name
                     </MudLink>
                 }
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.Price" Format="N2" />
     </Columns>
     <PagerContent>
         @if (PageCount > 1)
@@ -38,14 +37,14 @@
     public int PageSize => 10;
     public int PageCount;
 
-    MudDataGrid<PurchaseBasicModel>? grid;
+    MudDataGrid<StuffBasicModel>? grid;
     bool loading;
 
     protected override void OnInitialized() => PageCount = gridPage + 1;
 
     protected override void OnParametersSet() => pagerPage = Page ?? 1;
 
-    async Task<GridData<PurchaseBasicModel>> LoadServerData(GridState<PurchaseBasicModel> state)
+    async Task<GridData<StuffBasicModel>> LoadServerData(GridState<StuffBasicModel> state)
     {
         var sort = state.SortDefinitions.FirstOrDefault();
         var query = new ListQuery
@@ -57,7 +56,7 @@
             };
 
         loading = true;
-        var result = await Http.GetAsync<PagedList<PurchaseBasicModel>>($"{ApiRoutes.PurchasesBySupplier}/{Model.Id}?{query}");
+        var result = await Http.GetAsync<PagedList<StuffBasicModel>>($"{ApiRoutes.StuffsBySupplier}/{Model.Id}?{query}");
         loading = false;
 
         if (result == null)
@@ -73,7 +72,7 @@
     void PageChanged(int i)
     {
         if (pagerPage != i)
-            Nav.NavigateTo($"/suppliers/{Model.Slug}/purchases?{new ListQuery { Page = i }}");
+            Nav.NavigateTo($"/suppliers/{Model.Slug}/stuffs?{new ListQuery { Page = i }}");
         pagerPage = i;
     }
 

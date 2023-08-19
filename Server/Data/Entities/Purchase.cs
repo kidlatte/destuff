@@ -22,10 +22,10 @@ public class PurchaseItem : Entity, IEvent
     public decimal Price { get; set; }
 
     public int PurchaseId { get; set; }
-    public Purchase? Purchase { get; set; }
+    public required Purchase Purchase { get; set; }
 
     public int StuffId { get; set; }
-    public Stuff? Stuff { get; set; }
+    public required Stuff Stuff { get; set; }
 
     public DateTime DateTime { get; set; }
     public EventType Type { get; set; }

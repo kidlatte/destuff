@@ -58,6 +58,42 @@ public class StuffsController : BaseController<Stuff, StuffModel, StuffRequest>
         return new PagedList<StuffListItem>(count, list);
     }
 
+    [HttpGet(ApiRoutes.StuffsBySupplier + "/{hash}")]
+    public async Task<PagedList<StuffBasicModel>> GetBySupplier(string hash, [FromQuery] ListRequest? request, [FromServices] IIdentityHasher<Supplier> hasher)
+    {
+        var supplierId = hasher.Decode(hash);
+
+        var query = Context.Suppliers.Where(x => x.Id == supplierId)
+            .SelectMany(x => x.Purchases).SelectMany(x => x.Items!)
+            .Select(x => x.Stuff);
+
+        request ??= new ListRequest();
+        if (!string.IsNullOrEmpty(request.Search)) {
+            var search = request.Search.ToLower();
+            query = query.Where(x => x.Name.ToLower().Contains(search) ||
+                x.Url!.ToLower().Contains(search) ||
+                x.Notes!.ToLower().Contains(search));
+        }
+
+        var sortField = request.SortField ?? "";
+        switch (sortField) {
+            case "":
+                query = query.OrderByDescending(x => x.Created);
+                break;
+            default:
+                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField);
+                break;
+        }
+
+        var count = await query.CountAsync();
+        var list = await query
+            .Skip(request.Skip).Take(request.Take)
+            .ProjectTo<StuffBasicModel>(Mapper.ConfigurationProvider)
+            .ToListAsync();
+
+        return new PagedList<StuffBasicModel>(count, list);
+    }
+
     [HttpGet(ApiRoutes.StuffSlug + "/{slug}")]
     public async Task<ActionResult<StuffModel?>> GetBySlug(string slug)
     {

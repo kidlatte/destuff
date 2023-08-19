@@ -110,7 +110,7 @@
             <Locations Stuff="Model" Models="Model.StuffLocations" />
         </MudTabPanel>
         <MudTabPanel Text="Purchases">
-            <Purchases Model="Model" />
+            <Purchases Model="Model" Page="Page" />
         </MudTabPanel>
     </MudTabs>
 }
@@ -120,6 +120,9 @@
     [Parameter] public string? Slug { get; set; }
     [Parameter] public string? Tab { get; set; }
     int activePanelIndex;
+
+    [Parameter, SupplyParameterFromQuery(Name = "p")]
+    public int? Page { get; set; }
 
     StuffModel? Model { get; set; }
     List<UploadModel> uploads = new List<UploadModel>();
