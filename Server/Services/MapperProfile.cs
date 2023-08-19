@@ -32,6 +32,8 @@ public class MapperProfile : Profile
             .ForMember(m => m.Id, o => o.MapFrom(e => stuffId.Encode(e.Id)));
         CreateMap<Stuff, StuffListItem>().IncludeAllDerived()
             .ForMember(m => m.Id, o => o.MapFrom(e => stuffId.Encode(e.Id)));
+        CreateMap<Stuff, StuffBasicModel>().IncludeAllDerived()
+            .ForMember(m => m.Id, o => o.MapFrom(e => stuffId.Encode(e.Id)));
 
         CreateMap<StuffLocationRequest, StuffLocation>()
             .ForMember(e => e.StuffId, o => o.MapFrom(m => m.StuffId != null ? stuffId.Decode(m.StuffId) :  default(int?)))

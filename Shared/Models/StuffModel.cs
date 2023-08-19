@@ -68,3 +68,10 @@ public class StuffListItem : IStuffModel
     public string? Name { get; set; }
     public ICollection<LocationListItem>? Locations { get; set; }
 }
+
+public class StuffBasicModel : IStuffModel
+{
+    public required string Id { get; set; }
+    public required string Slug { get; set; }
+    public string? Name { get; set; }
+}

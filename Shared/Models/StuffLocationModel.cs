@@ -11,5 +11,6 @@ public class StuffLocationRequest
 public class StuffLocationModel
 {
     public required LocationListItem Location { get; set; }
+    public required StuffBasicModel Stuff { get; set; }
     public int Count { get; set; }
 }
