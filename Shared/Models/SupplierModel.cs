@@ -60,4 +60,13 @@ public class SupplierListItem: ISupplierModel
     public string? Name { get; set; }
     public string? Url { get; set; }
     public string? Phone { get; set; }
+    public int PurchaseCount { get; set; }
+}
+
+public class SupplierBasicModel : ISupplierModel
+{
+    public required string Id { get; set; }
+    public required string Slug { get; set; }
+    public string? ShortName { get; set; }
+    public string? Name { get; set; }
 }

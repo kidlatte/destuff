@@ -43,8 +43,11 @@ public class MapperProfile : Profile
         CreateMap<SupplierRequest, Supplier>();
         CreateMap<Supplier, SupplierModel>().IncludeAllDerived()
             .ForMember(m => m.Id, o => o.MapFrom(e => supplierId.Encode(e.Id)));
-        CreateMap<Supplier, SupplierListItem>().IncludeAllDerived()
+        CreateMap<Supplier, SupplierBasicModel>().IncludeAllDerived()
             .ForMember(m => m.Id, o => o.MapFrom(e => supplierId.Encode(e.Id)));
+        CreateMap<Supplier, SupplierListItem>().IncludeAllDerived()
+            .ForMember(m => m.Id, o => o.MapFrom(e => supplierId.Encode(e.Id)))
+            .ForMember(m => m.PurchaseCount, o => o.MapFrom(e => e.Purchases.Count()));
 
         CreateMap<PurchaseRequest, Purchase>()
             .ForMember(e => e.SupplierId, o => o.MapFrom(m => m.SupplierId != null ? supplierId.Decode(m.SupplierId) :  default(int?)));

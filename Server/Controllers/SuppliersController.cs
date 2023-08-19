@@ -40,6 +40,9 @@ public class SuppliersController : BaseController<Supplier, SupplierModel, Suppl
             case "":
                 query = query.OrderByDescending(x => x.Created);
                 break;
+            case nameof(SupplierListItem.PurchaseCount):
+                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Purchases.Count()) : query.OrderBy(x => x.Purchases.Count());
+                break;
             default:
                 query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField);
                 break;

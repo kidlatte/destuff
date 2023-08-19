@@ -31,6 +31,15 @@
                 }
             </CellTemplate>
         </PropertyColumn>
+        <PropertyColumn Property="x => x!.PurchaseCount">
+            <CellTemplate>
+                @if (context.Item != null) {
+                    <MudLink Href="@($"/suppliers/{context.Item.Slug}/purchases")">
+                        @context.Item.PurchaseCount
+                    </MudLink>
+                }
+            </CellTemplate>
+        </PropertyColumn>
         <TemplateColumn Title="Contact" Sortable="false">
             <CellTemplate>
                 @if (context.Item != null)
@@ -106,7 +115,7 @@
         var query = new ListQuery
             {
                 Search = Search,
-                Page = gridPage, // BUG: state returns wrong page on first load.
+                Page = gridPage, // BUG: state page always returns 0 on first load.
                 PageSize = state.PageSize,
                 SortField = sort?.SortBy,
                 SortDir = sort?.Descending == true ? DestuffDirection.Descending : DestuffDirection.Ascending
