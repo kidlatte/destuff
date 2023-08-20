@@ -99,18 +99,18 @@ public abstract class BaseController<TEntity, TModel, TRequest> : BaseController
     }
 
     [HttpPost]
-    public virtual async Task<ActionResult<TModel>> Create([FromBody] TRequest model)
+    public virtual async Task<ActionResult<TModel>> Create([FromBody] TRequest request)
     {
         if (!ModelState.IsValid)
-            return BadRequest(model);
+            return BadRequest(request);
 
-        var entity = Mapper.Map<TEntity>(model);
+        var entity = Mapper.Map<TEntity>(request);
         Context.Add(entity);
 
         if (entity is ISluggable sluggable)
             sluggable.Slug = sluggable.ToSlug();
 
-        await BeforeSaveAsync(entity, model);
+        await BeforeSaveAsync(entity, request);
         Audit(entity);
         await Context.SaveChangesAsync();
         await AfterSaveAsync(entity);
@@ -119,22 +119,22 @@ public abstract class BaseController<TEntity, TModel, TRequest> : BaseController
     }
 
     [HttpPut("{hash}")]
-    public async Task<ActionResult<TModel>> Update(string hash, [FromBody] TRequest model)
+    public async Task<ActionResult<TModel>> Update(string hash, [FromBody] TRequest request)
     {
         if (!ModelState.IsValid)
-            return BadRequest(model);
+            return BadRequest(request);
 
         int id = Hasher.Decode(hash);
         var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
         if (entity == null)
             return NotFound();
 
-        Mapper.Map(model, entity);
+        Mapper.Map(request, entity);
 
         if (entity is ISluggable sluggable)
             sluggable.Slug = sluggable.ToSlug();
 
-        await BeforeSaveAsync(entity, model);
+        await BeforeSaveAsync(entity, request);
         Audit(entity);
         await Context.SaveChangesAsync();
         await AfterSaveAsync(entity);

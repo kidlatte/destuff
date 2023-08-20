@@ -12,10 +12,10 @@ public class StuffLocationsCreateRequestShould : IntegrationTestBase
     public async Task Create_StuffLocation()
     {
         // Arrange
-        var stuff = await AuthorizedSendAsync<StuffModel>(new StuffRequest { Name = "Stuff 001" }, HttpMethod.Post, ApiRoutes.Stuffs);
+        var stuff = await AuthorizedSendAsync<StuffModel>(new StuffRequest { Name = "New Stuff" }, HttpMethod.Post, ApiRoutes.Stuffs);
         Assert.NotNull(stuff);
 
-        var location = await AuthorizedSendAsync<LocationModel>(new LocationRequest { Name = "New Loaction" }, HttpMethod.Post, ApiRoutes.Locations);
+        var location = await AuthorizedSendAsync<LocationModel>(new LocationRequest { Name = "New Location" }, HttpMethod.Post, ApiRoutes.Locations);
         Assert.NotNull(location);
 
         var model = new StuffLocationRequest { StuffId = stuff.Id, LocationId = location.Id };

@@ -1,0 +1,67 @@
+@inject IHttpService http
+
+@if (request != null)
+{
+    <EditForm OnValidSubmit="OnSubmit" Model="request" autocomplete="off">
+        <MudDialog>
+            <TitleContent>
+                <MudText Typo="Typo.h6">
+                    Add Location
+                </MudText>
+            </TitleContent>
+            <DialogContent>
+                <p>
+                    Add Location to
+                    <strong>@Model.Name</strong>
+                </p>
+
+                <DataAnnotationsValidator />
+                <LocationSelect @bind-Value="request.LocationId" Loading="loading" />
+                <MudNumericField @bind-Value="request.Count" For="@(() => request.Count)" Disabled="loading"
+                             Label="Quantity" Variant="Variant.Outlined" />
+
+                <MudText Color="@Color.Error">@error</MudText>
+            </DialogContent>
+            <DialogActions>
+                <LoadingButton Loading="loading" />
+                <MudButton OnClick="() => dialog?.Cancel()" Disabled="loading" Color="Color.Default">
+                    Cancel
+                </MudButton>
+            </DialogActions>
+        </MudDialog>
+    </EditForm>
+}
+
+@code {
+    [CascadingParameter]
+    MudDialogInstance? dialog { get; set; }
+
+    [Parameter]
+    public required IStuffModel Model { get; set; }
+    StuffLocationRequest? request { get; set; }
+
+    string error { get; set; } = "";
+    bool loading { get; set; } = false;
+
+    protected override void OnParametersSet() => request = new() { StuffId = Model.Id, Count = 1 };
+
+    async Task OnSubmit()
+    {
+        if (request == null)
+            throw new NullReferenceException();
+
+        loading = true;
+
+        try
+        {
+            var result = await http.PostAsync<StuffLocationModel>(ApiRoutes.StuffLocations, request);
+            dialog?.Close(DialogResult.Ok(result));
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+
+        loading = false;
+    }
+}

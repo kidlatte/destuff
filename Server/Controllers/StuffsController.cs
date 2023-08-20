@@ -38,11 +38,17 @@ public class StuffsController : BaseController<Stuff, StuffModel, StuffRequest>
 
         var sortField = request.SortField ?? "";
         query = sortField switch {
-            "" => query.OrderByDescending(x => x.Created),
-            nameof(StuffListItem.Locations) => request.SortDir == SortDirection.Descending ? 
-                query.OrderByDescending(x => x.Locations!.First().Name) : query.OrderBy(x => x.Locations!.First().Name),
-            _ => request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField),
+            "" => 
+                query.OrderByDescending(x => x.Created),
+            nameof(StuffListItem.Locations) => 
+                request.SortDir == SortDirection.Descending ? 
+                    query.OrderByDescending(x => x.Locations!.First().Name) : 
+                    query.OrderBy(x => x.Locations!.First().Name),
+            _ => 
+                request.SortDir == SortDirection.Descending ? 
+                    query.OrderByDescending(sortField) : query.OrderBy(sortField),
         };
+
         var count = await query.CountAsync();
         var list = await query
             .Skip(request.Skip).Take(request.Take)

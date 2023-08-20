@@ -2,7 +2,7 @@
 @inject IDialogService Dialog
 
 <MudAutocomplete @ref="field" @bind-Text="text" T="ILocationDataModel" 
-                 Value="Model" ValueChanged="ModelChanged"
+                 Value="Model" ValueChanged="ModelChanged" MaxItems="12"
                  SearchFunc="@Search" ToStringFunc="x => x.Name" Disabled="Loading"
                  Label="@Label" Variant="Variant.Outlined" DebounceInterval="300"
                  Clearable="true" ResetValueOnEmptyText="true" ShowProgressIndicator="true">
@@ -19,7 +19,7 @@
                 @foreach (var path in item.Data.Path.OrEmpty())
                 {
                     <em>@path.Name</em>
-                    <i class="bi bi-chevron-compact-right"></i>
+                    <text> &rsaquo; </text>
                 }
             }
             <span>@item.Name</span>
@@ -57,7 +57,7 @@
         if (Model != null && search == null)
             list = new List<ILocationDataModel> { Model }.UnionBy(list, x => x.Id);
 
-        return list.Append(new LocationLookupItem { Id = "add", Name = search, Slug = "", });
+        return list.Append(new LocationLookupItem { Id = "add", Name = search, Slug = "" });
     }
 
     async Task ModelChanged(ILocationDataModel? value)

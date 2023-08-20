@@ -72,10 +72,32 @@ public class StuffLocationsController : BaseController
 
         var exists = await Context.StuffLocations.AnyAsync(x => x.StuffId == stuffId && x.LocationId == locationId);
         if (exists)
-            return BadRequest("Name already exists.");
+            return BadRequest("Location already exists.");
 
         var entity = Mapper.Map<StuffLocation>(model);
         Context.Add(entity);
+        await Context.SaveChangesAsync();
+
+        return await Context.StuffLocations
+            .Where(x => x.StuffId == stuffId && x.LocationId == locationId)
+            .ProjectTo<StuffLocationModel>(Mapper.ConfigurationProvider)
+            .FirstAsync();
+    }
+
+    [HttpPut]
+    public async Task<ActionResult<StuffLocationModel>> Update([FromBody] StuffLocationRequest model)
+    {
+        if (!ModelState.IsValid || model.StuffId == null || model.LocationId == null)
+            return BadRequest(model);
+
+        var stuffId = StuffHasher.Decode(model.StuffId);
+        var locationId = LocationHasher.Decode(model.LocationId);
+
+        var entity = await Context.StuffLocations.FirstOrDefaultAsync(x => x.StuffId == stuffId && x.LocationId == locationId);
+        if (entity == null)
+            return BadRequest("Location does not exist.");
+
+        Mapper.Map(model, entity);
         await Context.SaveChangesAsync();
 
         return Mapper.Map<StuffLocationModel>(entity);

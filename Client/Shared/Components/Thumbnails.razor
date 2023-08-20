@@ -22,7 +22,7 @@
 @code
 {
     [Parameter]
-    public required List<UploadModel> Items { get; set; }
+    public required ICollection<UploadModel> Items { get; set; }
 
     async void OnDeleteClick(UploadModel item)
     {

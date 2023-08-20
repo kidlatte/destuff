@@ -72,5 +72,9 @@ public class FileService : IFileService
         return filePath;
     }
 
-    public virtual void Delete(string path) => System.IO.File.Delete(path);
+    public virtual void Delete(string path)
+    {
+        if (File.Exists(path))
+            File.Delete(path);
+    }
 }

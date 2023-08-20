@@ -1,0 +1,80 @@
+﻿<div>
+    @if (uploads != null) {
+        <div class="mb-4">
+            <Thumbnails Items="uploads" />
+        </div>
+    }
+
+    <dl>
+        <dt>Name</dt>
+        <dd>
+            
+            <MudLink Href="@($"/stuffs/{Model.Slug}")" Target="_blank">
+                @Model.Name
+            </MudLink>
+        </dd>
+    </dl>
+
+    @if (!string.IsNullOrEmpty(Model.Url)) {
+        <dl>
+            <dt>URL</dt>
+            <dd class="text-truncate">
+                <MudLink Href="@Model.Url" Target="_blank">
+                    @Model.Url
+                </MudLink>
+            </dd>
+        </dl>
+    }
+
+    @if (Model.IsSingleLocation && Model.FirstLocation != null) {
+        <dl>
+            <dt>Location</dt>
+            <dd>
+                <MudLink Href="@($"/locations/{Model.FirstLocation.Slug}")">
+                    @Model.FirstLocation.Name
+                </MudLink>
+            </dd>
+        </dl>
+    }
+    else if (Model.StuffLocations != null && Model.StuffLocations.Any()) {
+        <dl>
+            <dt>Count</dt>
+            <dd>
+                <MudLink Href="@($"/stuffs/{Model.Slug}/locations")">
+                    @Model.StuffLocations.Sum(x => x.Count)
+                </MudLink>
+            </dd>
+        </dl>
+        <dl>
+            <dt>Location</dt>
+            <dd>
+                @foreach (var (item, i) in Model.StuffLocations.ToIndex()) {
+                    @if (i > 0) {
+                        <text>, </text>
+                    }
+
+                    <MudLink Href="@($"/locations/{item.Location.Slug}")">
+                        @item.Location.Name
+                    </MudLink>
+
+                    @if (item.Count > 1) {
+                        <span title="@($"{item.Count} units")">@($" ({item.Count})")</span>
+                    }
+                }
+            </dd>
+        </dl>
+    }
+
+    <div>@Model.Notes</div>
+</div>
+
+@code {
+
+    [Parameter] public required StuffModel Model { get; set; }
+    ICollection<UploadModel>? uploads;
+
+    protected override void OnInitialized()
+    {
+        uploads = Model.Uploads;
+    }
+}
