@@ -54,7 +54,7 @@ public class PurchasesController : BaseController<Purchase, PurchaseModel, Purch
     [HttpGet(ApiRoutes.PurchasesBySupplier + "/{hash}")]
     public async Task<PagedList<PurchaseBasicModel>> GetBySupplier(string hash, [FromQuery] ListRequest? request, [FromServices] IIdentityHasher<Supplier> hasher)
     {
-        int id = hasher.Decode(hash);
+        var id = hasher.Decode(hash);
         var query = Query.Where(x => x.SupplierId == id);
 
         request ??= new ListRequest();

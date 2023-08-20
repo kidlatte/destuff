@@ -50,7 +50,7 @@ public class LocationsController : BaseController<Location, LocationModel, Locat
     [HttpGet(ApiRoutes.LocationTree + "/{hash}")]
     public async Task<ActionResult<LocationTreeModel?>> GetLocationTree(string hash)
     {
-        int id = Hasher.Decode(hash);
+        var id = Hasher.Decode(hash);
         var query = Query.Include(x => x.Children).Where(x => x.Id == id);
 
         var model = await query

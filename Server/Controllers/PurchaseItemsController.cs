@@ -52,7 +52,7 @@ public class PurchaseItemsController : BaseController<PurchaseItem, PurchaseItem
     [HttpGet(ApiRoutes.PurchaseItemsByStuff + "/{stuffHash}")]
     public async Task<PagedList<PurchaseItemSupplier>> GetByStuff(string stuffHash, [FromQuery] ListRequest? request, [FromServices] IIdentityHasher<Stuff> hasher)
     {
-        int stuffId = hasher.Decode(stuffHash);
+        var stuffId = hasher.Decode(stuffHash);
         var query = Query.Where(x => x.StuffId == stuffId);
 
         request ??= new ListRequest();

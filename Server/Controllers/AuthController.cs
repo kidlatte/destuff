@@ -19,7 +19,7 @@ public class AuthController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly AppSettings _appSettings;
-    ILogger<AuthController> _logger;
+    private readonly ILogger<AuthController> _logger;
 
     public AuthController(UserManager<ApplicationUser> userManager, IOptions<AppSettings> appSettings, ILogger<AuthController> logger)
     {

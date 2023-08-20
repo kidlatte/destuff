@@ -33,7 +33,7 @@ public class FileService : IFileService
         var path = Path.Combine(DataPath, "uploads", DateTime.UtcNow.ToString("yyyyMMdd"));
         Directory.CreateDirectory(path);
 
-        var fileName = $"{Path.GetFileNameWithoutExtension(file.FileName)}-{Guid.NewGuid().ToString().Substring(0, 5)}{Path.GetExtension(file.FileName)}";
+        var fileName = $"{Path.GetFileNameWithoutExtension(file.FileName)}-{Guid.NewGuid().ToString()[..5]}{Path.GetExtension(file.FileName)}";
         var filePath = Path.Combine(path, fileName);
 
         await using FileStream fs = new(filePath, FileMode.Create);
@@ -54,7 +54,7 @@ public class FileService : IFileService
         Directory.CreateDirectory(path);
 
         var ext = compress ? ".webp" : Path.GetExtension(file.FileName);
-        var fileName = $"{Path.GetFileNameWithoutExtension(file.FileName)}-{Guid.NewGuid().ToString().Substring(0, 5)}{ext}";
+        var fileName = $"{Path.GetFileNameWithoutExtension(file.FileName)}-{Guid.NewGuid().ToString()[..5]}{ext}";
         var filePath = Path.Combine(path, fileName);
 
         if (compress)

@@ -5,8 +5,8 @@ namespace Destuff.Server.Services;
 
 public interface IIdentityHasher<T> where T : Entity
 {
-    int Decode(string hash);
-    string Encode(int id);
+    string? Encode(int? id);
+    int? Decode(string? hash);
 }
 
 public class IdentityHasher<T> : IIdentityHasher<T> where T : Entity
@@ -18,14 +18,14 @@ public class IdentityHasher<T> : IIdentityHasher<T> where T : Entity
         Hashids = new Hashids($"destuff-{typeof(T).Name.ToLowerInvariant()}-ef5ded03ca29", 5);
     }
 
-    public string Encode(int id)
+    public string? Encode(int? id)
     {
-        return Hashids.Encode(id);
+        return id.HasValue ? Hashids.Encode(id.Value) : default;
     }
 
-    public int Decode(string hash)
+    public int? Decode(string? hash)
     {
-        return Hashids.TryDecodeSingle(hash, out var id) ? id : -1;
+        return Hashids.TryDecodeSingle(hash, out var id) ? id : null;
     }
 }
 

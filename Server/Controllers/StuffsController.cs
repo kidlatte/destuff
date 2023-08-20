@@ -117,7 +117,7 @@ public class StuffsController : BaseController<Stuff, StuffModel, StuffRequest>
             }
             else
             {
-                var locationId = LocationId.Decode(request.LocationId);
+                int locationId = LocationId.Decode(request.LocationId) ?? throw new NullReferenceException("LocationId");
                 var stuffLocation = new StuffLocation { LocationId = locationId, Count = 1 };
                 entity.StuffLocations = new List<StuffLocation> { stuffLocation };
             }

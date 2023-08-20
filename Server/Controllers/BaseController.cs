@@ -45,7 +45,7 @@ public abstract class BaseController<TEntity> : BaseController where TEntity : E
     [HttpDelete("{hash}")]
     public async virtual Task<IActionResult> Delete(string hash, [FromServices] IIdentityHasher<TEntity> hasher)
     {
-        int id = hasher.Decode(hash);
+        var id = hasher.Decode(hash);
         var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
         if (entity == null)
             return NotFound();
@@ -74,7 +74,7 @@ public abstract class BaseController<TEntity, TModel> : BaseController<TEntity>
     [HttpGet("{hash}")]
     public virtual async Task<ActionResult<TModel>> Get(string hash, [FromServices] IIdentityHasher<TEntity> hasher)
     {
-        int id = hasher.Decode(hash);
+        var id = hasher.Decode(hash);
         var query = Query.Where(x => x.Id == id);
 
         var model = await query
@@ -124,7 +124,7 @@ public abstract class BaseController<TEntity, TModel, TRequest> : BaseController
         if (!ModelState.IsValid)
             return BadRequest(request);
 
-        int id = Hasher.Decode(hash);
+        var id = Hasher.Decode(hash);
         var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
         if (entity == null)
             return NotFound();

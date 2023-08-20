@@ -106,8 +106,8 @@ public class StuffLocationsController : BaseController
     [HttpDelete("{stuffHash}/{locationHash}")]
     public async Task<IActionResult> Delete(string stuffHash, string locationHash)
     {
-        int stuffId = StuffHasher.Decode(stuffHash);
-        int locationId = LocationHasher.Decode(locationHash);
+        var stuffId = StuffHasher.Decode(stuffHash);
+        var locationId = LocationHasher.Decode(locationHash);
         var entity = await Context.StuffLocations.Where(x => x.StuffId == stuffId && x.LocationId == locationId).FirstOrDefaultAsync();
         if (entity == null)
             return NotFound();

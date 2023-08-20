@@ -30,11 +30,11 @@ public class UploadsController : BaseController<Upload>
     }
 
     [AllowAnonymous]
-    [HttpGet(ApiRoutes.UploadFiles + "/{id}/{name}")]
-    public async Task<IActionResult> Get(string id, string name)
+    [HttpGet(ApiRoutes.UploadFiles + "/{hash}/{name}")]
+    public async Task<IActionResult> Get(string hash, string name)
     {
-        int actualId = Hasher.Decode(id);
-        var query = Query.Where(x => x.Id == actualId);
+        var id = Hasher.Decode(hash);
+        var query = Query.Where(x => x.Id == id);
 
         var entity = await query.FirstOrDefaultAsync();
         if (entity == null || entity.Path == null || entity.FileName != name || !System.IO.File.Exists(entity.Path))
@@ -55,8 +55,8 @@ public class UploadsController : BaseController<Upload>
         {
             var filePath = await Files.Save(model.File);
 
-            var locationId = model.LocationId != null ? LocationId.Decode(model.LocationId) : default(int?);
-            var stuffId = model.StuffId != null ? StuffId.Decode(model.StuffId) : default(int?);
+            var locationId = LocationId.Decode(model.LocationId);
+            var stuffId = StuffId.Decode(model.StuffId);
 
             var entity = new Upload 
             { 
@@ -88,8 +88,8 @@ public class UploadsController : BaseController<Upload>
         {
             var filePath = await Files.SaveImage(model.File);
 
-            var locationId = model.LocationId != null ? LocationId.Decode(model.LocationId) : default(int?);
-            var stuffId = model.StuffId != null ? StuffId.Decode(model.StuffId) : default(int?);
+            var locationId = LocationId.Decode(model.LocationId);
+            var stuffId = StuffId.Decode(model.StuffId);
 
             var entity = new Upload 
             { 
