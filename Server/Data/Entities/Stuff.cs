@@ -1,4 +1,5 @@
 using Destuff.Server.Services;
+using Destuff.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
@@ -26,6 +27,7 @@ public class Stuff: Entity, ISluggable
     public int Count { get; set; }
     public DateTime? Computed { get; set; }
     public DateTime? Inventoried { get; set; }
+    public StuffData? Data { get; set; }
 
     public ICollection<Location>? Locations { get; set; }
     public ICollection<StuffLocation>? StuffLocations { get; set; }
@@ -35,6 +37,11 @@ public class Stuff: Entity, ISluggable
     public ICollection<Event>? Events { get; set; }
 
     public string ToSlug() => Name.ToSlug();
+}
+
+public class StuffData
+{
+    public ICollection<LocationListItem>? Locations { get; set; }
 }
 
 [Flags]

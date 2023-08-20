@@ -19,6 +19,7 @@ public class PurchaseModel : PurchaseRequest, IPurchaseModel
 {
     public required string Id { get; set; }
     public decimal Price { get; set; }
+    public int ItemCount { get; set; }
     public SupplierBasicModel? Supplier { get; set; }
 
     public PurchaseRequest ToRequest()
@@ -39,7 +40,6 @@ public class PurchaseBasicModel : IModel
     public DateTime? Receipt { get; set; }
     public DateTime? Received { get; set; }
     public decimal Price { get; set; }
-
     public int ItemCount { get; set; }
 }
 

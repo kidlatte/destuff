@@ -37,8 +37,6 @@ public class SuppliersController : BaseController<Supplier, SupplierModel, Suppl
         var sortField = request.SortField ?? "";
         query = sortField switch {
             "" => query.OrderByDescending(x => x.Created),
-            nameof(SupplierListItem.PurchaseCount) => request.SortDir == SortDirection.Descending ? 
-                query.OrderByDescending(x => x.Purchases.Count()) : query.OrderBy(x => x.Purchases.Count()),
             _ => request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField),
         };
         var count = await query.CountAsync();

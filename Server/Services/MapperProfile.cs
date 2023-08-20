@@ -37,16 +37,14 @@ public class MapperProfile : Profile
         CreateMap<SupplierRequest, Supplier>();
         CreateEntityMap<Supplier, SupplierModel>(supplierHasher).IncludeAllDerived();
         CreateEntityMap<Supplier, SupplierBasicModel>(supplierHasher).IncludeAllDerived();
-        CreateMap<Supplier, SupplierListItem>().IncludeAllDerived()
-            .ForMember(m => m.PurchaseCount, o => o.MapFrom(e => e.Purchases.Count()));
+        CreateMap<Supplier, SupplierListItem>();
 
         CreateMap<PurchaseRequest, Purchase>()
             .ForMember(e => e.SupplierId, o => o.MapFrom(m => m.SupplierId != null ? supplierHasher.Decode(m.SupplierId) :  default(int?)));
         CreateEntityMap<Purchase, PurchaseModel>(purchaseHasher).IncludeAllDerived()
             .ForMember(m => m.SupplierId, o => o.MapFrom(e => e.SupplierId.HasValue ? supplierHasher.Encode(e.SupplierId.Value) : default));
-        CreateEntityMap<Purchase, PurchaseBasicModel>(purchaseHasher).IncludeAllDerived()
-            .ForMember(m => m.ItemCount, o => o.MapFrom(e => e.Items!.Count()));
-        CreateEntityMap<Purchase, PurchaseListItem>(purchaseHasher);
+        CreateEntityMap<Purchase, PurchaseBasicModel>(purchaseHasher).IncludeAllDerived();
+        CreateMap<Purchase, PurchaseListItem>();
 
         CreateMap<PurchaseItemRequest, PurchaseItem>()
             .ForMember(e => e.PurchaseId, o => o.MapFrom(m => purchaseHasher.Decode(m.PurchaseId)))

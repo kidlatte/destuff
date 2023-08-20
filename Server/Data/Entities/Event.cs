@@ -38,17 +38,13 @@ public class Event : Entity, IEvent
 
     public int StuffId { get; set; }
     public Stuff? Stuff { get; set; }
-
-    public int LocationId { get; set; }
-    public Location? Location { get; set; }
    
     public ICollection<Upload>? Uploads { get; set; }
-
-    public int ToLocationId { get; set; }
-    public Location? ToLocation { get; set; }
 }
 
 public class EventData
 { 
     public StuffModel? Stuff { get; set; }
+    public LocationListItem? Location { get; set; }
+    public LocationListItem? ToLocation { get; set; }
 }

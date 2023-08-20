@@ -6,8 +6,10 @@ public class Purchase : Entity
 {
     public DateTime? Receipt { get; set; }
     public DateTime? Received { get; set; }
-    public decimal Price { get; set; }
     public string? Notes { get; set; }
+
+    public decimal Price { get; set; }
+    public int ItemCount { get; set; }
 
     public int? SupplierId { get; set; }
     public Supplier? Supplier { get; set; }

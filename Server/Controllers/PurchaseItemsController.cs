@@ -92,24 +92,27 @@ public class PurchaseItemsController : BaseController<PurchaseItem, PurchaseItem
     }
 
     internal override Task AfterSaveAsync(PurchaseItem entity) 
-        => ComputePurchasePrice(entity.PurchaseId);
+        => ComputePurchaseProperties(entity.PurchaseId);
 
     internal override Task AfterDeleteAsync(PurchaseItem entity) 
-        => ComputePurchasePrice(entity.PurchaseId);
+        => ComputePurchaseProperties(entity.PurchaseId);
 
-    private async Task ComputePurchasePrice(int purchaseId)
+    private async Task ComputePurchaseProperties(int purchaseId)
     {
         var result = await Context.Purchases.Where(x => x.Id == purchaseId).Select(x => new
         {
+            x.ItemCount,
+            NewItemCount = x.Items!.Count(),
             x.Price,
-            Computed = x.Items!.Sum(x => x.Quantity * x.Price)
+            NewPrice = x.Items!.Sum(x => x.Quantity * x.Price),
         }).FirstOrDefaultAsync();
 
-        if (result != null && result.Price != result.Computed)
+        if (result != null)
         {
-            var purchase = new Purchase { Id = purchaseId, Price = result.Price, };
+            var purchase = new Purchase { Id = purchaseId, Price = result.Price, ItemCount = result.ItemCount };
             Context.Attach(purchase);
-            purchase.Price = result.Computed;
+            purchase.ItemCount = result.NewItemCount;
+            purchase.Price = result.NewPrice;
             await Context.SaveChangesAsync();
         }
     }

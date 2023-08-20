@@ -42,6 +42,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 sl => sl.HasKey(x => new { x.StuffId, x.LocationId })
             );
 
+        builder.Entity<Stuff>()
+            .Property(x => x.Data).HasJsonConversion();
+
         builder.Entity<Location>()
             .Property(x => x.Data).HasJsonConversion();
 

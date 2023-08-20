@@ -40,8 +40,6 @@ public class PurchasesController : BaseController<Purchase, PurchaseModel, Purch
                 query.OrderByDescending(x => x.Received ?? x.Receipt) : query.OrderBy(x => x.Received ?? x.Receipt),
             nameof(PurchaseListItem.Supplier) => request.SortDir == SortDirection.Descending ? 
                 query.OrderByDescending(x => x.Supplier!.ShortName) : query.OrderBy(x => x.Supplier!.ShortName),
-            nameof(PurchaseListItem.ItemCount) => request.SortDir == SortDirection.Descending ? 
-                query.OrderByDescending(x => x.Items!.Count()) : query.OrderBy(x => x.Items!.Count()),
             _ => request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField),
         };
         var count = await query.CountAsync();
@@ -87,13 +85,35 @@ public class PurchasesController : BaseController<Purchase, PurchaseModel, Purch
 
     internal override async Task BeforeSaveAsync(Purchase entity)
     {
+        if (entity.Id == 0)
+            return;
+        
         var items = await Context.PurchaseItems.Where(x => x.PurchaseId == entity.Id)
-            .Select(x => new PurchaseItem() { Id = x.Id, DateTime = x.DateTime })
+            .Select(x => new PurchaseItem() { Id = x.Id, DateTime = x.DateTime, Quantity = x.Quantity, Price = x.Price })
             .ToListAsync();
+
+        entity.ItemCount = items.Count;
+        entity.Price = items.Sum(x => x.Quantity * x.Price);
 
         foreach (var item in items) {
             Context.Attach(item);
             item.DateTime = entity.Received ?? entity.Receipt ?? entity.Created;
         }
+    }
+
+    internal override async Task AfterSaveAsync(Purchase entity) => await CountSupplierPurchases(entity.SupplierId);
+
+    internal override async Task AfterDeleteAsync(Purchase entity) => await CountSupplierPurchases(entity.SupplierId);
+
+    private async Task CountSupplierPurchases(int? supplierId)
+    {
+        if (supplierId == null)
+            return;
+
+        var supplier = await Context.Suppliers.Where(x => x.Id == supplierId).FirstAsync();
+        supplier.PurchaseCount = await Context.Purchases
+            .Where(x => x.SupplierId == supplierId).CountAsync();
+
+        await Context.SaveChangesAsync();
     }
 }

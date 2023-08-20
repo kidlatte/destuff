@@ -27,6 +27,8 @@ public class Supplier : Entity, ISluggable
 
     public string? Notes { get; set; }
 
+    public int PurchaseCount { get; set; }
+
     public required ICollection<Purchase> Purchases { get; set; }
 
     public string ToSlug() => ShortName.ToSlug();
