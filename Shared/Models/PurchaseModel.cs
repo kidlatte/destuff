@@ -1,8 +1,7 @@
 namespace Destuff.Shared.Models;
 
-public interface IPurchaseModel
+public interface IPurchaseModel : IModel
 {
-    string Id { get; set; }
     DateTime? Receipt { get; set; }
     DateTime? Received { get; set; }
     SupplierBasicModel? Supplier { get; set; }
@@ -16,7 +15,7 @@ public class PurchaseRequest : IRequest
     public string? Notes { get; set; }
 }
 
-public class PurchaseModel : PurchaseRequest, IModel, IPurchaseModel
+public class PurchaseModel : PurchaseRequest, IPurchaseModel
 {
     public required string Id { get; set; }
     public decimal Price { get; set; }
@@ -34,23 +33,17 @@ public class PurchaseModel : PurchaseRequest, IModel, IPurchaseModel
     }
 }
 
-public class PurchaseListItem: IPurchaseModel
+public class PurchaseBasicModel : IModel
 {
     public required string Id { get; set; }
     public DateTime? Receipt { get; set; }
     public DateTime? Received { get; set; }
     public decimal Price { get; set; }
-    public SupplierBasicModel? Supplier { get; set; }
 
     public int ItemCount { get; set; }
 }
 
-public class PurchaseBasicModel
+public class PurchaseListItem: PurchaseBasicModel, IPurchaseModel
 {
-    public required string Id { get; set; }
-    public DateTime? Receipt { get; set; }
-    public DateTime? Received { get; set; }
-    public decimal Price { get; set; }
-
-    public int ItemCount { get; set; }
+    public SupplierBasicModel? Supplier { get; set; }
 }

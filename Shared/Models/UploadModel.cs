@@ -1,10 +1,8 @@
-using Destuff.Shared;
-
 namespace Destuff.Shared.Models;
 
-public class UploadModel
+public class UploadModel : IModel
 {
-    public string? Id { get; set; }
-    public string? FileName { get; set; }
-    public string? Url => Id == null ? null : $"{ApiRoutes.UploadFiles}/{Id}/{FileName}";
+    public required string Id { get; set; }
+    public required string FileName { get; set; }
+    public string Url => $"{ApiRoutes.UploadFiles}/{Id}/{FileName}";
 }

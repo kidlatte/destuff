@@ -1,5 +1,4 @@
 using AutoMapper;
-using HashidsNet;
 using Destuff.Server.Data.Entities;
 using Destuff.Shared.Models;
 
@@ -8,73 +7,65 @@ namespace Destuff.Server.Services;
 public class MapperProfile : Profile
 {
     public MapperProfile(
-        IIdentityHasher<Location> locationId, 
-        IIdentityHasher<Stuff> stuffId, 
-        IIdentityHasher<Upload> uploadId, 
-        IIdentityHasher<Supplier> supplierId, 
-        IIdentityHasher<Purchase> purchaseId, 
-        IIdentityHasher<PurchaseItem> purchaseItemId)
+        IIdentityHasher<Location> locationHasher, 
+        IIdentityHasher<Stuff> stuffHasher, 
+        IIdentityHasher<Upload> uploadHasher, 
+        IIdentityHasher<Supplier> supplierHasher, 
+        IIdentityHasher<Purchase> purchaseHasher, 
+        IIdentityHasher<PurchaseItem> purchaseItemHasher)
     {
         CreateMap<LocationRequest, Location>()
-            .ForMember(e => e.ParentId, o => o.MapFrom(m => m.ParentId != null ? locationId.Decode(m.ParentId) :  default(int?)));
-        CreateMap<Location, LocationModel>().IncludeAllDerived()
-            .ForMember(m => m.Id, o => o.MapFrom(e => locationId.Encode(e.Id)))
-            .ForMember(m => m.ParentId, o => o.MapFrom(e => e.ParentId != null ? locationId.Encode(e.ParentId.Value) : null))
+            .ForMember(e => e.ParentId, o => o.MapFrom(m => m.ParentId != null ? locationHasher.Decode(m.ParentId) :  default(int?)));
+        CreateEntityMap<Location, LocationModel>(locationHasher).IncludeAllDerived()
+            .ForMember(m => m.ParentId, o => o.MapFrom(e => e.ParentId != null ? locationHasher.Encode(e.ParentId.Value) : null))
             .ForMember(m => m.Children, o => o.Ignore());
-        CreateMap<Location, LocationListItem>().IncludeAllDerived()
-            .ForMember(m => m.Id, o => o.MapFrom(e => locationId.Encode(e.Id)));
+        CreateEntityMap<Location, LocationListItem>(locationHasher).IncludeAllDerived();
         CreateMap<Location, LocationTreeModel>();
         CreateMap<Location, LocationLookupItem>();
         CreateMap<LocationListItem, LocationLookupItem>();
 
         CreateMap<StuffRequest, Stuff>();
-        CreateMap<Stuff, StuffModel>().IncludeAllDerived()
-            .ForMember(m => m.Id, o => o.MapFrom(e => stuffId.Encode(e.Id)));
-        CreateMap<Stuff, StuffListItem>().IncludeAllDerived()
-            .ForMember(m => m.Id, o => o.MapFrom(e => stuffId.Encode(e.Id)));
-        CreateMap<Stuff, StuffBasicModel>().IncludeAllDerived()
-            .ForMember(m => m.Id, o => o.MapFrom(e => stuffId.Encode(e.Id)));
+        CreateEntityMap<Stuff, StuffBasicModel>(stuffHasher).IncludeAllDerived();
+        CreateMap<Stuff, StuffModel>();
+        CreateMap<Stuff, StuffListItem>();
 
         CreateMap<StuffLocationRequest, StuffLocation>()
-            .ForMember(e => e.StuffId, o => o.MapFrom(m => m.StuffId != null ? stuffId.Decode(m.StuffId) :  default(int?)))
-            .ForMember(e => e.LocationId, o => o.MapFrom(m => m.LocationId != null ? locationId.Decode(m.LocationId) :  default(int?)));
+            .ForMember(e => e.StuffId, o => o.MapFrom(m => m.StuffId != null ? stuffHasher.Decode(m.StuffId) :  default(int?)))
+            .ForMember(e => e.LocationId, o => o.MapFrom(m => m.LocationId != null ? locationHasher.Decode(m.LocationId) :  default(int?)));
         CreateMap<StuffLocation, StuffLocationModel>();
 
         CreateMap<SupplierRequest, Supplier>();
-        CreateMap<Supplier, SupplierModel>().IncludeAllDerived()
-            .ForMember(m => m.Id, o => o.MapFrom(e => supplierId.Encode(e.Id)));
-        CreateMap<Supplier, SupplierBasicModel>().IncludeAllDerived()
-            .ForMember(m => m.Id, o => o.MapFrom(e => supplierId.Encode(e.Id)));
+        CreateEntityMap<Supplier, SupplierModel>(supplierHasher).IncludeAllDerived();
+        CreateEntityMap<Supplier, SupplierBasicModel>(supplierHasher).IncludeAllDerived();
         CreateMap<Supplier, SupplierListItem>().IncludeAllDerived()
-            .ForMember(m => m.Id, o => o.MapFrom(e => supplierId.Encode(e.Id)))
             .ForMember(m => m.PurchaseCount, o => o.MapFrom(e => e.Purchases.Count()));
 
         CreateMap<PurchaseRequest, Purchase>()
-            .ForMember(e => e.SupplierId, o => o.MapFrom(m => m.SupplierId != null ? supplierId.Decode(m.SupplierId) :  default(int?)));
-        CreateMap<Purchase, PurchaseModel>().IncludeAllDerived()
-            .ForMember(m => m.Id, o => o.MapFrom(e => purchaseId.Encode(e.Id)))
-            .ForMember(m => m.SupplierId, o => o.MapFrom(e => e.SupplierId.HasValue ? supplierId.Encode(e.SupplierId.Value) : default));
-        CreateMap<Purchase, PurchaseListItem>().IncludeAllDerived()
-            .ForMember(m => m.Id, o => o.MapFrom(e => purchaseId.Encode(e.Id)))
+            .ForMember(e => e.SupplierId, o => o.MapFrom(m => m.SupplierId != null ? supplierHasher.Decode(m.SupplierId) :  default(int?)));
+        CreateEntityMap<Purchase, PurchaseModel>(purchaseHasher).IncludeAllDerived()
+            .ForMember(m => m.SupplierId, o => o.MapFrom(e => e.SupplierId.HasValue ? supplierHasher.Encode(e.SupplierId.Value) : default));
+        CreateEntityMap<Purchase, PurchaseBasicModel>(purchaseHasher).IncludeAllDerived()
             .ForMember(m => m.ItemCount, o => o.MapFrom(e => e.Items!.Count()));
-        CreateMap<Purchase, PurchaseBasicModel>().IncludeAllDerived()
-            .ForMember(m => m.Id, o => o.MapFrom(e => purchaseId.Encode(e.Id)))
-            .ForMember(m => m.ItemCount, o => o.MapFrom(e => e.Items!.Count()));
+        CreateEntityMap<Purchase, PurchaseListItem>(purchaseHasher);
 
         CreateMap<PurchaseItemRequest, PurchaseItem>()
-            .ForMember(e => e.PurchaseId, o => o.MapFrom(m => purchaseId.Decode(m.PurchaseId)))
-            .ForMember(e => e.StuffId, o => o.MapFrom(m => m.StuffId != null ? stuffId.Decode(m.StuffId) :  default(int?)));
-        CreateMap<PurchaseItem, PurchaseItemModel>().IncludeAllDerived()
-            .ForMember(m => m.Id, o => o.MapFrom(e => purchaseItemId.Encode(e.Id)))
-            .ForMember(m => m.PurchaseId, o => o.MapFrom(e => purchaseId.Encode(e.PurchaseId)))
-            .ForMember(m => m.StuffId, o => o.MapFrom(e => stuffId.Encode(e.StuffId))); ;
-        CreateMap<PurchaseItem, PurchaseItemListItem>().IncludeAllDerived()
-            .ForMember(m => m.Id, o => o.MapFrom(e => purchaseItemId.Encode(e.Id)))
-            .ForMember(m => m.PurchaseId, o => o.MapFrom(e => purchaseId.Encode(e.PurchaseId)));
-        CreateMap<PurchaseItem, PurchaseItemSupplier>().IncludeAllDerived()
-            .ForMember(m => m.Id, o => o.MapFrom(e => purchaseItemId.Encode(e.Id)));
+            .ForMember(e => e.PurchaseId, o => o.MapFrom(m => purchaseHasher.Decode(m.PurchaseId)))
+            .ForMember(e => e.StuffId, o => o.MapFrom(m => m.StuffId != null ? stuffHasher.Decode(m.StuffId) :  default(int?)));
+        CreateEntityMap<PurchaseItem, PurchaseItemModel>(purchaseItemHasher).IncludeAllDerived()
+            .ForMember(m => m.PurchaseId, o => o.MapFrom(e => purchaseHasher.Encode(e.PurchaseId)))
+            .ForMember(m => m.StuffId, o => o.MapFrom(e => stuffHasher.Encode(e.StuffId))); ;
+        CreateEntityMap<PurchaseItem, PurchaseItemListItem>(purchaseItemHasher).IncludeAllDerived()
+            .ForMember(m => m.PurchaseId, o => o.MapFrom(e => purchaseHasher.Encode(e.PurchaseId)));
+        CreateEntityMap<PurchaseItem, PurchaseItemSupplier>(purchaseItemHasher).IncludeAllDerived();
 
-        CreateMap<Upload, UploadModel>().IncludeAllDerived()
-            .ForMember(m => m.Id, o => o.MapFrom(e => uploadId.Encode(e.Id)));
+        CreateEntityMap<Upload, UploadModel>(uploadHasher).IncludeAllDerived();
     }
+
+    private IMappingExpression<TEntity, TModel> CreateEntityMap<TEntity, TModel>(IIdentityHasher<TEntity> hasher)
+        where TEntity : Entity 
+        where TModel : class, IModel => CreateMap<TEntity, TModel>().ForMember(m => m.Id, o => o.MapFrom(e => hasher.Encode(e.Id)));
+}
+
+public static class MapperProfileExtensions
+{
 }

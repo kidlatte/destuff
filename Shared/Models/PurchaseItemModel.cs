@@ -2,9 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Destuff.Shared.Models;
 
-public interface IPurchaseItemModel
+public interface IPurchaseItemModel : IModel
 {
-    string Id { get; set; }
     string PurchaseId { get; set; }
     StuffModel Stuff { get; set; }
     int Quantity { get; set; }
@@ -31,7 +30,7 @@ public class PurchaseItemRequest : IRequest
     public string? Notes { get; set; }
 }
 
-public class PurchaseItemModel : PurchaseItemRequest, IModel, IPurchaseItemModel
+public class PurchaseItemModel : PurchaseItemRequest, IPurchaseItemModel
 {
     public required string Id { get; set; }
     public required StuffModel Stuff { get; set; }
@@ -71,7 +70,7 @@ public class PurchaseItemListItem: IPurchaseItemModel
     }
 }
 
-public class PurchaseItemSupplier
+public class PurchaseItemSupplier : IModel
 {
     public required string Id { get; set; }
     public DateTime DateTime { get; set; }

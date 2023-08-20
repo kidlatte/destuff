@@ -2,9 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Destuff.Shared.Models;
 
-public interface ILocationModel
+public interface ILocationModel: IModel
 {
-    string Id { get; set; }
     string Slug { get; set; }
     string? Name { get; set; }
 }
@@ -25,7 +24,7 @@ public class LocationRequest: IRequest
     public string? ParentId { get; set; }
 }
 
-public class LocationModel: LocationRequest, IModel, ILocationDataModel
+public class LocationModel: LocationRequest, ILocationDataModel
 {
     public required string Id { get; set; }
     public required string Slug { get; set; }

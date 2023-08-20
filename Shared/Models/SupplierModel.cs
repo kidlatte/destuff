@@ -2,12 +2,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Destuff.Shared.Models;
 
-public interface ISupplierModel
+public interface ISupplierModel: IModel
 {
-    string Id { get; set; }
+    string Slug { get; set; }
     string? Name { get; set; }
     string? ShortName { get; set; }
-    string Slug { get; set; }
 }
 
 public class SupplierRequest : IRequest
@@ -32,7 +31,7 @@ public class SupplierRequest : IRequest
     public string? Notes { get; set; }
 }
 
-public class SupplierModel : SupplierRequest, IModel, ISupplierModel
+public class SupplierModel : SupplierRequest, ISupplierModel
 {
     public required string Id { get; set; }
     public required string Slug { get; set; }
@@ -51,22 +50,17 @@ public class SupplierModel : SupplierRequest, IModel, ISupplierModel
     }
 }
 
-public class SupplierListItem: ISupplierModel
-{
-    public required string Id { get; set; }
-    public required string Slug { get; set; }
-
-    public string? ShortName { get; set; }
-    public string? Name { get; set; }
-    public string? Url { get; set; }
-    public string? Phone { get; set; }
-    public int PurchaseCount { get; set; }
-}
-
 public class SupplierBasicModel : ISupplierModel
 {
     public required string Id { get; set; }
     public required string Slug { get; set; }
     public string? ShortName { get; set; }
     public string? Name { get; set; }
+}
+
+public class SupplierListItem : SupplierBasicModel
+{
+    public string? Url { get; set; }
+    public string? Phone { get; set; }
+    public int PurchaseCount { get; set; }
 }

@@ -4,11 +4,10 @@ using Destuff.Shared.Services;
 
 namespace Destuff.Shared.Models;
 
-public interface IStuffModel
+public interface IStuffModel : IModel
 {
-    public string Id { get; set; }
     public string Slug { get; set; }
-    public string? Name { get; set; }
+    public string Name { get; set; }
 }
 
 public class StuffRequest : IRequest
@@ -24,12 +23,15 @@ public class StuffRequest : IRequest
     public string? LocationId { get; set; }
 }
 
-public class StuffModel : IModel, IStuffModel
+public class StuffBasicModel : IStuffModel
 {
     public required string Id { get; set; }
     public required string Slug { get; set; }
+    public required string Name { get; set; }
+}
 
-    public string? Name { get; set; }
+public class StuffModel : StuffBasicModel
+{
     public string? Url { get; set; }
     public string? Notes { get; set; }
 
@@ -61,17 +63,7 @@ public class StuffModel : IModel, IStuffModel
     }
 }
 
-public class StuffListItem : IStuffModel
+public class StuffListItem : StuffBasicModel
 {
-    public required string Id { get; set; }
-    public required string Slug { get; set; }
-    public string? Name { get; set; }
     public ICollection<LocationListItem>? Locations { get; set; }
-}
-
-public class StuffBasicModel : IStuffModel
-{
-    public required string Id { get; set; }
-    public required string Slug { get; set; }
-    public string? Name { get; set; }
 }
