@@ -57,6 +57,9 @@ public class MapperProfile : Profile
         CreateEntityMap<PurchaseItem, PurchaseItemSupplier>(purchaseItemHasher).IncludeAllDerived();
 
         CreateEntityMap<Upload, UploadModel>(uploadHasher).IncludeAllDerived();
+
+        CreateMap<InventoryRequest, Event>()
+            .ForMember(e => e.StuffId, o => o.MapFrom(m => stuffHasher.Decode(m.StuffId)));
     }
 
     private IMappingExpression<TEntity, TModel> CreateEntityMap<TEntity, TModel>(IIdentityHasher<TEntity> hasher)

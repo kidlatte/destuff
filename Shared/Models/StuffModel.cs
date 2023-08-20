@@ -36,7 +36,7 @@ public class StuffModel : StuffBasicModel
     public string? Notes { get; set; }
 
     public required ICollection<StuffLocationModel> StuffLocations { get; set; }
-    public ICollection<UploadModel>? Uploads { get; set; }
+    public required ICollection<UploadModel> Uploads { get; set; }
 
     [JsonIgnore]
     public LocationListItem? FirstLocation => StuffLocations.FirstOrDefault()?.Location;
@@ -50,6 +50,9 @@ public class StuffModel : StuffBasicModel
             return count == 0 || count == 1 && StuffLocations.First().Count == 1;
         }
     }
+
+    [JsonIgnore]
+    public int Count => StuffLocations.Sum(x => x.Count);
 
     public StuffRequest ToRequest()
     {

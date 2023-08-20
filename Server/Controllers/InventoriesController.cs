@@ -47,4 +47,23 @@ public class InventoriesController : BaseController
 
         return model;
     }
+
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] InventoryRequest model)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(model);
+
+        var entity = Mapper.Map<Event>(model);
+        entity.Type = EventType.Inventory;
+        entity.DateTime = DateTime.UtcNow;
+        Audit(entity);
+        Context.Add(entity);
+
+        var stuff = await Context.Stuffs.Where(x => x.Id == entity.StuffId).FirstAsync();
+        stuff.Inventoried = entity.DateTime;
+
+        await Context.SaveChangesAsync();
+        return Ok();
+    }
 }

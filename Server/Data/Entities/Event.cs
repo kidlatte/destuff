@@ -27,13 +27,12 @@ public enum EventType
 
 public class Event : Entity, IEvent
 {
-    public EventType Type { get; set; }
-
-    public DateTime DateTime { get; set; }
     public int Count { get; set; }
-    public string? Summary { get; set; }
     public string? Notes { get; set; }
 
+    public DateTime DateTime { get; set; }
+    public EventType Type { get; set; }
+    public string? Summary { get; set; }
     public EventData? Data { get; set; }
 
     public int StuffId { get; set; }

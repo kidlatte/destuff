@@ -1,4 +1,4 @@
-﻿<MudButton ButtonType="ButtonType" Variant="Variant" Color="Color" FullWidth="FullWidth" 
+﻿<MudButton ButtonType="ButtonType" Variant="Variant" Color="Color" FullWidth="FullWidth" Disabled="Loading || Disabled"
         Style="{ min-width: 40px }">
     @if (Loading)
     {
@@ -13,6 +13,7 @@
 @code {
     [Parameter] public string Label { get; set; } = "Submit";
     [Parameter] public bool Loading { get; set; }
+    [Parameter] public bool Disabled { get; set; }
     [Parameter] public bool FullWidth { get; set; }
     [Parameter] public ButtonType ButtonType { get; set; } = ButtonType.Submit;
     [Parameter] public Variant Variant { get; set; }
