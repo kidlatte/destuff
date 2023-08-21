@@ -12,7 +12,7 @@
         <TemplateColumn Sortable="false">
             <CellTemplate>
                 <div class="d-flex flex-nowrap">
-                    @*<MudIconButton OnClick="_ => OnEditClick(context.Item)" Title="Edit" Icon="@Icons.Material.Filled.Key" Color="Color.Tertiary" aria-label="change password"></MudIconButton>*@
+                    <MudIconButton OnClick="_ => OnEditClick(context.Item)" Title="Edit" Icon="@Icons.Material.Filled.Edit" Color="Color.Tertiary"></MudIconButton>
                     @* <DeleteIconButton OnClick="_ => OnDeleteClick(context.Item)" /> *@
                 </div>
             </CellTemplate>
@@ -62,6 +62,21 @@
 
         if (!result.Canceled && result.Data is StuffLocationModel data)
         {
+            Model.StuffLocations.Add(data);
+            StateHasChanged();
+        }
+    }
+
+    async void OnEditClick(StuffLocationModel model)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(StuffLocationEditModal.Model), model);
+
+        var dialog = await Dialog.ShowAsync<StuffLocationEditModal>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is StuffLocationModel data) {
+            Model.StuffLocations.Remove(model);
             Model.StuffLocations.Add(data);
             StateHasChanged();
         }

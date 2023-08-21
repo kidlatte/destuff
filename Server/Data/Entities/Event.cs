@@ -43,7 +43,7 @@ public class Event : Entity, IEvent
 
 public class EventData
 { 
-    public StuffModel? Stuff { get; set; }
+    public StuffBasicModel? Stuff { get; set; }
+    public LocationListItem? FromLocation { get; set; }
     public LocationListItem? Location { get; set; }
-    public LocationListItem? ToLocation { get; set; }
 }

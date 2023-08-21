@@ -78,8 +78,12 @@ public class LocationsController : BaseController<Location, LocationModel, Locat
         var query = Query;
 
         grid ??= new ListRequest();
-        if (!string.IsNullOrEmpty(grid.Search))
-            query = query.Where(x => x.Name.ToLower().Contains(grid.Search.ToLower()));
+        if (!string.IsNullOrEmpty(grid.Search)) {
+            var searches = grid.Search.Split(" ").ToList();
+            searches.ForEach(search =>
+                query = query.Where(x => x.Name.ToLower().Contains(search.ToLower())));
+        }
+            
 
         var desc = SortDirection.Descending;
         switch (grid.SortField)

@@ -9,6 +9,7 @@ using Destuff.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Destuff.Server.Controllers;
 
@@ -84,23 +85,77 @@ public class StuffLocationsController : BaseController
             .FirstAsync();
     }
 
-    [HttpPut]
-    public async Task<ActionResult<StuffLocationModel>> Update([FromBody] StuffLocationRequest model)
+    [HttpPut("{stuffHash}/{locationHash}")]
+    public async Task<ActionResult<StuffLocationModel>> Update(string stuffHash, string locationHash, [FromBody] StuffLocationRequest request)
     {
-        if (!ModelState.IsValid || model.StuffId == null || model.LocationId == null)
-            return BadRequest(model);
-
-        var stuffId = StuffHasher.Decode(model.StuffId);
-        var locationId = LocationHasher.Decode(model.LocationId);
+        if (!ModelState.IsValid || request.StuffId == null || request.LocationId == null)
+            return BadRequest(request);
+        
+        StuffLocationModel? model = null;
+        var stuffId = StuffHasher.Decode(stuffHash);
+        var locationId = LocationHasher.Decode(locationHash);
 
         var entity = await Context.StuffLocations.FirstOrDefaultAsync(x => x.StuffId == stuffId && x.LocationId == locationId);
         if (entity == null)
             return BadRequest("Location does not exist.");
 
-        Mapper.Map(model, entity);
+        if (locationHash == request.LocationId) {
+            Mapper.Map(request, entity);
+        }
+        else 
+        {
+            // location moved
+            var oldEntity = entity;
+            Context.Remove(oldEntity);
+
+            entity = Mapper.Map<StuffLocation>(request);
+            Context.Add(entity);
+
+            model = await CreateMovedEvent(oldEntity, entity);
+        }
+
         await Context.SaveChangesAsync();
 
-        return Mapper.Map<StuffLocationModel>(entity);
+        model ??= await Context.StuffLocations
+            .Where(x => x.StuffId == entity.StuffId && x.LocationId == entity.LocationId)
+            .ProjectTo<StuffLocationModel>(Mapper.ConfigurationProvider)
+            .FirstAsync();
+
+        return model;
+    }
+
+    private async Task<StuffLocationModel> CreateMovedEvent(StuffLocation oldEntity, StuffLocation newEntity)
+    {
+        var stuff = await Context.Stuffs.Where(x => x.Id == newEntity.StuffId)
+            .ProjectTo<StuffBasicModel>(Mapper.ConfigurationProvider).FirstAsync();
+
+        var locations = await Context.Locations
+            .Where(x => x.Id == oldEntity.LocationId || x.Id == newEntity.LocationId)
+            .ToDictionaryAsync(x => x.Id, x => x);
+
+        var oldLocation = Mapper.Map<LocationListItem>(locations[oldEntity.LocationId]);
+        var newLocation = Mapper.Map<LocationListItem>(locations[newEntity.LocationId]);
+
+        var eventEntity = new Event {
+            Type = EventType.Move,
+            StuffId = newEntity.StuffId,
+            Count = newEntity.Count,
+            DateTime = DateTime.UtcNow,
+            Summary = $"Moved from {oldLocation.Name} to {newLocation.Name}.",
+            Data = new EventData { 
+                Stuff = stuff,
+                FromLocation = oldLocation,
+                Location = newLocation
+            }
+        };
+        Audit(eventEntity);
+        Context.Add(eventEntity);
+
+        return new StuffLocationModel {
+            Location = newLocation,
+            Stuff = stuff,
+            Count = newEntity.Count,
+        };
     }
 
     [HttpDelete("{stuffHash}/{locationHash}")]
