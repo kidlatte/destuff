@@ -1,5 +1,6 @@
 using AutoMapper;
 using Destuff.Server.Data.Entities;
+using Destuff.Server.Models;
 using Destuff.Shared.Models;
 
 namespace Destuff.Server.Services;
@@ -63,6 +64,12 @@ public class MapperProfile : Profile
             .ForMember(e => e.StuffId, o => o.MapFrom(m => stuffHasher.Decode(m.StuffId)));
         CreateEntityMap<Event, EventModel>(eventHasher).IncludeAllDerived();
         CreateEntityMap<Event, EventListItem>(eventHasher).IncludeAllDerived();
+
+        CreateMap<PurchaseItem, EventBuffer>()
+            .ForMember(m => m.Type, o => o.MapFrom(e => EventType.Purchase));
+        CreateMap<Event, EventBuffer>();
+        CreateMap<EventBuffer, EventListItem>()
+            .ForMember(m => m.Id, o => o.MapFrom(e => eventHasher.Encode(e.Id)));
     }
 
     private IMappingExpression<TEntity, TModel> CreateEntityMap<TEntity, TModel>(IIdentityHasher<TEntity> hasher)

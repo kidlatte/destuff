@@ -4,7 +4,7 @@ namespace Destuff.Server.Data.Entities;
 
 public interface IEvent
 {
-    EventType Type { get; set; }
+    EventType Type { get; }
 
     DateTime DateTime { get; set; }
     int Count { get; set; }
@@ -13,16 +13,6 @@ public interface IEvent
 
     int StuffId { get; set; }
     Stuff? Stuff { get; set; }
-}
-
-public enum EventType
-{
-    Purchase,
-    Inventory,
-    Event,
-    Move,
-    Lend,
-    Dispose
 }
 
 public class Event : Entity, IEvent
@@ -46,4 +36,5 @@ public class EventData
     public StuffBasicModel? Stuff { get; set; }
     public LocationListItem? FromLocation { get; set; }
     public LocationListItem? Location { get; set; }
+    public SupplierBasicModel? Supplier { get; set; }
 }

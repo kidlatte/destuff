@@ -19,6 +19,17 @@ public class EventListItem : IModel
     public string? Notes { get; set; }
 
     public DateTime DateTime { get; set; }
-    public required string Type { get; set; }
+    public EventType Type { get; set; }
     public string? Summary { get; set; }
+}
+
+
+public enum EventType
+{
+    Purchase,
+    Inventory,
+    Event,
+    Move,
+    Lend,
+    Dispose
 }

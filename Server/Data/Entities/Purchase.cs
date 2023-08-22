@@ -1,3 +1,4 @@
+using Destuff.Shared.Models;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Destuff.Server.Data.Entities;

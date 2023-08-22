@@ -16,6 +16,15 @@ public class EventsGetByStuffRequestShould : IntegrationTestBase
         var stuffB = await AuthorizedSendAsync<StuffModel>(new StuffRequest { Name = "Stuff B" }, HttpMethod.Post, ApiRoutes.Stuffs);
         Assert.NotNull(stuffB);
 
+        var supplier = await AuthorizedSendAsync<SupplierModel>(new SupplierRequest { ShortName = "supplier", Name = "Supplier 001" }, HttpMethod.Post, ApiRoutes.Suppliers);
+        Assert.NotNull(supplier);
+
+        var purchase = await AuthorizedSendAsync<PurchaseModel>(new PurchaseRequest { SupplierId = supplier.Id }, HttpMethod.Post, ApiRoutes.Purchases);
+        Assert.NotNull(purchase);
+
+        var purchaseItem = await AuthorizedSendAsync<PurchaseItemModel>(new PurchaseItemRequest { PurchaseId = purchase.Id, StuffId = stuffA.Id, Price = 1 }, HttpMethod.Post, ApiRoutes.PurchaseItems);
+        Assert.NotNull(purchaseItem);
+
         var inventory = await AuthorizedSendAsync(new InventoryRequest { StuffId = stuffA.Id }, HttpMethod.Post, ApiRoutes.Inventories);
         Assert.True(inventory.IsSuccessStatusCode);
 
@@ -24,7 +33,13 @@ public class EventsGetByStuffRequestShould : IntegrationTestBase
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(1, result.Count);
-        Assert.Single(result.List);
+        Assert.Equal(2, result.Count);
+        Assert.NotEmpty(result.List);
+
+        var eventPurchase = result.List.FirstOrDefault(x => x.Type == EventType.Purchase);
+        Assert.NotNull(eventPurchase);
+
+        var inventoryPurchase = result.List.FirstOrDefault(x => x.Type == EventType.Inventory);
+        Assert.NotNull(inventoryPurchase);
     }
 }

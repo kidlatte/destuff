@@ -26,20 +26,31 @@ public class EventsController : BaseController<Event>
     [HttpGet]
     public async Task<PagedList<EventListItem>> Get([FromQuery] ListRequest? request)
     {
-        var query = Query;
-
         request ??= new ListRequest();
+
+        var eventsQuery = Query;
         if (!string.IsNullOrEmpty(request.Search)) {
             var searches = request.Search.ToLower().Split(" ").ToList();
             searches.ForEach(search =>
-                query = query.Where(x => x.Stuff!.Name.ToLower().Contains(search) ||
+                eventsQuery = eventsQuery.Where(x => x.Stuff!.Name.ToLower().Contains(search) ||
                     x.Notes!.ToLower().Contains(search)));
         }
+
+        var purchaseItemsQuery = Context.PurchaseItems.AsQueryable();
+        if (!string.IsNullOrEmpty(request.Search)) {
+            var searches = request.Search.ToLower().Split(" ").ToList();
+            searches.ForEach(search =>
+                purchaseItemsQuery = purchaseItemsQuery.Where(x => x.Stuff!.Name.ToLower().Contains(search) ||
+                    x.Notes!.ToLower().Contains(search)));
+        }
+
+        var query = eventsQuery.ProjectTo<EventListItem>(Mapper.ConfigurationProvider)
+            .Union(purchaseItemsQuery.ProjectTo<EventListItem>(Mapper.ConfigurationProvider));
 
         var sortField = request.SortField ?? "";
         var desc = request.SortDir == SortDirection.Descending;
         query = sortField switch {
-            "" => query.OrderByDescending(x => x.Created),
+            "" => query.OrderByDescending(x => x.DateTime),
             _ => desc ? query.OrderByDescending(sortField) : query.OrderBy(sortField),
         };
 
@@ -56,21 +67,32 @@ public class EventsController : BaseController<Event>
     [HttpGet(ApiRoutes.EventsByStuff + "/{stuffHash}")]
     public async Task<PagedList<EventListItem>> GetByStuff(string stuffHash, [FromQuery] ListRequest? request, [FromServices] IIdentityHasher<Stuff> hasher)
     {
-        var stuffId = hasher.Decode(stuffHash);
-        var query = Query.Where(x => x.StuffId == stuffId);
-
         request ??= new ListRequest();
+        var stuffId = hasher.Decode(stuffHash);
+
+        var eventsQuery = Query.Where(x => x.StuffId == stuffId);
         if (!string.IsNullOrEmpty(request.Search)) {
             var searches = request.Search.ToLower().Split(" ").ToList();
             searches.ForEach(search =>
-                query = query.Where(x => x.Stuff!.Name.ToLower().Contains(search) ||
+                eventsQuery = eventsQuery.Where(x => x.Summary!.ToLower().Contains(search) ||
                     x.Notes!.ToLower().Contains(search)));
         }
+
+        var purchaseItemsQuery = Context.PurchaseItems.Where(x => x.StuffId == stuffId);
+        if (!string.IsNullOrEmpty(request.Search)) {
+            var searches = request.Search.ToLower().Split(" ").ToList();
+            searches.ForEach(search =>
+                purchaseItemsQuery = purchaseItemsQuery.Where(x => x.Summary!.ToLower().Contains(search) ||
+                    x.Notes!.ToLower().Contains(search)));
+        }
+
+        var query = eventsQuery.ProjectTo<EventBuffer>(Mapper.ConfigurationProvider)
+            .Union(purchaseItemsQuery.ProjectTo<EventBuffer>(Mapper.ConfigurationProvider));
 
         var sortField = request.SortField ?? "";
         var desc = request.SortDir == SortDirection.Descending;
         query = sortField switch {
-            "" => query.OrderByDescending(x => x.Created),
+            "" => query.OrderByDescending(x => x.DateTime),
             _ => desc ? query.OrderByDescending(sortField) : query.OrderBy(sortField),
         };
 
