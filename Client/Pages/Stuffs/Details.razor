@@ -14,13 +14,13 @@
             <MudButton Href="/" StartIcon="@Icons.Material.Rounded.ChevronLeft" Variant="Variant.Outlined">
                 Stuffs
             </MudButton>
+            <MudButton Href="@($"/inventory/{Slug}")" Variant="Variant.Outlined">
+                Inventory
+            </MudButton>
             @if (Tab == StuffTabs.Details)
             {
-                <MudButton Href="@($"/inventory/{Slug}")" Variant="Variant.Outlined" Class="ms-1">
-                    Inventory
-                </MudButton>
                 <FileUpload StuffId="@Model.Id" OnUploaded="OnUploaded" ImageOnly="true"
-                    Label="Upload" Variant="Variant.Outlined" Color="Color.Tertiary" />
+                    Label="Upload" Variant="Variant.Outlined" Color="Color.Tertiary" Class="ms-1" />
                 <MudButton OnClick="OnUpdateClick" Variant="Variant.Outlined" 
                     Color="Color.Primary">Edit</MudButton>
                 <MudButton OnClick="OnDeleteClick" Variant="Variant.Outlined"

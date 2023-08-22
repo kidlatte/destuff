@@ -1,0 +1,54 @@
+﻿@if (Locations != null) {
+
+    if (Count == 0) {
+        <text>
+            No registered location.
+        </text>
+    }
+    else if (Count == 1) {
+        var location = Locations.First().Location;
+
+        <text>
+            Located in
+            <MudLink Href="@($"/locations/{location.Slug}")">
+                @location.Name
+            </MudLink>.
+        </text>
+    }
+    else if (Locations.Count == 1) {
+        var location = Locations.First().Location;
+
+        <text>
+            <strong>@Count</strong> units are in
+            <MudLink Href="@($"/locations/{location.Slug}")">
+                @location.Name
+            </MudLink>.
+        </text>
+    }
+    else {
+        <text>
+            <strong>@Count</strong> units are in
+            <strong>@Locations.Count</strong> locations.
+        </text>
+    }
+}
+else {
+    <text>
+        @Model.Summary
+    </text>
+}
+
+
+@code {
+    [Parameter]
+    public required EventListItem Model { get; set; }
+
+    public ICollection<StuffLocationBasicModel>? Locations => Model.Data?.Locations;
+    public int Count => Locations?.Sum(x => x.Count) ?? 0;
+
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+}

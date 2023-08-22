@@ -1,0 +1,40 @@
+﻿@if (PurchaseItem != null && Supplier != null) {
+    if (PurchaseItem.Quantity > 1) {
+        <text>
+            Purchased <strong>@PurchaseItem.Quantity</strong> units from
+            <MudLink Href="@($"/suppliers/{Supplier.Slug}")">
+                @Supplier.ShortName
+            </MudLink>
+            for <strong>@PurchaseItem.Price.ToString("N2")</strong> each.
+        </text>
+    }
+    else {
+        <text>
+            Purchased from
+            <MudLink Href="@($"/suppliers/{Supplier.Slug}")">
+                @Supplier.ShortName
+            </MudLink>
+            for <strong>@PurchaseItem.Price.ToString("N2")</strong>.
+        </text>
+    }
+}
+else {
+    <text>
+        @Model.Summary
+    </text>
+}
+
+
+
+@code {
+    [Parameter]
+    public required EventListItem Model { get; set; }
+
+    public PurchaseItemBasicModel? PurchaseItem => Model.Data?.PurchaseItem;
+    public SupplierBasicModel? Supplier => Model.Data?.Supplier;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+}

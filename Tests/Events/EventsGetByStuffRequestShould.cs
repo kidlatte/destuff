@@ -25,6 +25,11 @@ public class EventsGetByStuffRequestShould : IntegrationTestBase
         var purchaseItem = await AuthorizedSendAsync<PurchaseItemModel>(new PurchaseItemRequest { PurchaseId = purchase.Id, StuffId = stuffA.Id, Price = 1 }, HttpMethod.Post, ApiRoutes.PurchaseItems);
         Assert.NotNull(purchaseItem);
 
+        var location = await AuthorizedSendAsync<LocationModel>(new LocationRequest { Name = "New Location" }, HttpMethod.Post, ApiRoutes.Locations);
+        Assert.NotNull(location);
+
+        await AuthorizedSendAsync<StuffLocationModel>(new StuffLocationRequest { LocationId = location.Id, StuffId = stuffA.Id, Count = 2 }, HttpMethod.Post, ApiRoutes.StuffLocations);
+
         var inventory = await AuthorizedSendAsync(new InventoryRequest { StuffId = stuffA.Id }, HttpMethod.Post, ApiRoutes.Inventories);
         Assert.True(inventory.IsSuccessStatusCode);
 
@@ -47,5 +52,13 @@ public class EventsGetByStuffRequestShould : IntegrationTestBase
 
         var eventInventory = result.List.FirstOrDefault(x => x.Type == EventType.Inventory);
         Assert.NotNull(eventInventory);
+
+        var inventoryData = eventInventory.Data;
+        Assert.NotNull(inventoryData);
+        Assert.NotNull(inventoryData.Locations);
+        Assert.Single(inventoryData.Locations);
+
+        var single = inventoryData.Locations.Single().Location;
+        Assert.Equal(location.Id, single.Id);
     }
 }

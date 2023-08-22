@@ -44,8 +44,8 @@ public class EventsController : BaseController<Event>
                     x.Notes!.ToLower().Contains(search)));
         }
 
-        var query = eventsQuery.ProjectTo<EventListItem>(Mapper.ConfigurationProvider)
-            .Union(purchaseItemsQuery.ProjectTo<EventListItem>(Mapper.ConfigurationProvider));
+        var query = eventsQuery.ProjectTo<EventBuffer>(Mapper.ConfigurationProvider)
+            .Union(purchaseItemsQuery.ProjectTo<EventBuffer>(Mapper.ConfigurationProvider));
 
         var sortField = request.SortField ?? "";
         var desc = request.SortDir == SortDirection.Descending;
