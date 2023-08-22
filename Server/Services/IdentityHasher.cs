@@ -39,6 +39,7 @@ public static class HashIdentifierExtensions
         services.AddHashIdentifier<Supplier>();
         services.AddHashIdentifier<Purchase>();
         services.AddHashIdentifier<PurchaseItem>();
+        services.AddHashIdentifier<Event>();
         return services;
     }
 

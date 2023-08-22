@@ -35,7 +35,7 @@
     </div>
 
     <MudTabs ActivePanelIndex="activePanelIndex" ActivePanelIndexChanged="OnActivePanelIndexChanged"
-         Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+            Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
         <MudTabPanel Text="Details">
             <div class="mw-100">
                 <div class="mb-4">
@@ -109,6 +109,9 @@
         <MudTabPanel Text="Purchases">
             <Purchases Model="Model" Page="Page" />
         </MudTabPanel>
+        <MudTabPanel Text="Events">
+            <Events Model="Model" Page="Page" />
+        </MudTabPanel>
     </MudTabs>
 }
 
@@ -128,6 +131,7 @@
     {
         StuffTabs.Locations => 1,
         StuffTabs.Purchases => 2,
+        StuffTabs.Events => 3,
         _ => 0
     };
 
@@ -160,6 +164,9 @@
                 break;
             case 2:
                 Nav.NavigateTo($"stuffs/{Slug}/{StuffTabs.Purchases}");
+                break;
+            case 3:
+                Nav.NavigateTo($"stuffs/{Slug}/{StuffTabs.Events}");
                 break;
             default:
                 Nav.NavigateTo($"stuffs/{Slug}");

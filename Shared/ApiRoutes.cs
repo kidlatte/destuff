@@ -32,6 +32,8 @@ public class ApiRoutes
     public const string PurchaseItems = "/api/purchase-items";
     public const string PurchaseItemsByStuff = "/api/purchase-items/stuff";
 
+    public const string Events = "/api/events";
+    public const string EventsByStuff = "/api/events/stuff";
     public const string Inventories = "/api/inventories";
     public const string InventoryStuff = "/api/inventory";
 }

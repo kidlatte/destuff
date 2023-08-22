@@ -73,26 +73,26 @@ public class LocationsController : BaseController<Location, LocationModel, Locat
 
     [Route(ApiRoutes.LocationLookup)]
     [HttpGet]
-    public async Task<PagedList<LocationLookupItem>> GetLookup([FromQuery] ListRequest? grid)
+    public async Task<PagedList<LocationLookupItem>> GetLookup([FromQuery] ListRequest? request)
     {
         var query = Query;
 
-        grid ??= new ListRequest();
-        if (!string.IsNullOrEmpty(grid.Search)) {
-            var searches = grid.Search.Split(" ").ToList();
+        request ??= new ListRequest();
+        if (!string.IsNullOrEmpty(request.Search)) {
+            var searches = request.Search.ToLower().Split(" ").ToList();
             searches.ForEach(search =>
-                query = query.Where(x => x.Name.ToLower().Contains(search.ToLower())));
+                query = query.Where(x => x.Name.ToLower().Contains(search)));
         }
             
 
         var desc = SortDirection.Descending;
-        switch (grid.SortField)
+        switch (request.SortField)
         {
             case nameof(Location.Id):
-                query = grid.SortDir == desc ? query.OrderByDescending(x => x.Id) : query.OrderBy(x => x.Id);
+                query = request.SortDir == desc ? query.OrderByDescending(x => x.Id) : query.OrderBy(x => x.Id);
                 break;
             case "name":
-                query = grid.SortDir == desc ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
+                query = request.SortDir == desc ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
                 break;
             default:
                 query = query.OrderByDescending(x => x.Created);
@@ -101,7 +101,7 @@ public class LocationsController : BaseController<Location, LocationModel, Locat
 
         var count = await query.CountAsync();
         var list = await query
-            .Skip(grid.Skip).Take(grid.Take)
+            .Skip(request.Skip).Take(request.Take)
             .ProjectTo<LocationLookupItem>(Mapper.ConfigurationProvider)
             .ToListAsync();
 

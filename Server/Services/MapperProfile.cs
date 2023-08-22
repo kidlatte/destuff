@@ -9,10 +9,11 @@ public class MapperProfile : Profile
     public MapperProfile(
         IIdentityHasher<Location> locationHasher, 
         IIdentityHasher<Stuff> stuffHasher, 
-        IIdentityHasher<Upload> uploadHasher, 
         IIdentityHasher<Supplier> supplierHasher, 
         IIdentityHasher<Purchase> purchaseHasher, 
-        IIdentityHasher<PurchaseItem> purchaseItemHasher)
+        IIdentityHasher<PurchaseItem> purchaseItemHasher,
+        IIdentityHasher<Upload> uploadHasher,
+        IIdentityHasher<Event> eventHasher)
     {
         CreateMap<LocationRequest, Location>()
             .ForMember(e => e.ParentId, o => o.MapFrom(m => locationHasher.Decode(m.ParentId)));
@@ -51,7 +52,7 @@ public class MapperProfile : Profile
             .ForMember(e => e.StuffId, o => o.MapFrom(m => stuffHasher.Decode(m.StuffId)));
         CreateEntityMap<PurchaseItem, PurchaseItemModel>(purchaseItemHasher).IncludeAllDerived()
             .ForMember(m => m.PurchaseId, o => o.MapFrom(e => purchaseHasher.Encode(e.PurchaseId)))
-            .ForMember(m => m.StuffId, o => o.MapFrom(e => stuffHasher.Encode(e.StuffId))); ;
+            .ForMember(m => m.StuffId, o => o.MapFrom(e => stuffHasher.Encode(e.StuffId)));
         CreateEntityMap<PurchaseItem, PurchaseItemListItem>(purchaseItemHasher).IncludeAllDerived()
             .ForMember(m => m.PurchaseId, o => o.MapFrom(e => purchaseHasher.Encode(e.PurchaseId)));
         CreateEntityMap<PurchaseItem, PurchaseItemSupplier>(purchaseItemHasher).IncludeAllDerived();
@@ -60,6 +61,8 @@ public class MapperProfile : Profile
 
         CreateMap<InventoryRequest, Event>()
             .ForMember(e => e.StuffId, o => o.MapFrom(m => stuffHasher.Decode(m.StuffId)));
+        CreateEntityMap<Event, EventModel>(eventHasher).IncludeAllDerived();
+        CreateEntityMap<Event, EventListItem>(eventHasher).IncludeAllDerived();
     }
 
     private IMappingExpression<TEntity, TModel> CreateEntityMap<TEntity, TModel>(IIdentityHasher<TEntity> hasher)

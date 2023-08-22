@@ -58,18 +58,22 @@ public class PurchaseItemsController : BaseController<PurchaseItem, PurchaseItem
         request ??= new ListRequest();
         if (!string.IsNullOrEmpty(request.Search))
         {
-            var search = request.Search.ToLower();
-            query = query.Where(x => x.Stuff!.Name.ToLower().Contains(search) ||
-                x.Notes!.ToLower().Contains(search));
+            var searches = request.Search.ToLower().Split(" ").ToList();
+            searches.ForEach(search =>
+                query = query.Where(x => x.Stuff!.Name.ToLower().Contains(search) ||
+                    x.Notes!.ToLower().Contains(search)));
         }
-        var count = await query.CountAsync();
 
         var sortField = request.SortField ?? "";
+        var desc = request.SortDir == SortDirection.Descending;
         query = sortField switch {
             "" => query.OrderByDescending(x => x.Created),
-            $"({nameof(PurchaseItemSupplier.Purchase)}.{nameof(PurchaseItemSupplier.Purchase.Supplier)})" => request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Purchase!.Supplier!.Name) : query.OrderBy(x => x.Purchase!.Supplier!.Name),
-            _ => request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField),
+            $"({nameof(PurchaseItemSupplier.Purchase)}.{nameof(PurchaseItemSupplier.Purchase.Supplier)})" 
+                => request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Purchase!.Supplier!.Name) : query.OrderBy(x => x.Purchase!.Supplier!.Name),
+            _ => desc ? query.OrderByDescending(sortField) : query.OrderBy(sortField),
         };
+
+        var count = await query.CountAsync();
         var list = await query
             .Skip(request.Skip).Take(request.Take)
             .ProjectTo<PurchaseItemSupplier>(Mapper.ConfigurationProvider)
