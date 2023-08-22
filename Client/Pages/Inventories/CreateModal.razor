@@ -1,37 +1,45 @@
 ﻿@inject IHttpService Http
 
-@if (Model != null) {
-    <EditForm OnValidSubmit="OnSubmit" Model="Model">
+@if (request != null) {
+    <EditForm OnValidSubmit="OnSubmit" Model="request">
         <MudDialog>
             <TitleContent>
                 <MudText Typo="Typo.h6" Class="text-truncate pe-5">Inventory <strong>@Model.Name</strong></MudText>
             </TitleContent>
             <DialogContent>
+
+                @* <MudSelect T="string" Label="Coffee" AnchorOrigin="Origin.BottomCenter">
+                    <MudSelectItem Value="@("Cappuccino")" />
+                    <MudSelectItem Value="@("Cafe Latte")" />
+                    <MudSelectItem Value="@("Espresso")" />
+                </MudSelect> *@
+                <div class="mb-5">
+                    @if (!Model.StuffLocations.Any()) {
+                        <MudText Typo="Typo.body1" Color="Color.Warning">
+                            You have no location for <strong>@Model.Name</strong>. Please set a location for this stuff.
+                        </MudText>
+                    }
+                    else if (Model.IsSingleLocation && Model.FirstLocation != null) {
+                        <MudText Typo="Typo.body1">
+                            <strong>@Model.Name</strong> is in <em>@Model.FirstLocation.Name</em>
+                        </MudText>
+                    }
+                    else if (Model.StuffLocations.Count == 1) {
+                        <MudText Typo="Typo.body1">
+                            <strong>@Model.Count</strong> units of <em>@Model.Name</em> are in <em>@Model.FirstLocation?.Name</em>
+                        </MudText>
+                    }
+                    else {
+                        <MudText Typo="Typo.body1">
+                            <strong>@Model.Count</strong> total units of <em>@Model.Name</em> are in <strong>@Model.StuffLocations.Count</strong> locations.
+                        </MudText>
+                    }
+                </div>
+
                 <DataAnnotationsValidator />
 
-                @if (!Model.StuffLocations.Any())
-                {
-                    <MudText Typo="Typo.body1" Color="Color.Warning">
-                        You have no location for <strong>@Model.Name</strong>. Please set a location for this stuff.
-                    </MudText>
-                }
-                else if (Model.IsSingleLocation && Model.FirstLocation != null)
-                {
-                    <p>
-                        <strong>@Model.Name</strong> is in <strong>@Model.FirstLocation.Name</strong>
-                    </p>
-                }
-                else if (Model.StuffLocations.Count == 1) 
-                {
-                    <p>
-                        <em>@Model.Count</em> × <strong>@Model.Name</strong> are in <strong>@Model.FirstLocation?.Name</strong>
-                    </p>
-                }
-                else {
-                    <p>
-                        <em>@Model.Count</em> × <strong>@Model.Name</strong> are in <em>@Model.StuffLocations.Count</em> locations.
-                    </p>
-                }
+                <MudTextField @bind-Value="Model.Notes" For="@(() => request.Notes)" Disabled="loading"
+                            Label="Notes" Variant="Variant.Outlined" Lines="3" />
 
                 <MudText Color="@Color.Error">@error</MudText>
             </DialogContent>
@@ -50,6 +58,9 @@
     MudDialogInstance? dialog { get; set; }
 
     [Parameter]
+    public EventCallback<MouseEventArgs> OnSubmitEventClick { get; set; }
+
+    [Parameter]
     public required StuffModel Model { get; set; }
     public InventoryRequest? request { get; set; }
 
@@ -65,6 +76,19 @@
             throw new NullReferenceException();
 
         loading = true;
+
+        if (!Model.StuffLocations.Any()) {
+            request.Summary = $"No location on record";
+        }
+        else if (Model.IsSingleLocation && Model.FirstLocation != null) {
+            request.Summary = $"{Model.Name} is in {Model.FirstLocation.Name}";
+        }
+        else if (Model.StuffLocations.Count == 1) {
+            request.Summary = $"{Model.Count} units of {Model.Name} are in {Model.FirstLocation?.Name}";
+        }
+        else {
+            request.Summary = $"{Model.Count} total units of {Model.Name} are in {Model.StuffLocations.Count} locations.";
+        }
 
         try {
             var result = await Http.SendAsync(HttpMethod.Post, ApiRoutes.Inventories, request);

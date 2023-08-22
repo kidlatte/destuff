@@ -1,4 +1,4 @@
-﻿@page "/inventory"
+﻿@page "/inventory/{Slug?}"
 @attribute [Authorize]
 
 @inject NavigationManager Nav
@@ -13,9 +13,19 @@
             <MudButton OnClick="OnSubmitClick" Variant="Variant.Outlined" Color="Color.Primary">
                 Submit
             </MudButton>
-            <MudButton OnClick="OnSkipClick" Variant="Variant.Outlined" EndIcon="@Icons.Material.Outlined.SkipNext">
-                Skip
-            </MudButton>
+
+            @if (Slug == null)
+            {
+                <MudButton OnClick="OnSkipClick" Variant="Variant.Outlined" EndIcon="@Icons.Material.Outlined.SkipNext" Class="ms-1">
+                    Skip
+                </MudButton>
+            }
+            else
+            {
+                <MudButton Href="/inventory" Variant="Variant.Outlined" EndIcon="@Icons.Material.Outlined.SkipNext" Class="ms-1">
+                    Skip
+                </MudButton>
+            }
         </div>
     }
 
@@ -37,14 +47,12 @@
 }
 
 @code {
+    [Parameter] public string? Slug { get; set; }
 
     StuffModel? Model { get; set; }
     bool loading;
 
-    protected override async Task OnInitializedAsync()
-    {
-        await GetStuff();
-    }
+    protected override Task OnParametersSetAsync() => GetStuff();
 
     async void OnSubmitClick()
     {
@@ -62,7 +70,9 @@
     async Task GetStuff()
     {
         loading = true;
-        Model = await Http.GetAsync<StuffModel>(ApiRoutes.InventoryStuff);
+        Model = Slug == null ?
+            await Http.GetAsync<StuffModel>(ApiRoutes.InventoryStuff) :
+                await Http.GetAsync<StuffModel>($"{ApiRoutes.StuffBySlug}/{Slug}");
         loading = false;
 
         StateHasChanged();

@@ -90,7 +90,7 @@ public class StuffsController : BaseController<Stuff, StuffModel, StuffRequest>
         return new PagedList<StuffBasicModel>(count, list);
     }
 
-    [HttpGet(ApiRoutes.StuffSlug + "/{slug}")]
+    [HttpGet(ApiRoutes.StuffBySlug + "/{slug}")]
     public async Task<ActionResult<StuffModel?>> GetBySlug(string slug)
     {
         var query = Query.Where(x => x.Slug == slug);

@@ -24,7 +24,7 @@ public class StuffsGetBySlugRequestShould : IntegrationTestBase
         var model = await AuthorizedSendAsync<StuffModel>(create, HttpMethod.Post, ApiRoutes.Stuffs);
 
         // Act
-        var result = await AuthorizedGetAsync<StuffModel>($"{ApiRoutes.StuffSlug}/stuff-slug");
+        var result = await AuthorizedGetAsync<StuffModel>($"{ApiRoutes.StuffBySlug}/stuff-slug");
 
         // Assert
         Assert.NotNull(result);
@@ -35,7 +35,7 @@ public class StuffsGetBySlugRequestShould : IntegrationTestBase
     public async Task Fail_Nonexistent_Stuff_By_Slug()
     {
         // Act
-        var result = await AuthorizedGetAsync($"{ApiRoutes.StuffSlug}/xxx");
+        var result = await AuthorizedGetAsync($"{ApiRoutes.StuffBySlug}/xxx");
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, result.StatusCode);
@@ -49,7 +49,7 @@ public class StuffsGetBySlugRequestShould : IntegrationTestBase
         var model = await AuthorizedSendAsync<StuffModel>(create, HttpMethod.Post, ApiRoutes.Stuffs);
 
         // Act
-        var result = await SendAsync(null, HttpMethod.Get, $"{ApiRoutes.StuffSlug}/unauthorized-slug");
+        var result = await SendAsync(null, HttpMethod.Get, $"{ApiRoutes.StuffBySlug}/unauthorized-slug");
 
         // Assert
         Assert.Equal(HttpStatusCode.Unauthorized, result?.StatusCode);

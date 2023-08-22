@@ -16,8 +16,11 @@
             </MudButton>
             @if (Tab == StuffTabs.Details)
             {
+                <MudButton Href="@($"/inventory/{Slug}")" Variant="Variant.Outlined" Class="ms-1">
+                    Inventory
+                </MudButton>
                 <FileUpload StuffId="@Model.Id" OnUploaded="OnUploaded" ImageOnly="true"
-                    Label="Upload" Variant="Variant.Outlined" Color="Color.Tertiary" Class="ms-1" />
+                    Label="Upload" Variant="Variant.Outlined" Color="Color.Tertiary" />
                 <MudButton OnClick="OnUpdateClick" Variant="Variant.Outlined" 
                     Color="Color.Primary">Edit</MudButton>
                 <MudButton OnClick="OnDeleteClick" Variant="Variant.Outlined"
@@ -142,7 +145,7 @@
         try
         {
             uploads.Clear();
-            Model = await Http.GetAsync<StuffModel>($"{ApiRoutes.StuffSlug}/{Slug}");
+            Model = await Http.GetAsync<StuffModel>($"{ApiRoutes.StuffBySlug}/{Slug}");
             if (Model != null)
                 uploads.AddRange(Model.Uploads.OrEmpty());
         }

@@ -21,11 +21,11 @@ public class LocationsMapPathsRequestShould : IntegrationTestBase
         // Act & Assert
         await AuthorizedSendAsync();
 
-        parent = await AuthorizedGetAsync<LocationModel>($"{ApiRoutes.LocationSlug}/{parent.Slug}");
+        parent = await AuthorizedGetAsync<LocationModel>($"{ApiRoutes.LocationBySlug}/{parent.Slug}");
         Assert.NotNull(parent?.Data?.Path);
         Assert.False(parent.Data.Path.Any());
         
-        child = await AuthorizedGetAsync<LocationModel>($"{ApiRoutes.LocationSlug}/{child.Slug}");
+        child = await AuthorizedGetAsync<LocationModel>($"{ApiRoutes.LocationBySlug}/{child.Slug}");
         Assert.NotNull(child?.Data?.Path);
         Assert.Single(child.Data.Path);
         Assert.Equal(parent.Id, child.Data.Path.First().Id);

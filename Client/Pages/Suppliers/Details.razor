@@ -101,7 +101,7 @@
     {
         try
         {
-            Model = await Http.GetAsync<SupplierModel>($"{ApiRoutes.SupplierSlug}/{Slug}");
+            Model = await Http.GetAsync<SupplierModel>($"{ApiRoutes.SupplierBySlug}/{Slug}");
         }
         catch (HttpRequestException ex)
         {

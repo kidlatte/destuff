@@ -108,7 +108,7 @@ public class LocationsController : BaseController<Location, LocationModel, Locat
         return new PagedList<LocationLookupItem>(count, list);
     }
 
-    [HttpGet(ApiRoutes.LocationSlug + "/{slug}")]
+    [HttpGet(ApiRoutes.LocationBySlug + "/{slug}")]
     public async Task<ActionResult<LocationModel>> GetLocationBySlug(string slug)
     {
         var query = Query.Where(x => x.Slug == slug);

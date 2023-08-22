@@ -24,7 +24,7 @@ public class LocationsSlugRequestShould : IntegrationTestBase
         var model = await AuthorizedSendAsync<LocationModel>(create, HttpMethod.Post, ApiRoutes.Locations);
 
         // Act
-        var result = await AuthorizedGetAsync<LocationModel>($"{ApiRoutes.LocationSlug}/location-slug");
+        var result = await AuthorizedGetAsync<LocationModel>($"{ApiRoutes.LocationBySlug}/location-slug");
 
         // Assert
         Assert.NotNull(result);
@@ -35,7 +35,7 @@ public class LocationsSlugRequestShould : IntegrationTestBase
     public async Task Fail_Nonexistent_Location_By_Slug()
     {
         // Act
-        var result = await AuthorizedGetAsync($"{ApiRoutes.LocationSlug}/xxx");
+        var result = await AuthorizedGetAsync($"{ApiRoutes.LocationBySlug}/xxx");
 
         // Assert
         Assert.Equal(HttpStatusCode.NotFound, result.StatusCode);
@@ -49,7 +49,7 @@ public class LocationsSlugRequestShould : IntegrationTestBase
         var model = await AuthorizedSendAsync<LocationModel>(create, HttpMethod.Post, ApiRoutes.Locations);
 
         // Act
-        var result = await SendAsync(null, HttpMethod.Get, $"{ApiRoutes.LocationSlug}/unauthorized-slug");
+        var result = await SendAsync(null, HttpMethod.Get, $"{ApiRoutes.LocationBySlug}/unauthorized-slug");
 
         // Assert
         Assert.Equal(HttpStatusCode.Unauthorized, result?.StatusCode);

@@ -56,7 +56,7 @@
     {
         try
         {
-            Model = await Http.GetAsync<LocationModel>($"{ApiRoutes.LocationSlug}/{Slug}");
+            Model = await Http.GetAsync<LocationModel>($"{ApiRoutes.LocationBySlug}/{Slug}");
         }
         catch (HttpRequestException ex)
         {

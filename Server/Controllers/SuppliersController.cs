@@ -48,7 +48,7 @@ public class SuppliersController : BaseController<Supplier, SupplierModel, Suppl
         return new PagedList<SupplierListItem>(count, list);
     }
 
-    [HttpGet(ApiRoutes.SupplierSlug + "/{slug}")]
+    [HttpGet(ApiRoutes.SupplierBySlug + "/{slug}")]
     public async Task<ActionResult<SupplierModel>> GetBySlug(string slug)
     {
         var query = Query.Where(x => x.Slug == slug);
