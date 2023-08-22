@@ -18,3 +18,9 @@ public class StuffLocationModel
     public required StuffBasicModel Stuff { get; set; }
     public int Count { get; set; }
 }
+
+public class StuffLocationBasicModel
+{
+    public required LocationListItem Location { get; set; }
+    public int Count { get; set; }
+}

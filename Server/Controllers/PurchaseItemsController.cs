@@ -84,15 +84,36 @@ public class PurchaseItemsController : BaseController<PurchaseItem, PurchaseItem
 
     internal override async Task BeforeSaveAsync(PurchaseItem entity)
     {
-        var result = await Context.Purchases.Where(x => x.Id == entity.PurchaseId).Select(x => new
+        var purchase = await Context.Purchases.Where(x => x.Id == entity.PurchaseId)
+            .Select(x => new
         {
+            x.SupplierId,
             x.Received,
             x.Receipt,
             x.Created
         }).FirstOrDefaultAsync();
 
-        if (result != null)
-            entity.DateTime = result.Received ?? result.Receipt ?? result.Created;
+        if (purchase != null) 
+        {
+            entity.DateTime = purchase.Received ?? purchase.Receipt ?? purchase.Created;
+        }
+
+        var stuff = await Context.Stuffs.Where(x => x.Id == entity.StuffId)
+            .ProjectTo<StuffBasicModel>(Mapper.ConfigurationProvider).FirstAsync();
+
+        var supplier = default(SupplierBasicModel);
+        if (purchase?.SupplierId != null)
+            supplier = await Context.Suppliers.Where(x => x.Id == purchase.SupplierId)
+                .ProjectTo<SupplierBasicModel>(Mapper.ConfigurationProvider).FirstAsync();
+
+        entity.Count = entity.Quantity;
+        entity.Data = new EventData 
+        {
+            Difference = entity.Quantity,
+            PurchaseItem = Mapper.Map<PurchaseItemBasicModel>(entity),
+            Stuff = stuff,
+            Supplier = supplier,
+        };
     }
 
     internal override Task AfterSaveAsync(PurchaseItem entity) 

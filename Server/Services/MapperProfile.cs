@@ -35,6 +35,7 @@ public class MapperProfile : Profile
             .ForMember(e => e.StuffId, o => o.MapFrom(m => stuffHasher.Decode(m.StuffId)))
             .ForMember(e => e.LocationId, o => o.MapFrom(m => locationHasher.Decode(m.LocationId)));
         CreateMap<StuffLocation, StuffLocationModel>();
+        CreateMap<StuffLocation, StuffLocationBasicModel>();
 
         CreateMap<SupplierRequest, Supplier>();
         CreateEntityMap<Supplier, SupplierModel>(supplierHasher).IncludeAllDerived();
@@ -56,7 +57,9 @@ public class MapperProfile : Profile
             .ForMember(m => m.StuffId, o => o.MapFrom(e => stuffHasher.Encode(e.StuffId)));
         CreateEntityMap<PurchaseItem, PurchaseItemListItem>(purchaseItemHasher).IncludeAllDerived()
             .ForMember(m => m.PurchaseId, o => o.MapFrom(e => purchaseHasher.Encode(e.PurchaseId)));
-        CreateEntityMap<PurchaseItem, PurchaseItemSupplier>(purchaseItemHasher).IncludeAllDerived();
+        CreateEntityMap<PurchaseItem, PurchaseItemSupplier>(purchaseItemHasher);
+        CreateMap<PurchaseItem, PurchaseItemBasicModel>()
+            .ForMember(m => m.PurchaseId, o => o.MapFrom(e => purchaseHasher.Encode(e.PurchaseId)));
 
         CreateEntityMap<Upload, UploadModel>(uploadHasher).IncludeAllDerived();
 

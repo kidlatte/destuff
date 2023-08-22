@@ -79,3 +79,10 @@ public class PurchaseItemSupplier : IModel
 
     public required PurchaseListItem Purchase { get; set; }
 }
+
+public class PurchaseItemBasicModel
+{
+    public required string PurchaseId { get; set; }
+    public int Quantity { get; set; }
+    public decimal Price { get; set; }
+}

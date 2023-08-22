@@ -16,13 +16,24 @@ public class EventListItem : IModel
 {
     public required string Id { get; set; }
     public int Count { get; set; }
+    public string? Summary { get; set; }
     public string? Notes { get; set; }
 
     public DateTime DateTime { get; set; }
     public EventType Type { get; set; }
-    public string? Summary { get; set; }
+    public EventData? Data { get; set; }
 }
 
+public class EventData
+{
+    public int? Difference { get; set; }
+    public PurchaseItemBasicModel? PurchaseItem { get; set; }
+    public StuffBasicModel? Stuff { get; set; }
+    public LocationListItem? FromLocation { get; set; }
+    public LocationListItem? ToLocation { get; set; }
+    public ICollection<StuffLocationBasicModel>? Locations { get; set; }
+    public SupplierBasicModel? Supplier { get; set; }
+}
 
 public enum EventType
 {

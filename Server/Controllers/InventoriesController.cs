@@ -55,15 +55,28 @@ public class InventoriesController : BaseController
             return BadRequest(model);
 
         var entity = Mapper.Map<Event>(model);
+        Context.Add(entity);
         entity.Type = EventType.Inventory;
         entity.DateTime = DateTime.UtcNow;
         Audit(entity);
-        Context.Add(entity);
 
-        var stuff = await Context.Stuffs.Where(x => x.Id == entity.StuffId).FirstAsync();
-        stuff.Inventoried = entity.DateTime;
+        await GenerateData(entity);
 
         await Context.SaveChangesAsync();
         return Ok();
+    }
+
+    private async Task GenerateData(Event entity)
+    {
+        var stuff = await Context.Stuffs.Where(x => x.Id == entity.StuffId).FirstAsync();
+        stuff.Inventoried = entity.DateTime;
+
+        var locations = await Context.StuffLocations.Where(x => x.StuffId == entity.StuffId)
+            .ProjectTo<StuffLocationBasicModel>(Mapper.ConfigurationProvider).ToListAsync();
+
+        entity.Data = new EventData {
+            Stuff = Mapper.Map<StuffBasicModel>(stuff),
+            Locations = locations
+        };
     }
 }

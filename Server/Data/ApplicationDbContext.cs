@@ -48,14 +48,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<Location>()
             .Property(x => x.Data).HasJsonConversion();
 
-        builder.Entity<Event>()
-            .Property(x => x.Data).HasJsonConversion();
-
         builder.Entity<Purchase>()
             .Property(e => e.Price).HasConversion<double>();
 
-        builder.Entity<PurchaseItem>()
-            .Property(e => e.Price).HasConversion<double>();
+        builder.Entity<PurchaseItem>(e => {
+            e.Property(x => x.Price).HasConversion<double>();
+            e.Property(x => x.Data).HasJsonConversion();
+        });
+
+        builder.Entity<Event>()
+            .Property(x => x.Data).HasJsonConversion();
 
         builder.SeedUsers();
         builder.SeedLocations();

@@ -145,7 +145,7 @@ public class StuffLocationsController : BaseController
             Data = new EventData { 
                 Stuff = stuff,
                 FromLocation = oldLocation,
-                Location = newLocation
+                ToLocation = newLocation
             }
         };
         Audit(eventEntity);

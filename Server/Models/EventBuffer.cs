@@ -1,8 +1,9 @@
-﻿using Destuff.Shared.Models;
+﻿using Destuff.Server.Data.Entities;
+using Destuff.Shared.Models;
 
 namespace Destuff.Server.Models;
 
-public class EventBuffer
+internal class EventBuffer
 {
     public int Id { get; set; }
     public EventType Type { get; set; }
@@ -11,4 +12,5 @@ public class EventBuffer
 
     public DateTime DateTime { get; set; }
     public string? Summary { get; set; }
+    public EventData? Data { get; set; }
 }

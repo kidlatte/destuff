@@ -39,7 +39,13 @@ public class EventsGetByStuffRequestShould : IntegrationTestBase
         var eventPurchase = result.List.FirstOrDefault(x => x.Type == EventType.Purchase);
         Assert.NotNull(eventPurchase);
 
-        var inventoryPurchase = result.List.FirstOrDefault(x => x.Type == EventType.Inventory);
-        Assert.NotNull(inventoryPurchase);
+        var purchaseData = eventPurchase.Data;
+        Assert.NotNull(purchaseData);
+        Assert.Equal(stuffA.Id, purchaseData.Stuff?.Id);
+        Assert.Equal(supplier.Id, purchaseData.Supplier?.Id);
+        Assert.Equal(purchaseItem.Quantity, purchaseData.PurchaseItem?.Quantity);
+
+        var eventInventory = result.List.FirstOrDefault(x => x.Type == EventType.Inventory);
+        Assert.NotNull(eventInventory);
     }
 }
