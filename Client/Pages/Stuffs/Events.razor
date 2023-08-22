@@ -1,5 +1,6 @@
 ﻿@inject NavigationManager Nav
 @inject IHttpService Http
+@inject IDialogService Dialog
 
 <MudDataGrid @ref="grid" T="EventListItem" ServerData="LoadServerData" CurrentPage="gridPage" RowsPerPage="PageSize" Loading="loading"
              SortMode="SortMode.Single" Elevation="0">
@@ -8,9 +9,16 @@
         </PropertyColumn>
         <PropertyColumn Property="x => x!.Summary">
         </PropertyColumn>
-        <PropertyColumn Property="x => x!.Type" Title="">
+        <PropertyColumn Property="x => x!.Type" Title="Action">
         </PropertyColumn>
         <PropertyColumn Property="x => x!.Count" />
+        <TemplateColumn>
+            <CellTemplate>
+                @if (context.Item != null) {
+                    <DeleteIconButton OnClick="_ => OnDeleteClick(context.Item)" />
+                }
+            </CellTemplate>
+        </TemplateColumn>
     </Columns>
     <PagerContent>
         @if (PageCount > 1) {
@@ -70,4 +78,15 @@
         pagerPage = i;
     }
 
+    async void OnDeleteClick(EventListItem item)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(EventDeleteModal.Model), item);
+
+        var dialog = await Dialog.ShowAsync<EventDeleteModal>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && grid != null)
+            await grid.ReloadServerData();
+    }
 }

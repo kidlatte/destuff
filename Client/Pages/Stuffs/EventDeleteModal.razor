@@ -1,0 +1,57 @@
+@inject IHttpService http
+
+<EditForm OnValidSubmit="OnSubmit" Model="Model" autocomplete="off">
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6" Class="text-truncate pe-5">Delete Event</MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudText Typo="Typo.body1" Class="mb-3">
+                Are you sure you want to remove event from
+                <strong>@Model.DateTime</strong>
+                with summary:
+            </MudText>
+            <MudText Typo="Typo.body1" Class="mb-3">
+                <em>@Model.Summary</em>
+            </MudText>
+
+            <DataAnnotationsValidator />
+            <MudText Color="@Color.Error">@error</MudText>
+        </DialogContent>
+        <DialogActions>
+            <LoadingButton Loading="loading" Label="DELETE" Color="Color.Warning" />
+            <MudButton OnClick="() => dialog?.Cancel()" Disabled="loading" Color="Color.Default">
+                Cancel
+            </MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+
+@code {
+
+    [CascadingParameter]
+    MudDialogInstance? dialog { get; set; }
+
+    [Parameter]
+    public required EventListItem Model { get; set; }
+
+    string error { get; set; } = "";
+    bool loading { get; set; } = false;
+
+    async Task OnSubmit()
+    {
+        loading = true;
+
+        try
+        {
+            await http.DeleteAsync($"{ApiRoutes.Events}/{Model.Id}");
+            dialog?.Close(DialogResult.Ok(Model));
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+
+        loading = false;
+    }
+}

@@ -38,7 +38,7 @@
 
                 <DataAnnotationsValidator />
 
-                <MudTextField @bind-Value="Model.Notes" For="@(() => request.Notes)" Disabled="loading"
+                <MudTextField @bind-Value="request.Notes" For="@(() => request.Notes)" Disabled="loading"
                             Label="Notes" Variant="Variant.Outlined" Lines="3" />
 
                 <MudText Color="@Color.Error">@error</MudText>
@@ -81,7 +81,7 @@
             request.Summary = $"No location on record";
         }
         else if (Model.IsSingleLocation && Model.FirstLocation != null) {
-            request.Summary = $"{Model.Name} is in {Model.FirstLocation.Name}";
+            request.Summary = $"Located in {Model.FirstLocation.Name}";
         }
         else if (Model.StuffLocations.Count == 1) {
             request.Summary = $"{Model.Count} units of {Model.Name} are in {Model.FirstLocation?.Name}";
