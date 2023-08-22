@@ -6,10 +6,10 @@
             <MudText Typo="Typo.h6" Class="text-truncate pe-5">Remove from <strong>@Model.Location.Name</strong></MudText>
         </TitleContent>
         <DialogContent>
-            <p class="">
-                Are you sure you want to remove stuff <strong>@Stuff.Name</strong>
+            <MudText Typo="Typo.body1" Class="mb-5">
+                Are you sure you want to remove stuff <em>@Model.Stuff.Name</em>
                 from location <strong>@Model.Location.Name</strong>
-            </p>
+            </MudText>
 
             <DataAnnotationsValidator />
             <MudText Color="@Color.Error">@error</MudText>
@@ -31,9 +31,6 @@
     [Parameter]
     public required StuffLocationModel Model { get; set; }
 
-    [Parameter]
-    public required IStuffModel Stuff { get; set; }
-
     string error { get; set; } = "";
     bool loading { get; set; } = false;
 
@@ -43,7 +40,7 @@
 
         try
         {
-            await http.DeleteAsync($"{ApiRoutes.StuffLocations}/{Stuff.Id}/{Model.Location.Id}");
+            await http.DeleteAsync($"{ApiRoutes.StuffLocations}/{Model.Stuff.Id}/{Model.Location.Id}");
             dialog?.Close(DialogResult.Ok(Model));
         }
         catch (Exception ex)

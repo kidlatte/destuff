@@ -5,15 +5,15 @@
     <EditForm OnValidSubmit="OnSubmit" Model="request" autocomplete="off">
         <MudDialog>
             <TitleContent>
-                <MudText Typo="Typo.h6">
-                    Add Location
+                <MudText Typo="Typo.h6" Class="text-truncate pe-5">
+                    Edit location of @Model.Stuff.Name
                 </MudText>
             </TitleContent>
             <DialogContent>
-                <p>
-                    Add Location to
-                    <strong>@Stuff.Name</strong>
-                </p>
+                <MudText Typo="Typo.body1" Class="mb-5">
+                    Move stuff <em>@Model.Stuff.Name</em>
+                    from location <strong>@Model.Location.Name</strong>
+                </MudText>
 
                 <DataAnnotationsValidator />
                 <LocationSelect @bind-Value="request.LocationId" Loading="loading" />
@@ -37,13 +37,13 @@
     MudDialogInstance? dialog { get; set; }
 
     [Parameter]
-    public required IStuffModel Stuff { get; set; }
+    public required StuffLocationModel Model { get; set; }
     StuffLocationRequest? request { get; set; }
 
     string error { get; set; } = "";
     bool loading { get; set; } = false;
 
-    protected override void OnParametersSet() => request = new() { StuffId = Stuff.Id, Count = 1 };
+    protected override void OnParametersSet() => request = new() { StuffId = Model.Stuff.Id, LocationId = Model.Location.Id, Count = Model.Count };
 
     async Task OnSubmit()
     {
@@ -54,7 +54,7 @@
 
         try
         {
-            var result = await http.PostAsync<StuffLocationModel>(ApiRoutes.StuffLocations, request);
+            var result = await http.PutAsync<StuffLocationModel>($"{ApiRoutes.StuffLocations}/{Model.Stuff.Id}/{Model.Location.Id}", request);
             dialog?.Close(DialogResult.Ok(result));
         }
         catch (Exception ex)

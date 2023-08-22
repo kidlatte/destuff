@@ -10,10 +10,9 @@
                 </MudText>
             </TitleContent>
             <DialogContent>
-                <p>
-                    Add Location to
-                    <strong>@Model.Name</strong>
-                </p>
+                <MudText Typo="Typo.body1" Class="mb-5">
+                    Add <em>@Stuff.Name</em> to location:
+                </MudText>
 
                 <DataAnnotationsValidator />
                 <LocationSelect @bind-Value="request.LocationId" Loading="loading" />
@@ -37,13 +36,13 @@
     MudDialogInstance? dialog { get; set; }
 
     [Parameter]
-    public required IStuffModel Model { get; set; }
+    public required IStuffModel Stuff { get; set; }
     StuffLocationRequest? request { get; set; }
 
     string error { get; set; } = "";
     bool loading { get; set; } = false;
 
-    protected override void OnParametersSet() => request = new() { StuffId = Model.Id, Count = 1 };
+    protected override void OnParametersSet() => request = new() { StuffId = Stuff.Id, Count = 1 };
 
     async Task OnSubmit()
     {
