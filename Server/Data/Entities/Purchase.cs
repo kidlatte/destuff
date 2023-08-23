@@ -30,7 +30,7 @@ public class PurchaseItem : Entity, IEvent
     public int StuffId { get; set; }
     public Stuff? Stuff { get; set; }
 
-    public EventType Type => EventType.Purchase;
+    public EventType Type => EventType.Purchased;
     public int Count { get; set; }
     public DateTime DateTime { get; set; }
     public string? Summary { get; set; }

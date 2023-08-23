@@ -137,7 +137,7 @@ public class StuffLocationsController : BaseController
         var newLocation = Mapper.Map<LocationListItem>(locations[newEntity.LocationId]);
 
         var eventEntity = new Event {
-            Type = EventType.Move,
+            Type = EventType.Moved,
             StuffId = newEntity.StuffId,
             Count = newEntity.Count,
             DateTime = DateTime.UtcNow,

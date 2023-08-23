@@ -41,7 +41,7 @@ public class EventsGetByStuffRequestShould : IntegrationTestBase
         Assert.Equal(2, result.Count);
         Assert.NotEmpty(result.List);
 
-        var eventPurchase = result.List.FirstOrDefault(x => x.Type == EventType.Purchase);
+        var eventPurchase = result.List.FirstOrDefault(x => x.Type == EventType.Purchased);
         Assert.NotNull(eventPurchase);
 
         var purchaseData = eventPurchase.Data;

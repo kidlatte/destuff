@@ -68,9 +68,11 @@ public class MapperProfile : Profile
         CreateEntityMap<Event, EventModel>(eventHasher).IncludeAllDerived();
         CreateEntityMap<Event, EventListItem>(eventHasher).IncludeAllDerived();
 
-        CreateMap<PurchaseItem, EventBuffer>()
-            .ForMember(m => m.Type, o => o.MapFrom(e => EventType.Purchase));
+        CreateMap<EventRequest, Event>()
+            .ForMember(e => e.StuffId, o => o.MapFrom(m => stuffHasher.Decode(m.StuffId)));
         CreateMap<Event, EventBuffer>();
+        CreateMap<PurchaseItem, EventBuffer>()
+            .ForMember(m => m.Type, o => o.MapFrom(e => EventType.Purchased));
         CreateMap<EventBuffer, EventListItem>()
             .ForMember(m => m.Id, o => o.MapFrom(e => eventHasher.Encode(e.Id)));
     }

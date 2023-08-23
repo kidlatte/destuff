@@ -17,7 +17,7 @@ namespace Destuff.Server.Controllers;
 
 [Route(ApiRoutes.Events)]
 [ApiController, Authorize]
-public class EventsController : BaseController<Event>
+public class EventsController : BaseController<Event, EventModel, EventRequest>
 {
     public EventsController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Event> hasher) : base(context, mapper, hasher)
     {
@@ -103,5 +103,67 @@ public class EventsController : BaseController<Event>
             .ToListAsync();
 
         return new PagedList<EventListItem>(count, list);
+    }
+
+    public override Task<ActionResult<EventModel>> Update(string hash, [FromBody] EventRequest request)
+    {
+        throw new InvalidOperationException();
+    }
+
+    internal override async Task BeforeSaveAsync(Event entity)
+    {
+        entity.DateTime = DateTime.UtcNow;
+
+        entity.Data = entity.Type switch {
+            EventType.Inventory => await GenerateInventoryData(entity),
+            _ => await GenerateData(entity)
+        };
+    }
+
+    async Task<EventData> GenerateData(Event entity)
+    {
+        var stuff = await Context.Stuffs.Where(x => x.Id == entity.StuffId).FirstAsync();
+        stuff.Inventoried = entity.DateTime;
+
+        entity.Summary = $"Marked '{entity.Type}'";
+
+        return new EventData {
+            Stuff = Mapper.Map<StuffBasicModel>(stuff),
+        };
+    }
+
+    async Task<EventData> GenerateInventoryData(Event entity)
+    {
+        var stuff = await Context.Stuffs.Where(x => x.Id == entity.StuffId).FirstAsync();
+        stuff.Inventoried = entity.DateTime;
+
+        var locations = await Context.StuffLocations.Where(x => x.StuffId == entity.StuffId)
+            .ProjectTo<StuffLocationBasicModel>(Mapper.ConfigurationProvider).ToListAsync();
+
+        entity.Summary = GenerateInventorySummary(locations);
+
+        return new EventData {
+            Stuff = Mapper.Map<StuffBasicModel>(stuff),
+            Locations = locations
+        };
+    }
+
+    string GenerateInventorySummary(ICollection<StuffLocationBasicModel>? locations)
+    {
+        if (locations == null)
+            return $"No location on record";
+
+        var count = locations.Sum(x => x.Count);
+        if (count == 0)
+            return $"No location on record";
+
+        var location = locations.First().Location;
+        if (count == 1)
+            return $"Located in {location.Name}";
+
+        if (locations.Count == 1)
+            return $"{count} units are in {location.Name}";
+
+        return $"{count} total units are in {locations.Count} locations.";
     }
 }

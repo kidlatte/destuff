@@ -119,7 +119,7 @@ public abstract class BaseController<TEntity, TModel, TRequest> : BaseController
     }
 
     [HttpPut("{hash}")]
-    public async Task<ActionResult<TModel>> Update(string hash, [FromBody] TRequest request)
+    public virtual async Task<ActionResult<TModel>> Update(string hash, [FromBody] TRequest request)
     {
         if (!ModelState.IsValid)
             return BadRequest(request);

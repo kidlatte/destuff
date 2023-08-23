@@ -39,7 +39,8 @@ public class InventoriesController : BaseController
             return await GetStuff((attempts ?? 5) - 1);
 
         var limit = Math.Min(count, 25);
-        int offset = random.Next(limit) % 20;
+        //int offset = random.Next(limit) % 20;
+        int offset = 0;
 
         var model = await query.Skip(offset)
             .ProjectTo<StuffModel>(Mapper.ConfigurationProvider)
@@ -60,13 +61,14 @@ public class InventoriesController : BaseController
         entity.DateTime = DateTime.UtcNow;
         Audit(entity);
 
-        await GenerateData(entity);
+        entity.Data = await GenerateData(entity);
+        entity.Summary = GenerateSummary(entity.Data.Locations);
 
         await Context.SaveChangesAsync();
         return Ok();
     }
 
-    private async Task GenerateData(Event entity)
+    private async Task<EventData> GenerateData(Event entity)
     {
         var stuff = await Context.Stuffs.Where(x => x.Id == entity.StuffId).FirstAsync();
         stuff.Inventoried = entity.DateTime;
@@ -74,9 +76,28 @@ public class InventoriesController : BaseController
         var locations = await Context.StuffLocations.Where(x => x.StuffId == entity.StuffId)
             .ProjectTo<StuffLocationBasicModel>(Mapper.ConfigurationProvider).ToListAsync();
 
-        entity.Data = new EventData {
+        return new EventData {
             Stuff = Mapper.Map<StuffBasicModel>(stuff),
             Locations = locations
         };
+    }
+
+    private string GenerateSummary(ICollection<StuffLocationBasicModel>? locations)
+    {
+        if (locations == null)
+            return $"No location on record";
+
+        var count = locations.Sum(x => x.Count);
+        if (count == 0)
+            return $"No location on record";
+
+        var location = locations.First().Location;
+        if (count == 1)
+            return $"Located in {location.Name}";
+
+        if (locations.Count == 1)
+            return $"{count} units are in {location.Name}";
+            
+        return $"{count} total units are in {locations.Count} locations.";
     }
 }
