@@ -46,18 +46,22 @@
 
                 <DataAnnotationsValidator />
 
-                <MudGrid>
-                    <MudItem sm="6">
-                        <MudDatePicker @bind-Date="request.DateTime" For="@(() => request.DateTime)" Disabled="loading"
-                                        Label="Date" Variant="Variant.Outlined" />
-                    </MudItem>
-                    @if (request.Type == EventType.Lent || request.Type == EventType.Donated) {
-                        <MudItem sm="6">
-                            <MudTextField @bind-Value="request.Recipient" For="@(() => request.Recipient)" Disabled="loading"
-                                          Label="@(request.Type == EventType.Lent ? "Borrower" : "Recipient")" Variant="Variant.Outlined" />
-                        </MudItem>
-                    }
-                </MudGrid>
+                @if (request.Type != EventType.Inventory)
+                {
+                    <div class="d-sm-flex">
+                        <div class="flex-auto">
+                            <MudDatePicker @bind-Date="request.DateTime" For="@(() => request.DateTime)" Disabled="loading"
+                                Label="Date" Variant="Variant.Outlined" />
+                        </div>
+                        @if (request.Type == EventType.Lent || request.Type == EventType.Donated)
+                        {
+                            <div class="ps-0 ps-sm-3" style="flex: 1 1 80%">
+                                <MudTextField @bind-Value="request.Recipient" For="@(() => request.Recipient)" Disabled="loading"
+                                    Label="@(request.Type == EventType.Lent ? "Borrower" : "Recipient")" Variant="Variant.Outlined" />
+                            </div>
+                        }
+                    </div>
+                }
 
                 <MudTextField @bind-Value="request.Notes" For="@(() => request.Notes)" Disabled="loading"
                     Label="Notes" Variant="Variant.Outlined" Lines="3" />
