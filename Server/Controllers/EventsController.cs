@@ -110,24 +110,26 @@ public class EventsController : BaseController<Event, EventModel, EventRequest>
         throw new InvalidOperationException();
     }
 
-    internal override async Task BeforeSaveAsync(Event entity)
+    internal override async Task BeforeSaveAsync(Event entity, EventRequest request)
     {
-        entity.DateTime = DateTime.UtcNow;
-
         entity.Data = entity.Type switch {
             EventType.Inventory => await GenerateInventoryData(entity),
-            _ => await GenerateData(entity)
+            _ => await GenerateData(entity, request)
         };
     }
 
-    async Task<EventData> GenerateData(Event entity)
+    async Task<EventData> GenerateData(Event entity, EventRequest request)
     {
         var stuff = await Context.Stuffs.Where(x => x.Id == entity.StuffId).FirstAsync();
         stuff.Inventoried = entity.DateTime;
 
-        entity.Summary = $"Marked '{entity.Type}'";
+        if (!string.IsNullOrEmpty(request.Recipient))
+            entity.Summary = $"Has been {entity.Type} to {request.Recipient}";
+        else
+            entity.Summary = $"Has been {entity.Type}";
 
         return new EventData {
+            Recipient = request.Recipient,
             Stuff = Mapper.Map<StuffBasicModel>(stuff),
         };
     }

@@ -71,7 +71,7 @@
     {
         loading = true;
         Model = Slug == null ?
-            await Http.GetAsync<StuffModel>(ApiRoutes.InventoryStuff) :
+            await Http.GetAsync<StuffModel>(ApiRoutes.GetStuffForInventory) :
                 await Http.GetAsync<StuffModel>($"{ApiRoutes.StuffBySlug}/{Slug}");
         loading = false;
 

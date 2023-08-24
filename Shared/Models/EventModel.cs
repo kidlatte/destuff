@@ -6,6 +6,8 @@ public class EventRequest : IRequest
 {
     public EventType Type { get; set; }
     public int Count { get; set; }
+    public DateTime? DateTime { get; set; }
+    public string? Recipient { get; set; }
     public string? Notes { get; set; }
 
     [Required]
@@ -39,6 +41,7 @@ public class EventListItem : IModel
 public class EventData
 {
     public int? Difference { get; set; }
+    public string? Recipient { get; set; }
     public PurchaseItemBasicModel? PurchaseItem { get; set; }
     public StuffBasicModel? Stuff { get; set; }
     public LocationListItem? FromLocation { get; set; }

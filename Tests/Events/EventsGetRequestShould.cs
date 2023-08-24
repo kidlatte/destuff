@@ -13,7 +13,7 @@ public class EventsGetRequestShould : IntegrationTestBase
         var stuff = await AuthorizedSendAsync<StuffModel>(new StuffRequest { Name = "Stuff 001" }, HttpMethod.Post, ApiRoutes.Stuffs);
         Assert.NotNull(stuff);
 
-        var inventory = await AuthorizedSendAsync(new InventoryRequest { StuffId = stuff.Id }, HttpMethod.Post, ApiRoutes.Inventories);
+        var inventory = await AuthorizedSendAsync(new EventRequest { Type = EventType.Inventory, StuffId = stuff.Id }, HttpMethod.Post, ApiRoutes.Events);
         Assert.True(inventory.IsSuccessStatusCode);
 
         // Act

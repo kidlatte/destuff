@@ -31,6 +31,14 @@ dl > dd {
   line-height: 1em;
 }
 
+.text-right {
+  text-align: right;
+}
+
+.text-capitalize {
+  text-transform: capitalize;
+}
+
 .text-nowrap {
   white-space: nowrap !important;
 }
@@ -39,10 +47,6 @@ dl > dd {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.text-right {
-  text-align: right;
 }
 
 .mud-badge-cursor-pointer .mud-badge {

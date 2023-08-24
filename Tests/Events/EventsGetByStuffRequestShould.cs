@@ -30,7 +30,7 @@ public class EventsGetByStuffRequestShould : IntegrationTestBase
 
         await AuthorizedSendAsync<StuffLocationModel>(new StuffLocationRequest { LocationId = location.Id, StuffId = stuffA.Id, Count = 2 }, HttpMethod.Post, ApiRoutes.StuffLocations);
 
-        var inventory = await AuthorizedSendAsync(new InventoryRequest { StuffId = stuffA.Id }, HttpMethod.Post, ApiRoutes.Inventories);
+        var inventory = await AuthorizedSendAsync(new EventRequest { Type = EventType.Inventory, StuffId = stuffA.Id }, HttpMethod.Post, ApiRoutes.Events);
         Assert.True(inventory.IsSuccessStatusCode);
 
         // Act

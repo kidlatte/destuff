@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 using Destuff.Shared;
 using Destuff.Shared.Models;
 
-namespace Destuff.Tests.Inventories;
+namespace Destuff.Tests.Stuffs;
 
-public class InventoriesStuffGetRequestShould : IntegrationTestBase
+public class StuffsGetForInventoryRequestShould : IntegrationTestBase
 {
-    public InventoriesStuffGetRequestShould() : base(HttpMethod.Get, ApiRoutes.InventoryStuff)
+    public StuffsGetForInventoryRequestShould() : base(HttpMethod.Get, ApiRoutes.GetStuffForInventory)
     {
     }
 

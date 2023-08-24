@@ -30,10 +30,11 @@ public class StuffsController : BaseController<Stuff, StuffModel, StuffRequest>
 
         request ??= new ListRequest();
         if (!string.IsNullOrEmpty(request.Search)) {
-            var search = request.Search.ToLower();
-            query = query.Where(x => x.Name.ToLower().Contains(search) ||
-                x.Url!.ToLower().Contains(search) ||
-                x.Notes!.ToLower().Contains(search));
+            var searches = request.Search.ToLower().Split(" ").ToList();
+            searches.ForEach(search =>
+                query = query.Where(x => x.Name.ToLower().Contains(search) ||
+                    x.Url!.ToLower().Contains(search) ||
+                    x.Notes!.ToLower().Contains(search)));
         }
 
         var sortField = request.SortField ?? "";
@@ -88,6 +89,35 @@ public class StuffsController : BaseController<Stuff, StuffModel, StuffRequest>
             .ToListAsync();
 
         return new PagedList<StuffBasicModel>(count, list);
+    }
+
+    [HttpGet(ApiRoutes.GetStuffForInventory)]
+    public async Task<StuffModel?> GetStuff(int? attempts)
+    {
+        if (attempts == 0)
+            return null;
+
+        var random = new Random(Guid.NewGuid().GetHashCode());
+        var cutoff = random.Next(40, 80);
+
+        var query = Context.Stuffs
+            //.Where(x => x.Created < DateTime.UtcNow.AddDays(-1))
+            .Where(x => x.Inventoried == null || x.Inventoried < DateTime.UtcNow.AddDays(-cutoff));
+
+        query = query.OrderBy(x => x.Events!.Count());
+
+        var count = await query.CountAsync();
+        if (count == 0)
+            return await GetStuff((attempts ?? 5) - 1);
+
+        var limit = Math.Min(count, 25);
+        int offset = random.Next(limit) % 20;
+
+        var model = await query.Skip(offset)
+            .ProjectTo<StuffModel>(Mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync();
+
+        return model;
     }
 
     [HttpGet(ApiRoutes.StuffBySlug + "/{slug}")]

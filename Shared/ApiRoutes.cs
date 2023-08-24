@@ -17,6 +17,7 @@ public class ApiRoutes
     public const string Stuffs = "/api/stuffs";
     public const string StuffBySlug = "/api/stuffs/s";
     public const string StuffsBySupplier = "/api/stuffs/supplier";
+    public const string GetStuffForInventory = "/api/stuffs/inventory";
     public const string StuffLocations = "/api/stuff-locations";
 
     public const string Uploads = "/api/uploads";
@@ -34,6 +35,4 @@ public class ApiRoutes
 
     public const string Events = "/api/events";
     public const string EventsByStuff = "/api/events/stuff";
-    public const string Inventories = "/api/inventories";
-    public const string InventoryStuff = "/api/inventory";
 }

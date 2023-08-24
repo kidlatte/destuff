@@ -94,21 +94,23 @@ public class PurchaseItemsController : BaseController<PurchaseItem, PurchaseItem
         }).FirstOrDefaultAsync();
 
         if (purchase != null) 
-        {
             entity.DateTime = purchase.Received ?? purchase.Receipt ?? purchase.Created;
-        }
 
+        entity.Count = entity.Quantity;
+        entity.Data = await GenerateData(entity, purchase?.SupplierId);
+    }
+
+    private async Task<EventData> GenerateData(PurchaseItem entity, int? supplierId)
+    {
         var stuff = await Context.Stuffs.Where(x => x.Id == entity.StuffId)
             .ProjectTo<StuffBasicModel>(Mapper.ConfigurationProvider).FirstAsync();
 
         var supplier = default(SupplierBasicModel);
-        if (purchase?.SupplierId != null)
-            supplier = await Context.Suppliers.Where(x => x.Id == purchase.SupplierId)
+        if (supplierId != null)
+            supplier = await Context.Suppliers.Where(x => x.Id == supplierId)
                 .ProjectTo<SupplierBasicModel>(Mapper.ConfigurationProvider).FirstAsync();
 
-        entity.Count = entity.Quantity;
-        entity.Data = new EventData 
-        {
+        return new EventData {
             Difference = entity.Quantity,
             PurchaseItem = Mapper.Map<PurchaseItemBasicModel>(entity),
             Stuff = stuff,

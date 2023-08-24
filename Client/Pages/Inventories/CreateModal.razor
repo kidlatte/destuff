@@ -8,43 +8,64 @@
             </TitleContent>
             <DialogContent>
 
-                @* <MudSelect T="string" Label="Coffee" AnchorOrigin="Origin.BottomCenter">
-                    <MudSelectItem Value="@("Cappuccino")" />
-                    <MudSelectItem Value="@("Cafe Latte")" />
-                    <MudSelectItem Value="@("Espresso")" />
-                </MudSelect> *@
-                <div class="mb-5">
-                    @if (!Model.StuffLocations.Any()) {
+                <MudSelect @bind-Value="request.Type" For="@(() => request.Type)" Label="Event"
+                           Variant="Variant.Outlined">
+                    @foreach (var item in eventTypes) {
+                        <MudSelectItem Value="@item">@item</MudSelectItem>
+                    }
+                </MudSelect>
+
+                <div class="my-5">
+                    @if (request.Type == EventType.Inventory) {
+                    if (!Model.StuffLocations.Any()) {
                         <MudText Typo="Typo.body1" Color="Color.Warning">
-                            You have no location for <strong>@Model.Name</strong>. Please set a location for this stuff.
+                            You have no location for <em>@Model.Name</em>. Please set a location for this stuff.
                         </MudText>
                     }
                     else if (Model.IsSingleLocation && Model.FirstLocation != null) {
                         <MudText Typo="Typo.body1">
-                            <strong>@Model.Name</strong> is in <em>@Model.FirstLocation.Name</em>
+                            <em>@Model.Name</em> is in <strong>@Model.FirstLocation.Name</strong>
                         </MudText>
                     }
                     else if (Model.StuffLocations.Count == 1) {
                         <MudText Typo="Typo.body1">
-                            <strong>@Model.Count</strong> units of <em>@Model.Name</em> are in <em>@Model.FirstLocation?.Name</em>
+                            <em>@Model.Count</em> units of <em>@Model.Name</em> are in <strong>@Model.FirstLocation?.Name</strong>
                         </MudText>
                     }
                     else {
                         <MudText Typo="Typo.body1">
-                            <strong>@Model.Count</strong> total units of <em>@Model.Name</em> are in <strong>@Model.StuffLocations.Count</strong> locations.
+                            <em>@Model.Count</em> total units of <em>@Model.Name</em> are in <strong>@Model.StuffLocations.Count</strong> locations.
                         </MudText>
                     }
+                } else {
+                    <MudText Typo="Typo.body1">
+                            <em>@Model.Name</em> has been <strong>@request.Type</strong>.
+                    </MudText>
+                }
                 </div>
 
                 <DataAnnotationsValidator />
 
+                <MudGrid>
+                    <MudItem sm="6">
+                        <MudDatePicker @bind-Date="request.DateTime" For="@(() => request.DateTime)" Disabled="loading"
+                                        Label="Date" Variant="Variant.Outlined" />
+                    </MudItem>
+                    @if (request.Type == EventType.Lent || request.Type == EventType.Donated) {
+                        <MudItem sm="6">
+                            <MudTextField @bind-Value="request.Recipient" For="@(() => request.Recipient)" Disabled="loading"
+                                          Label="@(request.Type == EventType.Lent ? "Borrower" : "Recipient")" Variant="Variant.Outlined" />
+                        </MudItem>
+                    }
+                </MudGrid>
+
                 <MudTextField @bind-Value="request.Notes" For="@(() => request.Notes)" Disabled="loading"
-                            Label="Notes" Variant="Variant.Outlined" Lines="3" />
+                    Label="Notes" Variant="Variant.Outlined" Lines="3" />
 
                 <MudText Color="@Color.Error">@error</MudText>
             </DialogContent>
             <DialogActions>
-                <LoadingButton Loading="loading" Disabled="!Model.StuffLocations.Any()" />
+                <LoadingButton Loading="loading" />
                 <MudButton OnClick="() => dialog?.Cancel()" Disabled="loading" Color="Color.Default">
                     Cancel
                 </MudButton>
@@ -62,13 +83,15 @@
 
     [Parameter]
     public required StuffModel Model { get; set; }
-    public InventoryRequest? request { get; set; }
+    public EventRequest? request { get; set; }
+
+    List<EventType> eventTypes = new() { EventType.Inventory, EventType.Lent, EventType.Donated, EventType.Consumed, EventType.Disposed };
 
     string error { get; set; } = "";
     bool loading { get; set; } = false;
 
     protected override void OnInitialized() => 
-        request = new InventoryRequest { StuffId = Model.Id, Count = Model.Count };
+        request = new EventRequest { Type = EventType.Inventory, DateTime = DateTime.Now, StuffId = Model.Id, Count = Model.Count };
 
     async Task OnSubmit()
     {
@@ -77,21 +100,8 @@
 
         loading = true;
 
-        if (!Model.StuffLocations.Any()) {
-            request.Summary = $"No location on record";
-        }
-        else if (Model.IsSingleLocation && Model.FirstLocation != null) {
-            request.Summary = $"Located in {Model.FirstLocation.Name}";
-        }
-        else if (Model.StuffLocations.Count == 1) {
-            request.Summary = $"{Model.Count} units of {Model.Name} are in {Model.FirstLocation?.Name}";
-        }
-        else {
-            request.Summary = $"{Model.Count} total units of {Model.Name} are in {Model.StuffLocations.Count} locations.";
-        }
-
         try {
-            var result = await Http.SendAsync(HttpMethod.Post, ApiRoutes.Inventories, request);
+            var result = await Http.SendAsync(HttpMethod.Post, ApiRoutes.Events, request);
             dialog?.Close();
         }
         catch (Exception ex) {

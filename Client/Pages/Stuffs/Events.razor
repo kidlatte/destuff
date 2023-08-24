@@ -18,6 +18,12 @@
                 else if (context.Item.Type == EventType.Inventory) {
                     <EventInventory Model="context.Item" />
                 }
+                else if (!string.IsNullOrEmpty(context.Item.Data?.Recipient)) {
+                    <text>
+                        <strong class="text-capitalize">@context.Item.Type</strong>
+                        to <em>@context.Item.Data.Recipient</em>
+                    </text>
+                }
                 else {
                     <text>@context.Item.Summary</text>
                 }
