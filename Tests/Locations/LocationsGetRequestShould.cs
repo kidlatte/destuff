@@ -19,10 +19,10 @@ public class LocationsGetRequestShould : IntegrationTestBase
     {
         // Arrange
         var model = new LocationRequest { Name = "Location 01" };
-        await AuthorizedSendAsync<LocationModel>(model, HttpMethod.Post);
+        await AuthorizedSendAsync(model, HttpMethod.Post);
 
         // Act
-        var result = await AuthorizedSendAsync<List<LocationModel>>();
+        var result = await AuthorizedSendAsync<List<LocationTreeItem>>();
 
         // Assert
         Assert.NotNull(result);
@@ -40,7 +40,7 @@ public class LocationsGetRequestShould : IntegrationTestBase
         await AuthorizedSendAsync<LocationModel>(model, HttpMethod.Post);
 
         // Act
-        var result = await AuthorizedSendAsync<List<LocationModel>>();
+        var result = await AuthorizedSendAsync<List<LocationTreeItem>>();
 
         // Assert
         Assert.NotNull(result);
@@ -63,7 +63,7 @@ public class LocationsGetRequestShould : IntegrationTestBase
         await AuthorizedSendAsync(create03, HttpMethod.Post);
 
         // Act
-        var result = await AuthorizedSendAsync<List<LocationModel>>();
+        var result = await AuthorizedSendAsync<List<LocationTreeItem>>();
 
         // Assert
         Assert.NotNull(result);

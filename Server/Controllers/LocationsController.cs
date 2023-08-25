@@ -21,12 +21,12 @@ public class LocationsController : BaseController<Location, LocationModel, Locat
     }
 
     [HttpGet]
-    public async Task<ActionResult<IList<LocationModel>>> Get()
+    public async Task<ActionResult<IList<LocationTreeItem>>> Get()
     {
         var query = Query;
 
         var list = await query
-            .ProjectTo<LocationModel>(Mapper.ConfigurationProvider)
+            .ProjectTo<LocationTreeItem>(Mapper.ConfigurationProvider)
             .ToListAsync();
 
         // assemble tree
@@ -38,7 +38,7 @@ public class LocationsController : BaseController<Location, LocationModel, Locat
                 var parent = list.First(x => x.Id == item.ParentId);
                 if (parent != null)
                 {
-                    parent.Children = (parent.Children ?? new List<LocationModel>()).Append(item).ToList();
+                    parent.Children = (parent.Children ?? new List<LocationTreeItem>()).Append(item).ToList();
                     result.Remove(item);
                 }
             }
@@ -48,27 +48,38 @@ public class LocationsController : BaseController<Location, LocationModel, Locat
     }
 
     [HttpGet(ApiRoutes.LocationTree + "/{hash}")]
-    public async Task<ActionResult<LocationTreeModel?>> GetLocationTree(string hash)
+    public async Task<ActionResult<LocationTreeItem?>> GetLocationTree(string hash)
     {
         var id = Hasher.Decode(hash);
-        var query = Query.Include(x => x.Children).Where(x => x.Id == id);
+        var query = Query.Where(x => x.Id == id);
 
         var model = await query
-            .ProjectTo<LocationTreeModel?>(Mapper.ConfigurationProvider)
+            .ProjectTo<LocationTreeItem>(Mapper.ConfigurationProvider)
             .FirstOrDefaultAsync();
 
         if (model == null)
             return NotFound();
 
         // TODO: use supporting hierarchy table
-        if (model.Children != null)
-        foreach (var item in model.Children)
-        {
-            var _item = (await GetLocationTree(item.Id!)).Value;
-            item.Children = _item?.Children;
-        }
+        model.Children = await GetChildren(model);
 
         return model;
+    }
+
+    async Task<ICollection<LocationTreeItem>> GetChildren(LocationTreeItem parent)
+    {
+        var parentId = Hasher.Decode(parent.Id);
+        var query = Query.Where(x => x.ParentId == parentId);
+
+        var children = await query
+            .ProjectTo<LocationTreeItem>(Mapper.ConfigurationProvider)
+            .ToListAsync();
+
+        foreach (var item in children) {
+            item.Children = await GetChildren(item);
+        }
+
+        return children;
     }
 
     [Route(ApiRoutes.LocationLookup)]

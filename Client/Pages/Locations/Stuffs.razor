@@ -16,6 +16,9 @@
         </PropertyColumn>
         <PropertyColumn Property="x => x.Count" />
     </Columns>
+    <NoRecordsContent>
+        <MudText Typo="Typo.body1">No stuff on record.</MudText>
+    </NoRecordsContent>
     <PagerContent>
         @if (PageCount > 1)
         {

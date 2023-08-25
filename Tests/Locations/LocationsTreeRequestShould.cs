@@ -19,7 +19,7 @@ public class LocationsTreeRequestShould : IntegrationTestBase
         Assert.NotNull(layer03?.Id);
 
         // Act
-        var result = await AuthorizedGetAsync<LocationModel>($"{ApiRoutes.LocationTree}/{layer01?.Id}");
+        var result = await AuthorizedGetAsync<LocationTreeItem>($"{ApiRoutes.LocationTree}/{layer01?.Id}");
 
         // Assert
         Assert.NotNull(result);

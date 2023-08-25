@@ -18,7 +18,7 @@
 </div>
 
 <div>
-    <MudTreeView T="LocationModel" Items="items?.ToHashSet()" Hover="true">
+    <MudTreeView T="LocationTreeItem" Items="items?.ToHashSet()" Hover="true">
         <ItemTemplate Context="item">
             <MudTreeViewItem Value="@item" Text="@item.Name" Items="@item.Children?.ToHashSet()" Expanded="true">
                 <BodyContent>
@@ -41,11 +41,11 @@
 
 @code
 {
-    List<LocationModel>? items { get; set; }
+    List<LocationTreeItem>? items { get; set; }
 
     protected override Task OnInitializedAsync() => LoadData();
 
-    async Task LoadData() => items = await Http.GetAsync<List<LocationModel>>(ApiRoutes.Locations);
+    async Task LoadData() => items = await Http.GetAsync<List<LocationTreeItem>>(ApiRoutes.Locations);
 
     async Task MapPaths()
     {
@@ -55,7 +55,7 @@
         await LoadData();
     }
 
-    async void OnAddClick(LocationModel? item = null)
+    async void OnAddClick(LocationTreeItem? item = null)
     {
         var parameters = new DialogParameters();
         parameters.Add(nameof(LocationCreateModal.Parent), item);
@@ -70,7 +70,7 @@
         }
     }
 
-    async void OnEditClick(LocationModel item)
+    async void OnEditClick(LocationTreeItem item)
     {
         var parameters = new DialogParameters();
         parameters.Add(nameof(UpdateModal.Model), item);
@@ -85,7 +85,7 @@
         }
     }
 
-    async void OnDeleteClick(LocationModel item)
+    async void OnDeleteClick(LocationTreeItem item)
     {
         var parameters = new DialogParameters();
         parameters.Add(nameof(DeleteModal.Model), item);
@@ -95,7 +95,7 @@
 
         if (!result.Canceled)
         {
-            items = await Http.GetAsync<List<LocationModel>>(ApiRoutes.Locations);
+            items = await Http.GetAsync<List<LocationTreeItem>>(ApiRoutes.Locations);
             StateHasChanged();
         }
     }

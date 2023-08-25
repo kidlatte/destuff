@@ -38,7 +38,7 @@
     
     <div>@Model.Notes</div>
 
-    <MudTreeView T="LocationTreeModel" Items="items?.ToHashSet()" Hover="true">
+    <MudTreeView T="LocationTreeItem" Items="items?.ToHashSet()" Hover="true">
         <ItemTemplate Context="item">
             <MudTreeViewItem Value="@item" Text="@item.Name" Items="@item.Children?.ToHashSet()" Expanded="true">
                 <BodyContent>
@@ -48,7 +48,10 @@
         </ItemTemplate>
     </MudTreeView>
 
-    <Stuffs Model="Model" Page="Page" />
+    <MudPaper Class="my-5 pa-3 pa-md-5">
+        <MudText Typo="Typo.h2" Class="mb-3">Stuffs</MudText>
+        <Stuffs Model="Model" Page="Page" />
+    </MudPaper>
 }
 
 @code {
@@ -60,7 +63,7 @@
 
     LocationModel? Model { get; set; }
 
-    List<LocationTreeModel>? items { get; set; }
+    List<LocationTreeItem>? items { get; set; }
 
     protected override Task OnParametersSetAsync() => LoadData();
 
@@ -78,7 +81,7 @@
                 throw;
         }
 
-        var item = await Http.GetAsync<LocationTreeModel>($"{ApiRoutes.LocationTree}/{Model?.Id}");
+        var item = await Http.GetAsync<LocationTreeItem>($"{ApiRoutes.LocationTree}/{Model?.Id}");
         items = item?.Children?.Any() ?? false ? new() { item } : null;
     }
 

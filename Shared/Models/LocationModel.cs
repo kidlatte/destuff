@@ -34,7 +34,6 @@ public class LocationModel: ILocationDataModel
 
     public LocationData? Data { get; set; }
 
-    public List<LocationModel>? Children { get; set; }
 
     public LocationRequest ToRequest()
     {
@@ -55,9 +54,10 @@ public class LocationListItem: ILocationModel
     public string? PathString { get; set; }
 }
 
-public class LocationTreeModel : LocationListItem
+public class LocationTreeItem : LocationListItem
 {
-    public List<LocationTreeModel>? Children { get; set; }
+    public string? ParentId { get; set; }
+    public required ICollection<LocationTreeItem> Children { get; set; }
 }
 
 public class LocationLookupItem : LocationListItem, ILocationDataModel

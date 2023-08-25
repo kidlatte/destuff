@@ -19,11 +19,12 @@ public class MapperProfile : Profile
         CreateMap<LocationRequest, Location>()
             .ForMember(e => e.ParentId, o => o.MapFrom(m => locationHasher.Decode(m.ParentId)));
         CreateEntityMap<Location, LocationModel>(locationHasher).IncludeAllDerived()
-            .ForMember(m => m.ParentId, o => o.MapFrom(e => locationHasher.Encode(e.ParentId)))
-            .ForMember(m => m.Children, o => o.Ignore());
+            .ForMember(m => m.ParentId, o => o.MapFrom(e => locationHasher.Encode(e.ParentId)));
         CreateEntityMap<Location, LocationListItem>(locationHasher).IncludeAllDerived()
             .ForMember(m => m.PathString, o => o.MapFrom(e => e.Data!.PathString));
-        CreateMap<Location, LocationTreeModel>();
+        CreateMap<Location, LocationTreeItem>()
+            .ForMember(m => m.ParentId, o => o.MapFrom(e => locationHasher.Encode(e.ParentId)))
+            .ForMember(m => m.Children, o => o.Ignore());
         CreateMap<Location, LocationLookupItem>();
         CreateMap<LocationListItem, LocationLookupItem>();
 
