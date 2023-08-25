@@ -52,7 +52,7 @@ public class LocationListItem: ILocationModel
     public required string Id { get; set; }
     public required string Slug { get; set; }
     public required string Name { get; set; }
-    public string? Path { get; set; }
+    public string? PathString { get; set; }
 }
 
 public class LocationTreeModel : LocationListItem
@@ -69,4 +69,14 @@ public class LocationData
 {
     public string? PathString { get; set; }
     public ICollection<LocationListItem>? Path { get; set; }
+
+    public LocationData()
+    {
+    }
+
+    public LocationData(string name, ICollection<LocationListItem>? path = null)
+    {
+        Path = path ?? new List<LocationListItem>();
+        PathString = string.Join(" > ", Path.Select(x => x.Name).Append(name));
+    }
 }

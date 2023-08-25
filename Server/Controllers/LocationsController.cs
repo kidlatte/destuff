@@ -131,12 +131,13 @@ public class LocationsController : BaseController<Location, LocationModel, Locat
         {
             var parent = item.Parent;
             if (parent == null)
-                item.Data = new LocationData { Path = new List<LocationListItem>() };
+                item.Data = new LocationData(item.Name);
             else if (parent.Data != null)
             {
                 var path = parent.Data.Path?.ToList() ?? new List<LocationListItem>();
                 path.Add(Mapper.Map<LocationListItem>(parent));
-                item.Data = new LocationData { Path = path };
+                
+                item.Data = new LocationData(item.Name, path);
             }
         }
 
@@ -156,21 +157,20 @@ public class LocationsController : BaseController<Location, LocationModel, Locat
         var parent = await Context.Locations.Where(x => x.Id == entity.ParentId).FirstOrDefaultAsync();
 
         if (parent == null)
-            return new LocationData { Path = new List<LocationListItem>() };
+            return new LocationData(entity.Name);
 
-        if (parent.Data == null)
-            return new LocationData { Path = new[] { Mapper.Map<LocationListItem>(parent) } };
+        entity.Slug = $"{parent.Slug}-{entity.ToSlug()}";
+
+        if (parent.Data == null) {
+            parent.Data = new LocationData(parent.Name);
+        }
 
         var path = parent.Data.Path?.ToList() ?? new List<LocationListItem>();
         path.Add(Mapper.Map<LocationListItem>(parent));
-        path.Add(Mapper.Map<LocationListItem>(entity));
 
-        var pathString = string.Join(" > ", path.Select(x => x.Name));
+        var pathString = string.Join(" > ", path.Select(x => x.Name).Append(entity.Name));
 
-        return new LocationData { 
-            PathString = pathString,
-            Path = path
-        };
+        return new LocationData(entity.Name, path);
     }
 
     private async Task GenerateChildrenData(Location parent)

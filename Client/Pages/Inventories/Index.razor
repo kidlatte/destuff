@@ -40,7 +40,7 @@
         <Stuff Model="Model" />
         <MudToolBar DisableGutters="true" Dense="true">
             <MudSpacer />
-            <MudButton OnClick="OnUpdateClick" Variant="Variant.Filled"
+            <MudButton OnClick="OnStuffUpdateClick" Variant="Variant.Filled"
                        Color="Color.Primary">Edit Stuff</MudButton>
         </MudToolBar>
     </MudPaper>
@@ -70,7 +70,9 @@
             await GetStuff();
     }
 
-    async void OnUpdateClick()
+    async void OnSkipClick() => await GetStuff();
+
+    async void OnStuffUpdateClick()
     {
         var parameters = new DialogParameters();
         parameters.Add(nameof(StuffUpdateModal.Model), Model);
@@ -83,8 +85,6 @@
             StateHasChanged();
         }
     }
-
-    async void OnSkipClick() => await GetStuff();
 
     async Task GetStuff(string? slug = null)
     {

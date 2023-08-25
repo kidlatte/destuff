@@ -1,5 +1,5 @@
 ﻿<MudLink Href="@($"/locations/{Model.Slug}")"
-         UserAttributes="@(new Dictionary<string, object> { { "title", @Model.Path ?? "" } })">
+         UserAttributes="@(new Dictionary<string, object> { { "title", @Model.PathString ?? "" } })">
     @Model.Name
 </MudLink>
 
