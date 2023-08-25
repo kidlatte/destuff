@@ -38,6 +38,11 @@
     <MudPaper Class="my-5 pa-3 pa-md-5">
         <MudText Typo="Typo.h2" Class="mb-3">Stuff</MudText>
         <Stuff Model="Model" />
+        <MudToolBar DisableGutters="true" Dense="true">
+            <MudSpacer />
+            <MudButton OnClick="OnUpdateClick" Variant="Variant.Filled"
+                       Color="Color.Primary">Edit Stuff</MudButton>
+        </MudToolBar>
     </MudPaper>
 
     <MudPaper Class="my-5 pa-3 pa-md-5">
@@ -65,14 +70,30 @@
             await GetStuff();
     }
 
+    async void OnUpdateClick()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(StuffUpdateModal.Model), Model);
+
+        var dialog = await Dialog.ShowAsync<StuffUpdateModal>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is StuffModel data) {
+            await GetStuff(data.Slug);
+            StateHasChanged();
+        }
+    }
+
     async void OnSkipClick() => await GetStuff();
 
-    async Task GetStuff()
+    async Task GetStuff(string? slug = null)
     {
+        slug ??= Slug;
+
         loading = true;
-        Model = Slug == null ?
+        Model = slug == null ?
             await Http.GetAsync<StuffModel>(ApiRoutes.GetStuffForInventory) :
-                await Http.GetAsync<StuffModel>($"{ApiRoutes.StuffBySlug}/{Slug}");
+                await Http.GetAsync<StuffModel>($"{ApiRoutes.StuffBySlug}/{slug}");
         loading = false;
 
         StateHasChanged();
