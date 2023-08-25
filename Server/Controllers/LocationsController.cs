@@ -147,21 +147,14 @@ public class LocationsController : BaseController<Location, LocationModel, Locat
 
     internal override async Task BeforeSaveAsync(Location entity)
     {
-        entity.Data = await GenerateData(entity.ParentId);
+        entity.Data = await GenerateData(entity);
         await GenerateChildrenData(entity);
     }
 
-    private async Task<LocationData> GenerateData(int? parentId)
+    private async Task<LocationData> GenerateData(Location entity)
     {
-        if (parentId == null)
-            return new LocationData { Path = new List<LocationListItem>() };
+        var parent = await Context.Locations.Where(x => x.Id == entity.ParentId).FirstOrDefaultAsync();
 
-        var parent = await Context.Locations.Where(x => x.Id == parentId).FirstOrDefaultAsync();
-        return GenerateData(parent);
-    }
-
-    private LocationData GenerateData(Location? parent)
-    {
         if (parent == null)
             return new LocationData { Path = new List<LocationListItem>() };
 
@@ -170,8 +163,14 @@ public class LocationsController : BaseController<Location, LocationModel, Locat
 
         var path = parent.Data.Path?.ToList() ?? new List<LocationListItem>();
         path.Add(Mapper.Map<LocationListItem>(parent));
+        path.Add(Mapper.Map<LocationListItem>(entity));
 
-        return new LocationData { Path = path };
+        var pathString = string.Join(" > ", path.Select(x => x.Name));
+
+        return new LocationData { 
+            PathString = pathString,
+            Path = path
+        };
     }
 
     private async Task GenerateChildrenData(Location parent)
@@ -179,7 +178,7 @@ public class LocationsController : BaseController<Location, LocationModel, Locat
         var children = await Context.Locations.Where(x => x.ParentId == parent.Id).ToListAsync();
         foreach (var child in children) 
         {
-            child.Data = GenerateData(parent);
+            child.Data = await GenerateData(child);
             await GenerateChildrenData(child);
         }
     }

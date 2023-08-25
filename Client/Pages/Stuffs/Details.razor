@@ -62,9 +62,7 @@
                     <dl>
                         <dt>Location</dt>
                         <dd>
-                            <MudLink Href="@($"/locations/{Model.FirstLocation.Slug}")">
-                                @Model.FirstLocation.Name
-                            </MudLink>
+                            <LocationLink Model="Model.FirstLocation" />
                         </dd>
                     </dl>
                 }
@@ -84,10 +82,7 @@
                             @foreach (var (item, i) in Model.StuffLocations.ToIndex())
                             {
                                 @if (i > 0) { <text>, </text> }
-
-                                <MudLink Href="@($"/locations/{item.Location.Slug}")">
-                                    @item.Location.Name
-                                </MudLink>
+                                <LocationLink Model="item.Location" />
 
                                 @if (item.Count > 1)
                                 {

@@ -1,0 +1,9 @@
+﻿<MudLink Href="@($"/locations/{Model.Slug}")"
+         UserAttributes="@(new Dictionary<string, object> { { "title", @Model.Path ?? "" } })">
+    @Model.Name
+</MudLink>
+
+@code {
+    [Parameter]
+    public required LocationListItem Model { get; set; }
+}

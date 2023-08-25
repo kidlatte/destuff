@@ -21,7 +21,8 @@ public class MapperProfile : Profile
         CreateEntityMap<Location, LocationModel>(locationHasher).IncludeAllDerived()
             .ForMember(m => m.ParentId, o => o.MapFrom(e => locationHasher.Encode(e.ParentId)))
             .ForMember(m => m.Children, o => o.Ignore());
-        CreateEntityMap<Location, LocationListItem>(locationHasher).IncludeAllDerived();
+        CreateEntityMap<Location, LocationListItem>(locationHasher).IncludeAllDerived()
+            .ForMember(m => m.Path, o => o.MapFrom(e => e.Data!.Path));
         CreateMap<Location, LocationTreeModel>();
         CreateMap<Location, LocationLookupItem>();
         CreateMap<LocationListItem, LocationLookupItem>();

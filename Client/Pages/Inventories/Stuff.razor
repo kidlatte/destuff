@@ -30,9 +30,7 @@
         <dl>
             <dt>Location</dt>
             <dd>
-                <MudLink Href="@($"/locations/{Model.FirstLocation.Slug}")">
-                    @Model.FirstLocation.Name
-                </MudLink>
+                <LocationLink Model="Model.FirstLocation" />
             </dd>
         </dl>
     }
@@ -53,9 +51,7 @@
                         <text>, </text>
                     }
 
-                    <MudLink Href="@($"/locations/{item.Location.Slug}")">
-                        @item.Location.Name
-                    </MudLink>
+                    <LocationLink Model="item.Location" />
 
                     @if (item.Count > 1) {
                         <span title="@($"{item.Count} units")">@($" ({item.Count})")</span>

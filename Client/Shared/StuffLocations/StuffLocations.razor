@@ -5,7 +5,7 @@
     <Columns>
         <PropertyColumn Property="x => x.Location" Title="Location">
             <CellTemplate>
-                <MudLink Href="@($"/locations/{context.Item.Location.Slug}")">@context.Item.Location.Name</MudLink>
+                <LocationLink Model="context.Item.Location" />
             </CellTemplate>
         </PropertyColumn>
         <PropertyColumn Property="x => x.Count" />

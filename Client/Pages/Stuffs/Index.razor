@@ -30,7 +30,7 @@
                 @foreach (var (location, i) in context.Item.Locations.ToIndex())
                 {
                     @if (i > 0) { <text>, </text> }
-                    <MudLink Href="@($"/locations/{location.Slug}")">@location.Name</MudLink>
+                    <LocationLink Model="location" />
                 }
             </CellTemplate>
         </PropertyColumn>

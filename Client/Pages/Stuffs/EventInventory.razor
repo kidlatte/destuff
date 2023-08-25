@@ -10,9 +10,7 @@
 
         <text>
             Located in
-            <MudLink Href="@($"/locations/{location.Slug}")">
-                @location.Name
-            </MudLink>.
+            <LocationLink Model="location" />.
         </text>
     }
     else if (Locations.Count == 1) {
@@ -20,9 +18,7 @@
 
         <text>
             <strong>@Count</strong> units are in
-            <MudLink Href="@($"/locations/{location.Slug}")">
-                @location.Name
-            </MudLink>.
+            <LocationLink Model="location" />.
         </text>
     }
     else {

@@ -49,12 +49,12 @@
 
     private async Task<IEnumerable<ILocationDataModel>?> Search(string value)
     {
-        var search = Model == null || Model.Name != value ? value : null;
+        var search = Model == null || Model.Name != value ? value : "";
         var query = new ListQuery { Search = search, PageSize = 10, SortField = nameof(LocationModel.Id) };
         var result = await Http.GetAsync<PagedList<LocationLookupItem>>($"{ApiRoutes.LocationLookup}?{query}");
 
         list = result?.List.ToList() ?? Enumerable.Empty<LocationLookupItem>();
-        if (Model != null && search == null)
+        if (Model != null && string.IsNullOrEmpty(search))
             list = new List<ILocationDataModel> { Model }.UnionBy(list, x => x.Id);
 
         return list.Append(new LocationLookupItem { Id = "add", Name = search, Slug = "" });

@@ -5,7 +5,7 @@ namespace Destuff.Shared.Models;
 public interface ILocationModel: IModel
 {
     string Slug { get; set; }
-    string? Name { get; set; }
+    string Name { get; set; }
 }
 
 public interface ILocationDataModel : ILocationModel
@@ -24,10 +24,14 @@ public class LocationRequest: IRequest
     public string? ParentId { get; set; }
 }
 
-public class LocationModel: LocationRequest, ILocationDataModel
+public class LocationModel: ILocationDataModel
 {
     public required string Id { get; set; }
+    public string? ParentId { get; set; }
     public required string Slug { get; set; }
+    public required string Name { get; set; }
+    public string? Notes { get; set; }
+
     public LocationData? Data { get; set; }
 
     public List<LocationModel>? Children { get; set; }
@@ -47,7 +51,8 @@ public class LocationListItem: ILocationModel
 {
     public required string Id { get; set; }
     public required string Slug { get; set; }
-    public string? Name { get; set; }
+    public required string Name { get; set; }
+    public string? Path { get; set; }
 }
 
 public class LocationTreeModel : LocationListItem
@@ -62,5 +67,6 @@ public class LocationLookupItem : LocationListItem, ILocationDataModel
 
 public class LocationData
 {
+    public string? PathString { get; set; }
     public ICollection<LocationListItem>? Path { get; set; }
 }

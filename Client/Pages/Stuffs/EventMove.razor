@@ -1,21 +1,15 @@
 ﻿@if (FromLocation != null && ToLocation != null) {
     <text>
         <strong>Moved</strong> from
-        <MudLink Href="@($"/locations/{FromLocation.Slug}")">
-            @FromLocation.Name
-        </MudLink>
+        <LocationLink Model="FromLocation" />
         to
-        <MudLink Href="@($"/locations/{ToLocation.Slug}")">
-            @ToLocation.Name
-        </MudLink>.
+        <LocationLink Model="ToLocation" />.
     </text>
 }
 else if (ToLocation != null) {
     <text>
         Set location to
-        <MudLink Href="@($"/locations/{ToLocation.Slug}")">
-            @ToLocation.Name
-        </MudLink>.
+        <LocationLink Model="ToLocation" />.
     </text>
 }
 else {
