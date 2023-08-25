@@ -19,11 +19,23 @@
             <MudButton OnClick="OnDeleteClick" Variant="Variant.Outlined"
                        Color="Color.Error">Delete</MudButton>
         </div>
-        <div class="text-truncate me-auto order-0">
-            <MudText Typo="Typo.h1" Class="text-truncate my-5 my-md-3">@Model.Name</MudText>
+        <div class="text-truncate my-5 my-md-3 me-auto order-0">
+            @if (Model.Data?.Path != null) {
+                <div>
+                    @foreach (var (item, i) in Model.Data.Path.ToIndex()) {
+                        <LocationLink Model="item" />
+                        @if (i < Model.Data.Path.Count - 1) {
+                            <text> / </text>
+                        }
+                    }
+                </div>
+            }
+
+            <MudText Typo="Typo.h1" Class="text-truncate">@Model.Name</MudText>
         </div>
     </div>
 
+    
     <div>@Model.Notes</div>
 
     <MudTreeView T="LocationTreeModel" Items="items?.ToHashSet()" Hover="true">

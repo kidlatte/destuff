@@ -141,6 +141,8 @@ public class StuffsController : BaseController<Stuff, StuffModel, StuffRequest>
             int locationId = LocationId.Decode(request.LocationId) ?? throw new NullReferenceException("LocationId");
             var stuffLocation = new StuffLocation { LocationId = locationId, Count = 1 };
             entity.StuffLocations = new List<StuffLocation> { stuffLocation };
+
+            entity.Inventoried = DateTime.UtcNow;
         }
 
         return Task.CompletedTask;
@@ -169,6 +171,8 @@ public class StuffsController : BaseController<Stuff, StuffModel, StuffRequest>
                     var stuffLocation = new StuffLocation { StuffId = entity.Id, LocationId = locationId, Count = 1 };
                     Context.Add(stuffLocation);
                     await CreateMovedEvent(stuffLocation);
+
+                    entity.Inventoried = DateTime.UtcNow;
                 }
                 else if (locationId != stuffLocations.First().LocationId) {
                     Context.Remove(stuffLocations.First());
@@ -179,8 +183,9 @@ public class StuffsController : BaseController<Stuff, StuffModel, StuffRequest>
                         Count = 1
                     };
                     Context.Add(stuffLocation);
-
                     await CreateMovedEvent(stuffLocation, stuffLocations.First());
+
+                    entity.Inventoried = DateTime.UtcNow;
                 }
             }
             else if (count == 1) { 

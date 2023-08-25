@@ -124,9 +124,6 @@ public class StuffLocationsController : BaseController
 
     private async Task<StuffLocationModel> CreateMovedEvent(StuffLocation newEntity, StuffLocation? oldEntity = null)
     {
-        var stuff = await Context.Stuffs.Where(x => x.Id == newEntity.StuffId)
-            .ProjectTo<StuffBasicModel>(Mapper.ConfigurationProvider).FirstAsync();
-
         var query = oldEntity == null ? Context.Locations.Where(x => x.Id == newEntity.LocationId) :
             Context.Locations.Where(x => x.Id == oldEntity.LocationId || x.Id == newEntity.LocationId);
 
@@ -139,6 +136,10 @@ public class StuffLocationsController : BaseController
         var summary = oldLocation == null ? $"Set location to {newLocation.Name}" : 
             $"Moved from {oldLocation.Name} to {newLocation.Name}.";
 
+        var stuff = await Context.Stuffs.Where(x => x.Id == newEntity.StuffId).FirstAsync();
+        stuff.Inventoried = DateTime.UtcNow;
+        var stuffModel = Mapper.Map<StuffBasicModel>(stuff);
+
         var eventEntity = new Event {
             Type = EventType.Moved,
             StuffId = newEntity.StuffId,
@@ -146,7 +147,7 @@ public class StuffLocationsController : BaseController
             DateTime = DateTime.UtcNow,
             Summary = summary,
             Data = new EventData { 
-                Stuff = stuff,
+                Stuff = stuffModel,
                 FromLocation = oldLocation,
                 ToLocation = newLocation
             }
@@ -156,7 +157,7 @@ public class StuffLocationsController : BaseController
 
         return new StuffLocationModel {
             Location = newLocation,
-            Stuff = stuff,
+            Stuff = stuffModel,
             Count = newEntity.Count,
         };
     }
