@@ -1,0 +1,40 @@
+﻿@if (FromLocation != null && ToLocation != null) {
+    <text>
+        <strong>Moved</strong> from
+        <MudLink Href="@($"/locations/{FromLocation.Slug}")">
+            @FromLocation.Name
+        </MudLink>
+        to
+        <MudLink Href="@($"/locations/{ToLocation.Slug}")">
+            @ToLocation.Name
+        </MudLink>.
+    </text>
+}
+else if (ToLocation != null) {
+    <text>
+        Set location to
+        <MudLink Href="@($"/locations/{ToLocation.Slug}")">
+            @ToLocation.Name
+        </MudLink>.
+    </text>
+}
+else {
+    <text>
+        @Model.Summary
+    </text>
+}
+
+
+
+@code {
+    [Parameter]
+    public required EventListItem Model { get; set; }
+
+    public LocationListItem? FromLocation => Model.Data?.FromLocation;
+    public LocationListItem? ToLocation => Model.Data?.ToLocation;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+}

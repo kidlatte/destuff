@@ -1,7 +1,11 @@
 ﻿@if (PurchaseItem != null && Supplier != null) {
+    <MudLink Href="@($"/purchases/{PurchaseItem.PurchaseId}")">
+        Purchased
+    </MudLink>
+
     if (PurchaseItem.Quantity > 1) {
         <text>
-            Purchased <strong>@PurchaseItem.Quantity</strong> units from
+            <strong>@PurchaseItem.Quantity</strong> units from
             <MudLink Href="@($"/suppliers/{Supplier.Slug}")">
                 @Supplier.ShortName
             </MudLink>
@@ -10,7 +14,7 @@
     }
     else {
         <text>
-            Purchased from
+            from
             <MudLink Href="@($"/suppliers/{Supplier.Slug}")">
                 @Supplier.ShortName
             </MudLink>
