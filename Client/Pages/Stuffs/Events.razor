@@ -10,7 +10,7 @@
                 <span title="@context.Item.DateTime.ToString("f")">@context.Item.DateTime.ToString("d")</span>
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x!.Summary">
+        <PropertyColumn Property="x => x.Summary">
             <CellTemplate>
                 @if (context.Item.Type == EventType.Purchased) {
                     <EventPurchase Model="context.Item" />
@@ -29,12 +29,12 @@
                 }
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x!.Type" Title="Action">
+        <PropertyColumn Property="x => x.Type" Title="Action">
             <CellTemplate>
-                @if (context.Item.Type == EventType.Purchased && context.Item.Data != null) {
+                @if (context.Item.Type == EventType.Purchased && context.Item.Data?.PurchaseItem != null) {
                     var purchaseItem = context.Item.Data.PurchaseItem;
 
-                    <MudLink Href="@($"/purchases/{purchaseItem?.PurchaseId}")">
+                    <MudLink Href="@($"/purchases/{purchaseItem.PurchaseId}")">
                         @context.Item.Type
                     </MudLink>                    
                 }

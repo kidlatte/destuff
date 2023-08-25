@@ -9,7 +9,6 @@ using Destuff.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Destuff.Server.Controllers;
 
@@ -77,12 +76,11 @@ public class StuffLocationsController : BaseController
 
         var entity = Mapper.Map<StuffLocation>(model);
         Context.Add(entity);
+
+        var result = await CreateMovedEvent(entity);
         await Context.SaveChangesAsync();
 
-        return await Context.StuffLocations
-            .Where(x => x.StuffId == stuffId && x.LocationId == locationId)
-            .ProjectTo<StuffLocationModel>(Mapper.ConfigurationProvider)
-            .FirstAsync();
+        return result;
     }
 
     [HttpPut("{stuffHash}/{locationHash}")]
@@ -111,7 +109,7 @@ public class StuffLocationsController : BaseController
             entity = Mapper.Map<StuffLocation>(request);
             Context.Add(entity);
 
-            model = await CreateMovedEvent(oldEntity, entity);
+            model = await CreateMovedEvent(entity, oldEntity);
         }
 
         await Context.SaveChangesAsync();
@@ -124,24 +122,29 @@ public class StuffLocationsController : BaseController
         return model;
     }
 
-    private async Task<StuffLocationModel> CreateMovedEvent(StuffLocation oldEntity, StuffLocation newEntity)
+    private async Task<StuffLocationModel> CreateMovedEvent(StuffLocation newEntity, StuffLocation? oldEntity = null)
     {
         var stuff = await Context.Stuffs.Where(x => x.Id == newEntity.StuffId)
             .ProjectTo<StuffBasicModel>(Mapper.ConfigurationProvider).FirstAsync();
 
-        var locations = await Context.Locations
-            .Where(x => x.Id == oldEntity.LocationId || x.Id == newEntity.LocationId)
-            .ToDictionaryAsync(x => x.Id, x => x);
+        var query = oldEntity == null ? Context.Locations.Where(x => x.Id == newEntity.LocationId) :
+            Context.Locations.Where(x => x.Id == oldEntity.LocationId || x.Id == newEntity.LocationId);
 
-        var oldLocation = Mapper.Map<LocationListItem>(locations[oldEntity.LocationId]);
+        var locations = await query.ToDictionaryAsync(x => x.Id, x => x);
+
         var newLocation = Mapper.Map<LocationListItem>(locations[newEntity.LocationId]);
+        var oldLocation = oldEntity == null ? null :
+            Mapper.Map<LocationListItem>(locations[oldEntity.LocationId]);
+
+        var summary = oldLocation == null ? $"Set location to {newLocation.Name}" : 
+            $"Moved from {oldLocation.Name} to {newLocation.Name}.";
 
         var eventEntity = new Event {
             Type = EventType.Moved,
             StuffId = newEntity.StuffId,
             Count = newEntity.Count,
             DateTime = DateTime.UtcNow,
-            Summary = $"Moved from {oldLocation.Name} to {newLocation.Name}.",
+            Summary = summary,
             Data = new EventData { 
                 Stuff = stuff,
                 FromLocation = oldLocation,

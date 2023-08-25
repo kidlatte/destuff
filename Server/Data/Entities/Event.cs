@@ -12,7 +12,6 @@ public interface IEvent
     public EventData? Data { get; set; }
 
     int StuffId { get; set; }
-    Stuff? Stuff { get; set; }
 }
 
 public class Event : Entity, IEvent

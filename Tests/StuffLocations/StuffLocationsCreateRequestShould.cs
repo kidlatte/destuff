@@ -28,6 +28,27 @@ public class StuffLocationsCreateRequestShould : IntegrationTestBase
     }
 
     [Fact]
+    public async Task Return_StuffAndLocation()
+    {
+        // Arrange
+        var stuff = await AuthorizedSendAsync<StuffModel>(new StuffRequest { Name = "New Stuff" }, HttpMethod.Post, ApiRoutes.Stuffs);
+        Assert.NotNull(stuff);
+
+        var location = await AuthorizedSendAsync<LocationModel>(new LocationRequest { Name = "New Location" }, HttpMethod.Post, ApiRoutes.Locations);
+        Assert.NotNull(location);
+
+        var model = new StuffLocationRequest { StuffId = stuff.Id, LocationId = location.Id };
+
+        // Act
+        var result = await AuthorizedSendAsync<StuffLocationModel>(model);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(stuff.Id, result.Stuff.Id);
+        Assert.Equal(location.Id, result.Location.Id);
+    }
+
+    [Fact]
     public async Task Fail_Null_Location_Create_StuffLocation()
     {
         // Arrange

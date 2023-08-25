@@ -38,22 +38,30 @@ public class EventsGetByStuffRequestShould : IntegrationTestBase
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2, result.Count);
+        Assert.Equal(3, result.Count);
         Assert.NotEmpty(result.List);
 
-        var eventPurchase = result.List.FirstOrDefault(x => x.Type == EventType.Purchased);
-        Assert.NotNull(eventPurchase);
+        var purchaseEvent = result.List.FirstOrDefault(x => x.Type == EventType.Purchased);
+        Assert.NotNull(purchaseEvent);
 
-        var purchaseData = eventPurchase.Data;
+        var purchaseData = purchaseEvent.Data;
         Assert.NotNull(purchaseData);
         Assert.Equal(stuffA.Id, purchaseData.Stuff?.Id);
         Assert.Equal(supplier.Id, purchaseData.Supplier?.Id);
         Assert.Equal(purchaseItem.Quantity, purchaseData.PurchaseItem?.Quantity);
 
-        var eventInventory = result.List.FirstOrDefault(x => x.Type == EventType.Inventory);
-        Assert.NotNull(eventInventory);
+        var movedEvent = result.List.FirstOrDefault(x => x.Type == EventType.Moved);
+        Assert.NotNull(movedEvent);
 
-        var inventoryData = eventInventory.Data;
+        var movedData = movedEvent.Data;
+        Assert.NotNull(movedData);
+        Assert.NotNull(movedData.ToLocation);
+        Assert.Equal(location.Id, movedData.ToLocation.Id);
+
+        var inventoryEvent = result.List.FirstOrDefault(x => x.Type == EventType.Inventory);
+        Assert.NotNull(inventoryEvent);
+
+        var inventoryData = inventoryEvent.Data;
         Assert.NotNull(inventoryData);
         Assert.NotNull(inventoryData.Locations);
         Assert.Single(inventoryData.Locations);
