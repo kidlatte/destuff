@@ -110,10 +110,10 @@ public abstract class BaseController<TEntity, TModel, TRequest> : BaseController
         if (entity is ISluggable sluggable)
             sluggable.Slug = sluggable.ToSlug();
 
-        await BeforeSaveAsync(entity, request);
+        await BeforeCreateAsync(entity, request);
         Audit(entity);
         await Context.SaveChangesAsync();
-        await AfterSaveAsync(entity);
+        await AfterCreateAsync(entity);
 
         return Mapper.Map<TModel>(entity);
     }
@@ -134,10 +134,10 @@ public abstract class BaseController<TEntity, TModel, TRequest> : BaseController
         if (entity is ISluggable sluggable)
             sluggable.Slug = sluggable.ToSlug();
 
-        await BeforeSaveAsync(entity, request);
+        await BeforeUpdateAsync(entity, request);
         Audit(entity);
         await Context.SaveChangesAsync();
-        await AfterSaveAsync(entity);
+        await AfterUpdateAsync(entity);
 
         return Mapper.Map<TModel>(entity);
     }
@@ -146,4 +146,14 @@ public abstract class BaseController<TEntity, TModel, TRequest> : BaseController
     internal virtual Task BeforeSaveAsync(TEntity entity) => Task.CompletedTask;
     internal virtual Task AfterSaveAsync(TEntity entity, TRequest request) => AfterSaveAsync(entity);
     internal virtual Task AfterSaveAsync(TEntity entity) => Task.CompletedTask;
+
+    internal virtual Task BeforeCreateAsync(TEntity entity, TRequest request) => BeforeSaveAsync(entity, request);
+    internal virtual Task BeforeCreateAsync(TEntity entity) => BeforeSaveAsync(entity);
+    internal virtual Task AfterCreateAsync(TEntity entity, TRequest request) => AfterSaveAsync(entity, request);
+    internal virtual Task AfterCreateAsync(TEntity entity) => AfterSaveAsync(entity);
+
+    internal virtual Task BeforeUpdateAsync(TEntity entity, TRequest request) => BeforeSaveAsync(entity, request);
+    internal virtual Task BeforeUpdateAsync(TEntity entity) => BeforeSaveAsync(entity);
+    internal virtual Task AfterUpdateAsync(TEntity entity, TRequest request) => AfterSaveAsync(entity, request);
+    internal virtual Task AfterUpdateAsync(TEntity entity) => AfterSaveAsync(entity);
 }

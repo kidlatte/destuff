@@ -24,6 +24,39 @@ public class StuffsUpdateRequestShould : IntegrationTestBase
     }
 
     [Fact]
+    public async Task UpdateLocation_WhenProvided()
+    {
+        // Arrange
+        var locationA = await AuthorizedSendAsync<LocationModel>(new LocationRequest { Name = "Location A" }, HttpMethod.Post, ApiRoutes.Locations);
+        Assert.NotNull(locationA);
+
+        var locationB = await AuthorizedSendAsync<LocationModel>(new LocationRequest { Name = "Location B" }, HttpMethod.Post, ApiRoutes.Locations);
+        Assert.NotNull(locationB);
+
+        var stuff = await AuthorizedSendAsync<StuffModel>(new StuffRequest { Name = "Created Stuff" }, HttpMethod.Post);
+        Assert.NotNull(stuff);
+        Assert.Null(stuff.FirstLocation);
+
+        // Act
+        var resultA = await AuthorizedPutAsync<StuffModel>(stuff.Id, new StuffRequest() { Name = "Updated Stuff", LocationId = locationA.Id });
+        Assert.NotNull(resultA);
+        Assert.Equal(locationA.Id, resultA.FirstLocation?.Id);
+
+        var resultB = await AuthorizedPutAsync<StuffModel>(stuff.Id, new StuffRequest() { Name = "Updated Stuff", LocationId = locationB.Id });
+        Assert.NotNull(resultB);
+        Assert.Equal(locationB.Id, resultB.FirstLocation?.Id);
+
+        await AuthorizedPutAsync(stuff.Id, new StuffRequest() { Name = "Updated Stuff", LocationId = locationB.Id });
+        var resultC = await AuthorizedGetAsync<StuffModel>($"{ApiRoutes.Stuffs}/{stuff.Id}");
+        Assert.NotNull(resultC);
+        Assert.Equal(locationB.Id, resultC.FirstLocation?.Id);
+
+        var resultD = await AuthorizedPutAsync<StuffModel>(stuff.Id, new StuffRequest() { Name = "Updated Stuff" });
+        Assert.NotNull(resultD);
+        Assert.Null(resultD.FirstLocation);
+    }
+
+    [Fact]
     public async Task Fail_Existing_Slug_Create_Stuff()
     {
         // Arrange

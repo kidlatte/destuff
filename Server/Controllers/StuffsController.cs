@@ -92,7 +92,7 @@ public class StuffsController : BaseController<Stuff, StuffModel, StuffRequest>
     }
 
     [HttpGet(ApiRoutes.GetStuffForInventory)]
-    public async Task<StuffModel?> GetStuff(int? attempts)
+    public async Task<StuffModel?> GetForInventory(int? attempts)
     {
         if (attempts == 0)
             return null;
@@ -108,7 +108,7 @@ public class StuffsController : BaseController<Stuff, StuffModel, StuffRequest>
 
         var count = await query.CountAsync();
         if (count == 0)
-            return await GetStuff((attempts ?? 5) - 1);
+            return await GetForInventory((attempts ?? 5) - 1);
 
         var limit = Math.Min(count, 25);
         int offset = random.Next(limit) % 20;
@@ -135,24 +135,97 @@ public class StuffsController : BaseController<Stuff, StuffModel, StuffRequest>
         return model;
     }
 
-    internal override Task BeforeSaveAsync(Stuff entity, StuffRequest request)
+    internal override Task BeforeCreateAsync(Stuff entity, StuffRequest request)
     {
-        var count = entity.StuffLocations?.Count ?? 0;
-        var isSingleLocation = count == 0 || count == 1 && entity.StuffLocations?.First().Count == 1;
-        if (isSingleLocation)
-        {
-            if (request.LocationId == null)
-            {
-                entity.StuffLocations = new List<StuffLocation>();
-            }
-            else
-            {
-                int locationId = LocationId.Decode(request.LocationId) ?? throw new NullReferenceException("LocationId");
-                var stuffLocation = new StuffLocation { LocationId = locationId, Count = 1 };
-                entity.StuffLocations = new List<StuffLocation> { stuffLocation };
-            }
+        if (request.LocationId != null) {
+            int locationId = LocationId.Decode(request.LocationId) ?? throw new NullReferenceException("LocationId");
+            var stuffLocation = new StuffLocation { LocationId = locationId, Count = 1 };
+            entity.StuffLocations = new List<StuffLocation> { stuffLocation };
         }
 
         return Task.CompletedTask;
+    }
+
+    internal override async Task AfterCreateAsync(Stuff entity)
+    {
+        if (entity.StuffLocations != null && entity.StuffLocations.Any()) {
+            await CreateMovedEvent(entity.StuffLocations.First());
+            await Context.SaveChangesAsync();
+        }
+    }
+
+    internal override async Task BeforeUpdateAsync(Stuff entity, StuffRequest request)
+    {
+        var stuffLocations = await Context.StuffLocations
+            .Where(x => x.StuffId == entity.Id).ToListAsync();
+        var count = stuffLocations.Count;
+        var isSingleLocation = count == 0 || count == 1 && stuffLocations.First().Count == 1;
+
+        if (isSingleLocation) {
+            if (request.LocationId != null) {
+                int locationId = LocationId.Decode(request.LocationId) ?? throw new NullReferenceException("LocationId");
+
+                if (count == 0) {
+                    var stuffLocation = new StuffLocation { StuffId = entity.Id, LocationId = locationId, Count = 1 };
+                    Context.Add(stuffLocation);
+                    await CreateMovedEvent(stuffLocation);
+                }
+                else if (locationId != stuffLocations.First().LocationId) {
+                    Context.Remove(stuffLocations.First());
+
+                    var stuffLocation = new StuffLocation {
+                        StuffId = entity.Id,
+                        LocationId = locationId,
+                        Count = 1
+                    };
+                    Context.Add(stuffLocation);
+
+                    await CreateMovedEvent(stuffLocation, stuffLocations.First());
+                }
+            }
+            else if (count == 1) { 
+                Context.StuffLocations.RemoveRange(stuffLocations);
+            }
+        }
+    }
+
+
+    private async Task<StuffLocationModel> CreateMovedEvent(StuffLocation newEntity, StuffLocation? oldEntity = null)
+    {
+        var stuff = await Context.Stuffs.Where(x => x.Id == newEntity.StuffId)
+            .ProjectTo<StuffBasicModel>(Mapper.ConfigurationProvider).FirstAsync();
+
+        var query = oldEntity == null ? Context.Locations.Where(x => x.Id == newEntity.LocationId) :
+            Context.Locations.Where(x => x.Id == oldEntity.LocationId || x.Id == newEntity.LocationId);
+
+        var locations = await query.ToDictionaryAsync(x => x.Id, x => x);
+
+        var newLocation = Mapper.Map<LocationListItem>(locations[newEntity.LocationId]);
+        var oldLocation = oldEntity == null ? null :
+            Mapper.Map<LocationListItem>(locations[oldEntity.LocationId]);
+
+        var summary = oldLocation == null ? $"Set location to {newLocation.Name}" :
+            $"Moved from {oldLocation.Name} to {newLocation.Name}.";
+
+        var eventEntity = new Event {
+            Type = EventType.Moved,
+            StuffId = newEntity.StuffId,
+            Count = newEntity.Count,
+            DateTime = DateTime.UtcNow,
+            Summary = summary,
+            Data = new EventData {
+                Stuff = stuff,
+                FromLocation = oldLocation,
+                ToLocation = newLocation
+            }
+        };
+        Audit(eventEntity);
+        Context.Add(eventEntity);
+
+        return new StuffLocationModel {
+            Location = newLocation,
+            Stuff = stuff,
+            Count = newEntity.Count,
+        };
     }
 }
