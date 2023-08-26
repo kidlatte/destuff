@@ -92,7 +92,8 @@ public class LocationsController : BaseController<Location, LocationModel, Locat
         if (!string.IsNullOrEmpty(request.Search)) {
             var searches = request.Search.ToLower().Split(" ").ToList();
             searches.ForEach(search =>
-                query = query.Where(x => x.Name.ToLower().Contains(search)));
+                query = query.Where(x => x.Name.ToLower().Contains(search)
+                    || x.Slug.ToLower().Contains(search)));
         }
             
 

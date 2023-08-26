@@ -1,0 +1,66 @@
+@inject IHttpService http
+
+@if (request != null)
+{
+    <EditForm OnValidSubmit="OnSubmit" Model="request" autocomplete="off">
+        <MudDialog>
+            <TitleContent>
+                <MudText Typo="Typo.h6" Class="text-truncate pe-5">
+                    Edit @Model.Stuff.Name
+                </MudText>
+            </TitleContent>
+            <DialogContent>
+                <MudText Typo="Typo.body1" Class="mb-5">
+                    Update quantity of <em>@Model.Stuff.Name</em>
+                    in location <strong>@Model.Location.Name</strong>
+                </MudText>
+
+                <DataAnnotationsValidator />
+                <MudNumericField @bind-Value="request.Count" For="@(() => request.Count)" Disabled="loading"
+                             Label="Quantity" Variant="Variant.Outlined" />
+
+                <MudText Color="@Color.Error">@error</MudText>
+            </DialogContent>
+            <DialogActions>
+                <LoadingButton Loading="loading" />
+                <MudButton OnClick="() => dialog?.Cancel()" Disabled="loading" Color="Color.Default">
+                    Cancel
+                </MudButton>
+            </DialogActions>
+        </MudDialog>
+    </EditForm>
+}
+
+@code {
+    [CascadingParameter]
+    MudDialogInstance? dialog { get; set; }
+
+    [Parameter]
+    public required StuffLocationModel Model { get; set; }
+    StuffLocationRequest? request { get; set; }
+
+    string error { get; set; } = "";
+    bool loading { get; set; } = false;
+
+    protected override void OnParametersSet() => request = new() { StuffId = Model.Stuff.Id, LocationId = Model.Location.Id, Count = Model.Count };
+
+    async Task OnSubmit()
+    {
+        if (request == null)
+            throw new NullReferenceException();
+
+        loading = true;
+
+        try
+        {
+            var result = await http.PutAsync<StuffLocationModel>($"{ApiRoutes.StuffLocations}/{Model.Stuff.Id}/{Model.Location.Id}", request);
+            dialog?.Close(DialogResult.Ok(result));
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+
+        loading = false;
+    }
+}

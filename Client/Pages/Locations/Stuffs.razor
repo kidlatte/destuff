@@ -1,5 +1,6 @@
 ﻿@inject NavigationManager Nav
 @inject IHttpService Http
+@inject IDialogService Dialog
 
 <MudDataGrid @ref="grid" T="StuffLocationModel" ServerData="LoadServerData" CurrentPage="gridPage" RowsPerPage="PageSize" Loading="loading"
              SortMode="SortMode.Single" Elevation="0">
@@ -15,17 +16,28 @@
             </CellTemplate>
         </PropertyColumn>
         <PropertyColumn Property="x => x.Count" />
+        <TemplateColumn Sortable="false">
+            <CellTemplate>
+                <div class="d-flex flex-nowrap">
+                    <MudIconButton OnClick="_ => OnEditClick(context.Item)" Title="Edit" Icon="@Icons.Material.Filled.Edit" Color="Color.Tertiary"></MudIconButton>
+                    <DeleteIconButton OnClick="_ => OnDeleteClick(context.Item)" />
+                </div>
+            </CellTemplate>
+        </TemplateColumn>
     </Columns>
     <NoRecordsContent>
         <MudText Typo="Typo.body1">No stuff on record.</MudText>
     </NoRecordsContent>
     <PagerContent>
-        @if (PageCount > 1)
-        {
-            <div class="py-5 d-flex justify-center">
+        <div class="d-flex mt-3">
+            @if (PageCount > 1) {
                 <MudPagination Count="PageCount" Selected="pagerPage" SelectedChanged="PageChanged" Color="Color.Primary" />
-            </div>
-        }
+            }
+            <MudSpacer />
+            <MudButton OnClick="OnAddClick" Color="Color.Primary" Variant="Variant.Filled">
+                Add Stuff
+            </MudButton>
+        </div>
     </PagerContent>
 </MudDataGrid>
 
@@ -84,4 +96,42 @@
         pagerPage = i;
     }
 
+    async void OnAddClick()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(LocationStuffCreateModal.Location), Model);
+
+        var dialog = await Dialog.ShowAsync<LocationStuffCreateModal>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && grid != null) {
+            await grid.ReloadServerData();
+        }
+    }
+
+    async void OnEditClick(StuffLocationModel model)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(LocationStuffUpdateModal.Model), model);
+
+        var dialog = await Dialog.ShowAsync<LocationStuffUpdateModal>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && grid != null) {
+            await grid.ReloadServerData();
+        }
+    }
+
+    async void OnDeleteClick(StuffLocationModel model)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(StuffLocationDeleteModal.Model), model);
+
+        var dialog = await Dialog.ShowAsync<StuffLocationDeleteModal>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && grid != null) {
+            await grid.ReloadServerData();
+        }
+    }
 }

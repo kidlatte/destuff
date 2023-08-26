@@ -5,7 +5,8 @@ namespace Destuff.Shared.Models;
 
 public class StuffLocationRequest
 {
-    public required string StuffId { get; set; }
+    [Required]
+    public string? StuffId { get; set; }
 
     [Required]
     public string? LocationId { get; set; }
