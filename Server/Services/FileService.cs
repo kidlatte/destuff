@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.StaticFiles;
-using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Webp;
-using SixLabors.ImageSharp.Processing;
 
 namespace Destuff.Server.Services;
 

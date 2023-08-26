@@ -46,7 +46,7 @@
     MudDialogInstance? dialog { get; set; }
 
     [Parameter]
-    public LocationModel? Parent { get; set; }
+    public ILocationModel? Parent { get; set; }
 
     [Parameter]
     public LocationRequest? Model { get; set; }
@@ -74,15 +74,5 @@
         }
 
         loading = false;
-    }
-
-    public void Open(LocationModel? parent = null)
-    {
-        Model = new LocationRequest 
-        {
-            ParentId = parent?.Id
-        };
-
-        StateHasChanged();
     }
 }

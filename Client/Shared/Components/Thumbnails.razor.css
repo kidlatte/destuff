@@ -1,0 +1,7 @@
+::deep .mud-badge-root .mud-badge {
+    display: none;
+}
+
+::deep .mud-badge-root:hover .mud-badge {
+    display: block;
+}

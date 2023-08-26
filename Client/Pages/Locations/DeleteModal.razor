@@ -33,7 +33,7 @@
     MudDialogInstance? dialog { get; set; }
 
     [Parameter]
-    public required LocationModel Model { get; set; }
+    public required ILocationModel Model { get; set; }
 
     string error { get; set; } = "";
     bool loading { get; set; } = false;

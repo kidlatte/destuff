@@ -14,31 +14,35 @@
             <MudButton Href="/locations" StartIcon="@Icons.Material.Rounded.ChevronLeft" Variant="Variant.Outlined">
                 Locations
             </MudButton>
+            <FileUpload LocationId="@Model.Id" OnUploaded="OnUploaded" ImageOnly="true"
+                        Label="Upload" Variant="Variant.Outlined" Color="Color.Tertiary" />
             <MudButton OnClick="OnUpdateClick" Variant="Variant.Outlined"
                        Color="Color.Primary">Edit</MudButton>
             <MudButton OnClick="OnDeleteClick" Variant="Variant.Outlined"
                        Color="Color.Error">Delete</MudButton>
         </div>
-        <div class="text-truncate my-5 my-md-3 me-auto order-0">
+        <div class="my-5 my-md-2 me-auto order-0">
             @if (Model.Data?.Path != null) {
                 <div>
                     @foreach (var (item, i) in Model.Data.Path.ToIndex()) {
                         <LocationLink Model="item" />
                         @if (i < Model.Data.Path.Count - 1) {
-                            <text> / </text>
+                            <span class="mud-text-disabled mx-3"> / </span>
                         }
                     }
                 </div>
             }
-
-            <MudText Typo="Typo.h1" Class="text-truncate">@Model.Name</MudText>
+            <MudText Typo="Typo.h1" Class="text-truncate mb-4">@Model.Name</MudText>
+            <div class="">
+                <Thumbnails Items="Uploads" />
+            </div>
         </div>
     </div>
 
     
     <div>@Model.Notes</div>
 
-    <MudTreeView T="LocationTreeItem" Items="items?.ToHashSet()" Hover="true">
+    <MudTreeView T="LocationTreeItem" Items="TreeItems?.ToHashSet()" Hover="true">
         <ItemTemplate Context="item">
             <MudTreeViewItem Value="@item" Text="@item.Name" Items="@item.Children?.ToHashSet()" Expanded="true">
                 <BodyContent>
@@ -62,8 +66,9 @@
     public int? Page { get; set; }
 
     LocationModel? Model { get; set; }
+    ICollection<UploadModel> Uploads => Model?.Uploads ?? new List<UploadModel>();
 
-    List<LocationTreeItem>? items { get; set; }
+    List<LocationTreeItem>? TreeItems { get; set; }
 
     protected override Task OnParametersSetAsync() => LoadData();
 
@@ -82,7 +87,7 @@
         }
 
         var item = await Http.GetAsync<LocationTreeItem>($"{ApiRoutes.LocationTree}/{Model?.Id}");
-        items = item?.Children?.Any() ?? false ? new() { item } : null;
+        TreeItems = item?.Children?.Any() ?? false ? new() { item } : null;
     }
 
     async void OnUpdateClick()
@@ -116,5 +121,11 @@
 
         if (!result.Canceled)
             Nav.NavigateTo($"/locations");
+    }
+
+    async Task OnUploaded(UploadModel upload)
+    {
+        Uploads.Add(upload);
+        await LoadData();
     }
 }
