@@ -13,6 +13,7 @@
     [Parameter] public string? Value { get; set; }
     [Parameter] public EventCallback<string?> ValueChanged { get; set; }
     [Parameter] public bool Loading { get; set; }
+    [Parameter] public bool HideLocation { get; set; }
 
     IStuffModel? Model { get; set; }
     IEnumerable<IStuffModel> list { get; set; } = Enumerable.Empty<IStuffModel>();
@@ -69,6 +70,7 @@
     {
         var parameters = new DialogParameters();
         parameters.Add(nameof(StuffCreateModal.Model), new StuffRequest { Name = name });
+        parameters.Add(nameof(StuffCreateModal.HideLocation), HideLocation);
 
         var dialog = await Dialog.ShowAsync<StuffCreateModal>("", parameters);
         var result = await dialog.Result;

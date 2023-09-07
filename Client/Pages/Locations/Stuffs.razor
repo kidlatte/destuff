@@ -4,8 +4,15 @@
 
 <MudDataGrid @ref="grid" T="StuffLocationModel" ServerData="LoadServerData" CurrentPage="gridPage" RowsPerPage="PageSize" Loading="loading"
              SortMode="SortMode.Single" Elevation="0">
+    <ToolBarContent>
+        <MudText Typo="Typo.h2">Stuffs</MudText>
+        <MudSpacer />
+        <MudButton OnClick="OnAddClick" Color="Color.Primary" Variant="Variant.Filled">
+            Add Stuff
+        </MudButton>
+    </ToolBarContent>
     <Columns>
-        <PropertyColumn Property="x => x.Stuff">
+        <PropertyColumn Property="x => x.Stuff" Title="Name">
             <CellTemplate>
                 @if (context.Item != null)
                 {
@@ -29,14 +36,10 @@
         <MudText Typo="Typo.body1">No stuff on record.</MudText>
     </NoRecordsContent>
     <PagerContent>
-        <div class="d-flex mt-3">
+        <div class="py-5 d-flex justify-center">
             @if (PageCount > 1) {
                 <MudPagination Count="PageCount" Selected="pagerPage" SelectedChanged="PageChanged" Color="Color.Primary" />
             }
-            <MudSpacer />
-            <MudButton OnClick="OnAddClick" Color="Color.Primary" Variant="Variant.Filled">
-                Add Stuff
-            </MudButton>
         </div>
     </PagerContent>
 </MudDataGrid>
@@ -99,9 +102,9 @@
     async void OnAddClick()
     {
         var parameters = new DialogParameters();
-        parameters.Add(nameof(LocationStuffCreateModal.Location), Model);
+        parameters.Add(nameof(StuffLocationCreateModal.Location), Model);
 
-        var dialog = await Dialog.ShowAsync<LocationStuffCreateModal>("", parameters);
+        var dialog = await Dialog.ShowAsync<StuffLocationCreateModal>("", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled && grid != null) {

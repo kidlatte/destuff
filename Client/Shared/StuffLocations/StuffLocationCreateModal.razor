@@ -6,16 +6,34 @@
         <MudDialog>
             <TitleContent>
                 <MudText Typo="Typo.h6">
-                    Add Location
+                    Add @(Stuff == null ? "Stuff" : Location == null ? "Location" : "")
                 </MudText>
             </TitleContent>
             <DialogContent>
                 <MudText Typo="Typo.body1" Class="mb-5">
-                    Add <em>@Stuff.Name</em> to location:
+                    Add 
+                    @if (Stuff != null) {
+                        <em>@Stuff.Name</em>
+                    }
+                    else { <text>stuff</text> }
+                    to
+                    @if (Location != null) {
+                        <text><strong>@Location.Name</strong>.</text>
+                    }
+                    else {
+                        <text>location:</text>
+                    }
                 </MudText>
 
                 <DataAnnotationsValidator />
-                <LocationSelect @bind-Value="request.LocationId" Loading="loading" />
+                @if (Location == null) {
+                    <LocationSelect @bind-Value="request.LocationId" Loading="loading" />
+                }
+
+                @if (Stuff == null) {
+                    <StuffSelect @bind-Value="request.StuffId" Loading="loading" HideLocation="true" />
+                }
+
                 <MudNumericField @bind-Value="request.Count" For="@(() => request.Count)" Disabled="loading"
                              Label="Quantity" Variant="Variant.Outlined" />
 
@@ -36,13 +54,17 @@
     MudDialogInstance? dialog { get; set; }
 
     [Parameter]
-    public required IStuffModel Stuff { get; set; }
+    public IStuffModel? Stuff { get; set; }
+
+    [Parameter]
+    public ILocationModel? Location { get; set; }
+
     StuffLocationRequest? request { get; set; }
 
     string error { get; set; } = "";
     bool loading { get; set; } = false;
 
-    protected override void OnParametersSet() => request = new() { StuffId = Stuff.Id, Count = 1 };
+    protected override void OnParametersSet() => request = new() { StuffId = Stuff?.Id, LocationId = Location?.Id, Count = 1 };
 
     async Task OnSubmit()
     {

@@ -15,7 +15,9 @@
 
                 <MudTextField @bind-Value="Model.Url" For="@(() => Model.Url)" Disabled="loading"
                               Label="External URL" Variant="Variant.Outlined" InputType="InputType.Url" />
-                <LocationSelect @bind-Value="Model.LocationId" Loading="loading" />
+                @if (!HideLocation) {
+                    <LocationSelect @bind-Value="Model.LocationId" Loading="loading" />
+                }
                 <MudTextField @bind-Value="Model.Notes" For="@(() => Model.Notes)" Disabled="loading"
                               Label="Notes" Variant="Variant.Outlined" Lines="3" />
 
@@ -38,6 +40,9 @@
 
     [Parameter]
     public StuffRequest? Model { get; set; }
+
+    [Parameter] 
+    public bool HideLocation { get; set; }
 
     string error { get; set; } = "";
     bool loading { get; set; } = false;
