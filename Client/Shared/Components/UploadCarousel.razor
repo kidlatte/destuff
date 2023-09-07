@@ -1,0 +1,35 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            Images
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudCarousel ItemsSource="Items" @bind-SelectedIndex="SelectedIndex" Class="mud-width-full" Style="height: 100%; min-height: 300px;" AutoCycle="false">
+            <ItemTemplate>
+                <MudImage Src="@context.Url" Alt="@context.FileName" Fluid="true" Class="rounded-lg" />
+            </ItemTemplate>
+        </MudCarousel>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="() => dialog?.Cancel()" Color="Color.Default">
+            Cancel
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    MudDialogInstance? dialog { get; set; }
+
+    [Parameter]
+    public required ICollection<UploadModel> Items { get; set; }
+
+    [Parameter]
+    public UploadModel? Selected { get; set; }
+
+    int SelectedIndex {
+        get => Selected == null ? 0 : Items.ToList().IndexOf(Selected);
+        set => Selected = Items.ElementAt(value);
+    }
+}

@@ -27,6 +27,10 @@ dl > dd {
   width: 100%;
 }
 
+.h-100 {
+  height: 100%;
+}
+
 .lh-100 {
   line-height: 1em;
 }
@@ -47,10 +51,6 @@ dl > dd {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.mud-badge-cursor-pointer .mud-badge {
-  cursor: pointer;
 }
 
 #blazor-error-ui {
