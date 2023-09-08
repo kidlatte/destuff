@@ -17,15 +17,18 @@ namespace Destuff.Server.Controllers;
 [ApiController, Authorize]
 public class UploadsController : BaseController<Upload>
 {
-    private IIdentityHasher<Stuff> StuffId { get; }
-    private IIdentityHasher<Location> LocationId { get; }
+    private IIdentityHasher<Stuff> StuffHasher { get; }
+    private IIdentityHasher<Location> LocationHasher { get; }
+    public IIdentityHasher<Purchase> PurchaseHasher { get; }
     private IFileService Files { get; }
 
     public UploadsController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Upload> hasher,
-        IIdentityHasher<Stuff> stuffId, IIdentityHasher<Location> locationId, IFileService files) : base(context, mapper, hasher)
+        IIdentityHasher<Stuff> stuffHasher, IIdentityHasher<Location> locationHasher, 
+        IIdentityHasher<Purchase> purchaseHasher, IFileService files) : base(context, mapper, hasher)
     {
-        StuffId = stuffId;
-        LocationId = locationId;
+        StuffHasher = stuffHasher;
+        LocationHasher = locationHasher;
+        PurchaseHasher = purchaseHasher;
         Files = files;
     }
 
@@ -55,8 +58,9 @@ public class UploadsController : BaseController<Upload>
         {
             var filePath = await Files.Save(model.File);
 
-            var locationId = LocationId.Decode(model.LocationId);
-            var stuffId = StuffId.Decode(model.StuffId);
+            var stuffId = StuffHasher.Decode(model.StuffId);
+            var locationId = LocationHasher.Decode(model.LocationId);
+            var purchaseId = PurchaseHasher.Decode(model.PurchaseId);
 
             var entity = new Upload 
             { 
@@ -64,6 +68,7 @@ public class UploadsController : BaseController<Upload>
                 Path = filePath,
                 LocationId = locationId,
                 StuffId = stuffId,
+                PurchaseId = purchaseId
             };
             Audit(entity);
             
@@ -88,15 +93,17 @@ public class UploadsController : BaseController<Upload>
         {
             var filePath = await Files.SaveImage(model.File);
 
-            var locationId = LocationId.Decode(model.LocationId);
-            var stuffId = StuffId.Decode(model.StuffId);
+            var stuffId = StuffHasher.Decode(model.StuffId);
+            var locationId = LocationHasher.Decode(model.LocationId);
+            var purchaseId = PurchaseHasher.Decode(model.PurchaseId);
 
             var entity = new Upload 
             { 
                 FileName = model.File.FileName, 
                 Path = filePath,
-                LocationId = locationId,
                 StuffId = stuffId,
+                LocationId = locationId,
+                PurchaseId = purchaseId
             };
             Audit(entity);
             

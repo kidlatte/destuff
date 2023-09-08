@@ -22,6 +22,8 @@ public class PurchaseModel : PurchaseRequest, IPurchaseModel
     public int ItemCount { get; set; }
     public SupplierBasicModel? Supplier { get; set; }
 
+    public required ICollection<UploadModel> Uploads { get; set; }
+
     public PurchaseRequest ToRequest()
     {
         return new PurchaseRequest

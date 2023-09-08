@@ -14,6 +14,8 @@
             <MudButton Href="/purchases" StartIcon="@Icons.Material.Rounded.ChevronLeft" Variant="Variant.Outlined">
                 Purchases
             </MudButton>
+            <FileUpload PurchaseId="@Model.Id" OnUploaded="OnUploaded" ImageOnly="true"
+                        Label="Upload" Variant="Variant.Outlined" Color="Color.Tertiary" />
             <MudButton OnClick="OnUpdateClick" Variant="Variant.Outlined"
                        Color="Color.Primary">Edit</MudButton>
             <MudButton OnClick="OnDeleteClick" Variant="Variant.Outlined"
@@ -33,6 +35,9 @@
                     <strong>@((Model.Received ?? Model.Receipt)?.ToShortDateString())</strong>
                 }
             </MudText>
+            <div>
+                <UploadThumbnails Items="Uploads" />
+            </div>
         </div>
     </div>
 
@@ -91,6 +96,7 @@
     public string? Id { get; set; }
 
     PurchaseModel? Model { get; set; }
+    ICollection<UploadModel> Uploads => Model?.Uploads ?? new List<UploadModel>();
 
     string Title => Model == null ? "Purchase" :
         Model.Received != null ? $"Purchase: {Model.Received:d}" :
@@ -136,5 +142,11 @@
 
         if (!result.Canceled)
             Nav.NavigateTo($"/purchases");
+    }
+
+    async Task OnUploaded(UploadModel upload)
+    {
+        Uploads.Add(upload);
+        await LoadData();
     }
 }

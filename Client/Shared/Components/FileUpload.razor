@@ -24,8 +24,9 @@
     [Parameter]
     public EventCallback<UploadModel> OnUploaded { get; set; }
 
-    [Parameter] public string? LocationId { get; set; }
     [Parameter] public string? StuffId { get; set; }
+    [Parameter] public string? LocationId { get; set; }
+    [Parameter] public string? PurchaseId { get; set; }
     [Parameter] public string? EventId { get; set; }
 
     [Parameter] public string Label { get; set; } = "Upload files";
@@ -50,11 +51,14 @@
             using var content = new MultipartFormDataContent();
             content.Add(fileContent, "file", file.Name);
 
+            if (StuffId != null)
+                content.Add(new StringContent(StuffId), nameof(StuffId));
+
             if (LocationId != null)
                 content.Add(new StringContent(LocationId), nameof(LocationId));
 
-            if (StuffId != null)
-                content.Add(new StringContent(StuffId), nameof(StuffId));
+            if (PurchaseId != null)
+                content.Add(new StringContent(PurchaseId), nameof(PurchaseId));
 
             if (EventId != null)
                 content.Add(new StringContent(EventId), nameof(EventId));

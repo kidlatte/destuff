@@ -42,11 +42,13 @@ public class FileService : IFileService
 
     public async virtual Task<string> SaveImage(IFormFile file)
     {
+        int width = 1080, height = 720;
+
         if (file.ContentType == null || !file.ContentType.Contains("image"))
             return await Save(file);
 
         using var image = Image.Load(file.OpenReadStream());
-        var compress = image.Width > 800 || image.Height > 600;
+        var compress = image.Width > width || image.Height > height;
 
         var path = Path.Combine(DataPath, "uploads", DateTime.UtcNow.ToString("yyyyMMdd"));
         Directory.CreateDirectory(path);
@@ -57,10 +59,10 @@ public class FileService : IFileService
 
         if (compress)
         {
-            if (image.Height > 600)
-                image.Mutate(x => x.Resize(0, 600, KnownResamplers.Lanczos3));
-            else if (image.Width > 800)
-                image.Mutate(x => x.Resize(800, 0, KnownResamplers.Lanczos3));
+            if (image.Height > height)
+                image.Mutate(x => x.Resize(0, height, KnownResamplers.Lanczos3));
+            else if (image.Width > width)
+                image.Mutate(x => x.Resize(width, 0, KnownResamplers.Lanczos3));
 
             await image.SaveAsync(filePath, new WebpEncoder { FileFormat = WebpFileFormatType.Lossy });
         }
