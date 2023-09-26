@@ -13,6 +13,8 @@ public class ApiRoutes
     public const string LocationTree = "/api/locations/t";
     public const string LocationLookup = "/api/locations/lookup";
     public const string LocationMap = "/api/locations/map";
+    public const string LocationOrderUp = "/api/locations/up";
+    public const string LocationOrderDown = "/api/locations/down";
 
     public const string Stuffs = "/api/stuffs";
     public const string StuffBySlug = "/api/stuffs/s";

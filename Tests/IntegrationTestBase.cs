@@ -105,11 +105,11 @@ public abstract class IntegrationTestBase: IDisposable
     protected Task<HttpResponseMessage> AuthorizedGetAsync(string? route = null) => AuthorizedSendAsync(null, HttpMethod.Get, route);
     protected Task<T?> AuthorizedGetAsync<T>(string? route = null) where T : class => AuthorizedSendAsync<T>(null, HttpMethod.Get, route);
 
-    protected Task<HttpResponseMessage> AuthorizedPostAsync(object model) => AuthorizedSendAsync(model, HttpMethod.Post, $"{Route}");
-    protected Task<T?> AuthorizedPostAsync<T>(object model) where T : class => AuthorizedSendAsync<T>(model, HttpMethod.Post, $"{Route}");
+    protected Task<HttpResponseMessage> AuthorizedPostAsync(object model, string? route = null) => AuthorizedSendAsync(model, HttpMethod.Post, route);
+    protected Task<T?> AuthorizedPostAsync<T>(object model, string? route = null) where T : class => AuthorizedSendAsync<T>(model, HttpMethod.Post, route);
 
-    protected Task<HttpResponseMessage> AuthorizedPutAsync(string id, object model) => AuthorizedSendAsync(model, HttpMethod.Put, $"{Route}/{id}");
-    protected Task<T?> AuthorizedPutAsync<T>(string id, object model) where T : class => AuthorizedSendAsync<T>(model, HttpMethod.Put, $"{Route}/{id}");
+    protected Task<HttpResponseMessage> AuthorizedPutAsync(string id, object? model = null) => AuthorizedSendAsync(model, HttpMethod.Put, $"{Route}/{id}");
+    protected Task<T?> AuthorizedPutAsync<T>(string id, object? model = null) where T : class => AuthorizedSendAsync<T>(model, HttpMethod.Put, $"{Route}/{id}");
 
     protected Task<HttpResponseMessage> AuthorizedDeleteAsync(string id) => AuthorizedSendAsync(null, HttpMethod.Delete, $"{Route}/{id}");
 

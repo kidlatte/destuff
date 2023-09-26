@@ -26,6 +26,7 @@ public class LocationsController : BaseController<Location, LocationModel, Locat
         var query = Query;
 
         var list = await query
+            .OrderBy(x => x.Order).ThenBy(x => x.Id)
             .ProjectTo<LocationTreeItem>(Mapper.ConfigurationProvider)
             .ToListAsync();
 
@@ -156,6 +157,70 @@ public class LocationsController : BaseController<Location, LocationModel, Locat
         await Context.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    [HttpPut(ApiRoutes.LocationOrderUp + "/{hash}")]
+    public async Task<IActionResult> MoveOrderUp(string hash)
+    {
+        var id = Hasher.Decode(hash);
+
+        var parentId = await Query.Where(x => x.Id == id)
+            .Select(x => x.ParentId).FirstOrDefaultAsync();
+
+        var siblings = await Query.Where(x => x.ParentId == parentId)
+            .OrderBy(x => x.Order).ThenBy(x => x.Id)
+            .ToListAsync();
+
+        for (int i = 0; i < siblings.Count; i++) {
+            var sibling = siblings[i];
+
+            if (i > 0 && sibling.Id == id) {
+                sibling.Order = i - 1;
+                siblings[i - 1].Order = i;
+            }
+            else {
+                sibling.Order = i;
+            }
+        }
+
+        await Context.SaveChangesAsync();
+        return NoContent();
+    }
+
+    [HttpPut(ApiRoutes.LocationOrderDown + "/{hash}")]
+    public async Task<IActionResult> MoveOrderDown(string hash)
+    {
+        var id = Hasher.Decode(hash);
+
+        var parentId = await Query.Where(x => x.Id == id)
+            .Select(x => x.ParentId).FirstOrDefaultAsync();
+
+        var siblings = await Query.Where(x => x.ParentId == parentId)
+            .OrderBy(x => x.Order).ThenBy(x => x.Id)
+            .ToListAsync();
+
+        var count = siblings.Count;
+        for (int i = count - 1; i > 0; i--) {
+            var sibling = siblings[i];
+
+            if (i < count - 1 && sibling.Id == id) {
+                sibling.Order = i + 1;
+                siblings[i + 1].Order = i;
+            }
+            else {
+                sibling.Order = i;
+            }
+        }
+
+        await Context.SaveChangesAsync();
+        return NoContent();
+    }
+
+    internal override async Task BeforeCreateAsync(Location entity)
+    {
+        var siblingCount = await Query.CountAsync(x => x.ParentId == entity.ParentId);
+        entity.Order = siblingCount;
+        await base.BeforeCreateAsync(entity);
     }
 
     internal override async Task BeforeSaveAsync(Location entity)
