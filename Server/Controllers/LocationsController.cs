@@ -200,7 +200,7 @@ public class LocationsController : BaseController<Location, LocationModel, Locat
             .ToListAsync();
 
         var count = siblings.Count;
-        for (int i = count - 1; i > 0; i--) {
+        for (int i = count - 1; i >= 0; i--) {
             var sibling = siblings[i];
 
             if (i < count - 1 && sibling.Id == id) {
@@ -216,11 +216,11 @@ public class LocationsController : BaseController<Location, LocationModel, Locat
         return NoContent();
     }
 
-    internal override async Task BeforeCreateAsync(Location entity)
+    internal override async Task BeforeCreateAsync(Location entity, LocationRequest _)
     {
         var siblingCount = await Query.CountAsync(x => x.ParentId == entity.ParentId);
         entity.Order = siblingCount;
-        await base.BeforeCreateAsync(entity);
+        await BeforeSaveAsync(entity);
     }
 
     internal override async Task BeforeSaveAsync(Location entity)

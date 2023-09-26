@@ -83,7 +83,7 @@ public class PurchasesController : BaseController<Purchase, PurchaseModel, Purch
         return new PagedList<PurchaseBasicModel>(count, list);
     }
 
-    internal override async Task BeforeUpdateAsync(Purchase entity)
+    internal override async Task BeforeUpdateAsync(Purchase entity, PurchaseRequest _)
     {
         var items = await Context.PurchaseItems.Where(x => x.PurchaseId == entity.Id)
             .Select(x => new PurchaseItem() { Id = x.Id, DateTime = x.DateTime, Quantity = x.Quantity, Price = x.Price })

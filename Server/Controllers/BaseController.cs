@@ -148,12 +148,8 @@ public abstract class BaseController<TEntity, TModel, TRequest> : BaseController
     internal virtual Task AfterSaveAsync(TEntity entity) => Task.CompletedTask;
 
     internal virtual Task BeforeCreateAsync(TEntity entity, TRequest request) => BeforeSaveAsync(entity, request);
-    internal virtual Task BeforeCreateAsync(TEntity entity) => BeforeSaveAsync(entity);
-    internal virtual Task AfterCreateAsync(TEntity entity, TRequest request) => AfterSaveAsync(entity, request);
     internal virtual Task AfterCreateAsync(TEntity entity) => AfterSaveAsync(entity);
 
     internal virtual Task BeforeUpdateAsync(TEntity entity, TRequest request) => BeforeSaveAsync(entity, request);
-    internal virtual Task BeforeUpdateAsync(TEntity entity) => BeforeSaveAsync(entity);
-    internal virtual Task AfterUpdateAsync(TEntity entity, TRequest request) => AfterSaveAsync(entity, request);
     internal virtual Task AfterUpdateAsync(TEntity entity) => AfterSaveAsync(entity);
 }

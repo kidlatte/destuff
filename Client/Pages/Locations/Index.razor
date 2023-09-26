@@ -27,6 +27,8 @@
                             <a href="@($"/locations/{item.Slug}")" class="d-inline-block w-100 pa-2 pe-sm-5">@item.Name</a>
                         </div>
                         <div class="btn-locations">
+                            <MudIconButton OnClick="_ => OnUpClick(item)" Icon="@Icons.Material.Filled.ArrowUpward" Color="Color.Default" Size="Size.Small" Class="mx-2" />
+                            <MudIconButton OnClick="_ => OnDownClick(item)" Icon="@Icons.Material.Filled.ArrowDownward" Color="Color.Default" Size="Size.Small" Class="mx-2" />
                             <MudIconButton OnClick="_ => OnAddClick(item)" Icon="@Icons.Material.Filled.Add" Color="Color.Primary" Size="Size.Small" Class="mx-2" />
                             <MudIconButton OnClick="_ => OnEditClick(item)" Icon="@Icons.Material.Filled.Edit" Color="Color.Secondary" Size="Size.Small" Class="mx-2" />
                             <MudIconButton OnClick="_ => OnDeleteClick(item)" Disabled="@item.Children.OrEmpty().Any()"
@@ -53,6 +55,22 @@
         await Http.SendAsync(request);
 
         await LoadData();
+    }
+
+    async void OnUpClick(LocationTreeItem item)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Put, $"{ApiRoutes.LocationOrderUp}/{item.Id}");
+        await Http.SendAsync(request);
+        await LoadData();
+        StateHasChanged();
+    }
+
+    async void OnDownClick(LocationTreeItem item)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Put, $"{ApiRoutes.LocationOrderDown}/{item.Id}");
+        await Http.SendAsync(request);
+        await LoadData();
+        StateHasChanged();
     }
 
     async void OnAddClick(LocationTreeItem? item = null)

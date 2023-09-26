@@ -11,9 +11,6 @@
 {
     <div class="d-md-flex">
         <div class="text-right text-nowrap order-1 ms-5">
-            <MudButton Href="/locations" StartIcon="@Icons.Material.Rounded.ChevronLeft" Variant="Variant.Outlined">
-                Locations
-            </MudButton>
             <FileUpload LocationId="@Model.Id" OnUploaded="OnUploaded" ImageOnly="true"
                         Label="Upload" Variant="Variant.Outlined" Color="Color.Tertiary" />
             <MudButton OnClick="OnUpdateClick" Variant="Variant.Outlined"
@@ -22,16 +19,17 @@
                        Color="Color.Error">Delete</MudButton>
         </div>
         <div class="my-5 my-md-2 me-auto order-0">
-            @if (Model.Data?.Path != null) {
-                <div>
-                    @foreach (var (item, i) in Model.Data.Path.ToIndex()) {
+            <div>
+                <MudLink Href="@("/locations")" UserAttributes="@(new Dictionary<string, object> { { "title", "Locations" } })">
+                    Locations
+                </MudLink>
+                @if (Model.Data?.Path != null) {
+                    @foreach (var item in Model.Data.Path) {
+                        <span class="mud-text-disabled mx-2"> / </span>
                         <LocationLink Model="item" />
-                        @if (i < Model.Data.Path.Count - 1) {
-                            <span class="mud-text-disabled mx-3"> / </span>
-                        }
                     }
-                </div>
-            }
+                }
+            </div>
             <MudText Typo="Typo.h1" Class="text-truncate mb-4">@Model.Name</MudText>
             <div>
                 <UploadThumbnails Items="Uploads" />
