@@ -7,6 +7,7 @@ public interface IFileService
 {
     string GetContentType(string fileName);
     Task<string> SaveImage(IFormFile file);
+    Task<string> SaveImage(string imageUrl);
     Task<string> Save(IFormFile file);
     void Delete(string path);
 }
@@ -15,6 +16,8 @@ public class FileService : IFileService
 {
     string DataPath { get; }
     FileExtensionContentTypeProvider ContentType { get; }
+
+    private static HttpClient Http = new();
 
     public FileService(string dataPath)
     {
@@ -42,23 +45,36 @@ public class FileService : IFileService
 
     public async virtual Task<string> SaveImage(IFormFile file)
     {
-        int width = 1080, height = 720;
-
         if (file.ContentType == null || !file.ContentType.Contains("image"))
             return await Save(file);
 
-        using var image = Image.Load(file.OpenReadStream());
+        using var image = await Image.LoadAsync(file.OpenReadStream());
+        return await SaveImage(image, file.FileName);
+    }
+
+
+    public async virtual Task<string> SaveImage(string imageUrl)
+    {
+        using var bytes = await Http.GetStreamAsync(imageUrl);
+        using var image = await Image.LoadAsync(bytes);
+        return await SaveImage(image, Path.GetFileName(imageUrl));
+    }
+
+    public async virtual Task<string> SaveImage(Image image, string imageName)
+    {
+        int width = 1080, height = 720;
         var compress = image.Width > width || image.Height > height;
 
         var path = Path.Combine(DataPath, "uploads", DateTime.UtcNow.ToString("yyyyMMdd"));
         Directory.CreateDirectory(path);
 
-        var ext = compress ? ".webp" : Path.GetExtension(file.FileName);
-        var fileName = $"{Path.GetFileNameWithoutExtension(file.FileName)}-{Guid.NewGuid().ToString()[..5]}{ext}";
+        var ext = compress ? ".webp" :
+            $".{image.Metadata.DecodedImageFormat?.FileExtensions.FirstOrDefault()}" ??
+                Path.GetExtension(imageName);
+        var fileName = $"{Path.GetFileNameWithoutExtension(imageName)}-{Guid.NewGuid().ToString()[..5]}{ext}";
         var filePath = Path.Combine(path, fileName);
 
-        if (compress)
-        {
+        if (compress) {
             if (image.Height > height)
                 image.Mutate(x => x.Resize(0, height, KnownResamplers.Lanczos3));
             else if (image.Width > width)

@@ -1,0 +1,47 @@
+﻿@inject IHttpService Http
+
+<MudDialog ClassContent="px-0">
+    <TitleContent>
+        <MudText Typo="Typo.h6">Stuff Link Metadata</MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (Model != null) {
+            @* <MudImage Src="@Model.ImageUrl" Alt="@Model.Title" ObjectFit="ObjectFit.Cover" ObjectPosition="ObjectPosition.Center" Fluid="true"
+                      Class="rounded-lg" /> *@
+
+            <MudCard Elevation="0" Square="true">
+                <MudCardMedia Image="@Model.ImageUrl" />
+                <MudCardContent>
+                    <MudLink Href="@Stuff.Url" Target="_blank" Typo="Typo.h5" Class="d-block mb-3">
+                        @Model.Title
+                    </MudLink>
+                    <MudText Typo="Typo.body2">@Model.Description</MudText>
+                </MudCardContent>
+            </MudCard>
+        }
+
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="() => dialog?.Cancel()" Disabled="loading" Color="Color.Default">
+            Cancel
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    MudDialogInstance? dialog { get; set; }
+
+    [Parameter]
+    public required StuffModel Stuff { get; set; }
+
+    StuffOpenGraph? Model { get; set; }
+    bool loading = false;
+
+    protected override async Task OnInitializedAsync() 
+    {
+        loading = true;
+        Model = await Http.SendAsync<StuffOpenGraph>(HttpMethod.Put, $"{ApiRoutes.StuffScrapeUrl}/{Stuff.Id}");
+        loading = false;
+    }
+}

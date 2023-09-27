@@ -70,3 +70,10 @@ public class StuffListItem : StuffBasicModel
 {
     public ICollection<LocationListItem>? Locations { get; set; }
 }
+
+public class StuffOpenGraph
+{
+    public required string Title { get; set; }
+    public string? Description { get; set; }
+    public string? ImageUrl { get; set; }
+}

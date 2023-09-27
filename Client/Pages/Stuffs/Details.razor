@@ -50,9 +50,11 @@
                     <dl>
                         <dt>URL</dt>
                         <dd class="text-truncate">
-                            <MudLink Href="@Model.Url" Target="_blank">
-                                @Model.Url
-                            </MudLink>
+                            <div @onclick:preventDefault="true">
+                                <MudLink OnClick="OnLinkClick" Href="@Model.Url" Target="_blank">
+                                    @Model.Url
+                                </MudLink>
+                            </div>
                         </dd>
                     </dl>
                 }
@@ -198,6 +200,14 @@
 
         if (!result.Canceled)
             Nav.NavigateTo($"/stuffs");
+    }
+
+    async void OnLinkClick()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(LinkMetaModal.Stuff), Model);
+
+        await Dialog.ShowAsync<LinkMetaModal>("", parameters);
     }
 
     async Task OnUploaded(UploadModel upload)
