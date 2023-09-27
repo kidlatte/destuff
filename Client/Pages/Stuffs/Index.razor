@@ -1,5 +1,4 @@
-﻿@page "/"
-@page "/stuffs"
+﻿@page "/stuffs"
 @attribute [Authorize]
 
 @inject NavigationManager Nav
@@ -20,12 +19,12 @@
         <MudButton OnClick="OnBulkClick" Variant="Variant.Outlined" Color="Color.Secondary" Class="ms-1">Bulk</MudButton>
     </ToolBarContent>
     <Columns>
-        <PropertyColumn Property="x => x!.Name">
+        <PropertyColumn Property="x => x.Name">
             <CellTemplate>
-                <MudLink Href="@($"/stuffs/{context.Item?.Slug}")">@context.Item?.Name</MudLink>
+                <MudLink Href="@($"/stuffs/{context.Item.Slug}")">@context.Item.Name</MudLink>
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x!.Locations">
+        <PropertyColumn Property="x => x.Locations">
             <CellTemplate>
                 @foreach (var (location, i) in context.Item.Locations.ToIndex())
                 {

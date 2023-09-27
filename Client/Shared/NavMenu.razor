@@ -1,7 +1,8 @@
 ﻿@inject AuthenticationService auth
 
 <MudNavMenu>
-    <MudNavLink Href="/stuffs" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Outlined.Dashboard">Stuffs</MudNavLink>
+    <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Dashboard">Dashboard</MudNavLink>
+    <MudNavLink Href="/stuffs" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Outlined.Category">Stuffs</MudNavLink>
     <MudNavLink Href="/locations" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Outlined.MapsHomeWork">Locations</MudNavLink>
     <MudNavLink Href="/inventory" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Outlined.Inventory">Inventory</MudNavLink>
     <MudDivider Class="my-2" />

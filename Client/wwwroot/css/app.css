@@ -31,6 +31,10 @@ dl > dd {
   height: 100%;
 }
 
+.mh-100 {
+  max-height: 100%;
+}
+
 .lh-100 {
   line-height: 1em;
 }

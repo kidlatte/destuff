@@ -11,7 +11,7 @@
 {
     <div class="d-md-flex">
         <div class="text-right text-nowrap order-1 ms-5">
-            <MudButton Href="/" StartIcon="@Icons.Material.Rounded.ChevronLeft" Variant="Variant.Outlined">
+            <MudButton Href="/stuffs" StartIcon="@Icons.Material.Rounded.ChevronLeft" Variant="Variant.Outlined">
                 Stuffs
             </MudButton>
             <MudButton Href="@($"/inventory/{Slug}")" Variant="Variant.Outlined">
@@ -142,7 +142,7 @@
         catch (HttpRequestException ex)
         {
             if (ex.StatusCode == HttpStatusCode.NotFound)
-                Nav.NavigateTo($"/");
+                Nav.NavigateTo($"/stuffs");
             else
                 throw;
         }
@@ -197,7 +197,7 @@
         var result = await dialogRef.Result;
 
         if (!result.Canceled)
-            Nav.NavigateTo($"/");
+            Nav.NavigateTo($"/stuffs");
     }
 
     async Task OnUploaded(UploadModel upload)

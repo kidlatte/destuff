@@ -34,7 +34,9 @@
         parameters.Add(nameof(UploadCarousel.Items), Items);
         parameters.Add(nameof(UploadCarousel.Selected), item);
 
-        var dialog = await Dialog.ShowAsync<UploadCarousel>("", parameters);
+        var options = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true };
+
+        var dialog = await Dialog.ShowAsync<UploadCarousel>("", parameters, options);
         var result = await dialog.Result;
 
         if (!result.Canceled)

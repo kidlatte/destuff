@@ -24,12 +24,12 @@
                     }
                     else if (Model.IsSingleLocation && Model.FirstLocation != null) {
                         <MudText Typo="Typo.body1">
-                            <em>@Model.Name</em> is in <strong>@Model.FirstLocation.Name</strong>
+                            <em>@Model.Name</em> is in <strong>@Model.FirstLocation.PathString</strong>
                         </MudText>
                     }
                     else if (Model.StuffLocations.Count == 1) {
                         <MudText Typo="Typo.body1">
-                            <em>@Model.Count</em> units of <em>@Model.Name</em> are in <strong>@Model.FirstLocation?.Name</strong>
+                            <em>@Model.Count</em> units of <em>@Model.Name</em> are in <strong>@Model.FirstLocation?.PathString</strong>
                         </MudText>
                     }
                     else {

@@ -1,0 +1,95 @@
+﻿@page "/"
+@attribute [Authorize]
+
+@inject IHttpService Http
+
+<PageTitle>Dashboard | Destuff</PageTitle>
+
+<MudContainer Class="mt-16 px-8" MaxWidth="MaxWidth.False">
+    <MudGrid>
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper Elevation="2" Class="pa-4">
+                <div class="d-flex">
+                    <div class="flex-0 mx-3">
+                        <MudIcon Icon="@Icons.Material.Outlined.Category" Color="Color.Primary" Style="font-size: 4.6rem" />
+                    </div>
+                    <div class="flex-1">
+                        <MudText Typo="Typo.h6">Total Stuffs</MudText>
+                        <MudText Typo="Typo.h4">@Model?.StuffCount</MudText>
+                    </div>
+                </div>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper Elevation="2" Class="pa-4">
+                <div class="d-flex">
+                    <div class="flex-0 mx-3">
+                        <MudIcon Icon="@Icons.Material.Outlined.MapsHomeWork" Color="Color.Secondary" Style="font-size: 4.6rem" />
+                    </div>
+                    <div class="flex-1">
+                        <MudText Typo="Typo.h6">Total Locations</MudText>
+                        <MudText Typo="Typo.h4">@Model?.LocationCount</MudText>
+                    </div>
+                </div>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper Elevation="2" Class="pa-4" UserAttributes="@(new() { { "title", "Inventoried in the past month" } })">
+                <div class="d-flex">
+                    <div class="flex-0 mx-3">
+                        <MudIcon Icon="@Icons.Material.Outlined.Inventory" Color="Color.Success" Style="font-size: 4.6rem" />
+                    </div>
+                    <div class="flex-1">
+                        <MudText Typo="Typo.h6">Inventoried</MudText>
+                        <MudText Typo="Typo.h4">@Model?.InventoriedInMonth</MudText>
+                    </div>
+                </div>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudPaper Elevation="2" Style="height: 100%">
+                <div class="px-3 pt-3">
+                    <MudText Typo="Typo.h5">Latest Added Stuff</MudText>
+                </div>
+
+                <MudList Clickable="true" Dense="true">
+                    @if (Model != null) {
+                        @foreach (var item in Model.LatestStuffs) {
+                            <MudListItem Text="@item.Name" Href="@($"/stuffs/{item.Slug}")" />
+                        }
+                    }
+                </MudList>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="12" md="4">
+            <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"></MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    DashboardModel? Model { get; set; }
+
+    protected override Task OnInitializedAsync() => LoadData();
+
+    private async Task LoadData()
+    {
+        Model = await Http.GetAsync<DashboardModel>($"{ApiRoutes.Dashboard}");
+    }
+}

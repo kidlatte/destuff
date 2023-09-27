@@ -20,7 +20,7 @@
         </div>
         <div class="my-5 my-md-2 me-auto order-0">
             <div>
-                <MudLink Href="@("/locations")" UserAttributes="@(new Dictionary<string, object> { { "title", "Locations" } })">
+                <MudLink Href="@("/locations")" UserAttributes="@(new() { { "title", "Locations" } })">
                     Locations
                 </MudLink>
                 @if (Model.Data?.Path != null) {
