@@ -10,7 +10,7 @@ namespace Destuff.Tests.Stuffs;
 
 public class StuffsGetForInventoryRequestShould : IntegrationTestBase
 {
-    public StuffsGetForInventoryRequestShould() : base(HttpMethod.Get, ApiRoutes.GetStuffForInventory)
+    public StuffsGetForInventoryRequestShould() : base(HttpMethod.Get, ApiRoutes.StuffForInventory)
     {
     }
 

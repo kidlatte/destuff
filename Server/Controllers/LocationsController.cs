@@ -238,14 +238,10 @@ public class LocationsController : BaseController<Location, LocationModel, Locat
 
         entity.Slug = $"{parent.Slug}-{entity.ToSlug()}";
 
-        if (parent.Data == null) {
-            parent.Data = new LocationData(parent.Name);
-        }
+        parent.Data ??= new LocationData(parent.Name);
 
         var path = parent.Data.Path?.ToList() ?? new List<LocationListItem>();
         path.Add(Mapper.Map<LocationListItem>(parent));
-
-        var pathString = string.Join(" > ", path.Select(x => x.Name).Append(entity.Name));
 
         return new LocationData(entity.Name, path);
     }

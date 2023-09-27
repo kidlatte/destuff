@@ -55,7 +55,6 @@
     [Parameter] public string? Slug { get; set; }
 
     StuffModel? Model { get; set; }
-    bool loading;
 
     protected override Task OnParametersSetAsync() => GetStuff();
 
@@ -90,11 +89,9 @@
     {
         slug ??= Slug;
 
-        loading = true;
         Model = slug == null ?
-            await Http.GetAsync<StuffModel>(ApiRoutes.GetStuffForInventory) :
+            await Http.GetAsync<StuffModel>(ApiRoutes.StuffForInventory) :
                 await Http.GetAsync<StuffModel>($"{ApiRoutes.StuffBySlug}/{slug}");
-        loading = false;
 
         StateHasChanged();
     }

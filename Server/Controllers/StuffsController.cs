@@ -9,6 +9,7 @@ using Destuff.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OpenGraphNet;
 
 namespace Destuff.Server.Controllers;
 
@@ -91,7 +92,7 @@ public class StuffsController : BaseController<Stuff, StuffModel, StuffRequest>
         return new PagedList<StuffBasicModel>(count, list);
     }
 
-    [HttpGet(ApiRoutes.GetStuffForInventory)]
+    [HttpGet(ApiRoutes.StuffForInventory)]
     public async Task<StuffModel?> GetForInventory(int? attempts)
     {
         if (attempts == 0)
@@ -133,6 +134,33 @@ public class StuffsController : BaseController<Stuff, StuffModel, StuffRequest>
             return NotFound();
 
         return model;
+    }
+
+    [HttpPut(ApiRoutes.StuffScrapeUrl + "/{hash}/{command?}")]
+    public async Task<IActionResult> ScrapeUrl(string hash, string? command)
+    {
+        var id = Hasher.Decode(hash);
+
+        var entity = await Query.Where(x => x.Id == id).FirstOrDefaultAsync();
+        if (entity == null)
+            return NotFound();
+
+        if ((entity.Data?.OpenGraph == null || command == "refresh") && !string.IsNullOrEmpty(entity.Url)) {
+            var graph = await OpenGraph.ParseUrlAsync(entity.Url);
+            if (string.IsNullOrEmpty(graph.Title))
+                return NoContent();
+
+            entity.Data ??= new();
+            entity.Data.OpenGraph ??= new() { 
+                Title = graph.Title,
+                Description = graph.Metadata["description"].FirstOrDefault()?.Value,
+                ImageUrl = graph.Image?.OriginalString
+            };
+
+            await Context.SaveChangesAsync();
+        }
+
+        return Ok(entity.Data?.OpenGraph);
     }
 
     internal override Task BeforeCreateAsync(Stuff entity, StuffRequest request)

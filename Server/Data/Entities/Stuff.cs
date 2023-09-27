@@ -42,6 +42,13 @@ public class Stuff: Entity, ISluggable
 public class StuffData
 {
     public ICollection<LocationListItem>? Locations { get; set; }
+    public StuffOpenGraph? OpenGraph { get; set; }
+}
+
+public class StuffOpenGraph {
+    public required string Title { get; set; }
+    public string? Description { get; set; }
+    public string? ImageUrl { get; set; }
 }
 
 [Flags]
