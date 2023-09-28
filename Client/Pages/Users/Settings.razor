@@ -1,0 +1,64 @@
+﻿@page "/settings"
+@attribute [Authorize]
+
+@inject IHttpService Http
+
+<MudText Typo="Typo.h1" Class="my-5 my-md-3">Settings</MudText>
+
+@if (Model != null) {
+    <EditForm OnValidSubmit="OnSubmit" Model="Model" autocomplete="off">
+        <DataAnnotationsValidator />
+
+        <MudSwitch T="bool" Checked="Model.InventoryEnabled" CheckedChanged="InventoryChanged" For="@(() => Model.InventoryEnabled)"
+                   Disabled="loading" Label="Inventory" Color="Color.Primary" />
+        <MudSwitch T="bool" Checked="Model.PurchasesEnabled" CheckedChanged="PurchasesChanged" For="@(() => Model.PurchasesEnabled)"
+                   Disabled="loading" Label="Purchases" Color="Color.Primary" />
+
+        <MudText Color="@Color.Error">@error</MudText>
+    </EditForm>
+}
+
+@code {
+    UserSettings? Model { get; set; }
+
+    string error { get; set; } = "";
+    bool loading { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loading = true;
+
+        try {
+            Model = await Http.GetAsync<UserSettings>(ApiRoutes.UserSettings);
+        }
+        catch (Exception ex) {
+            error = ex.Message;
+        }
+
+        loading = false;
+    }
+
+    async void InventoryChanged(bool value)
+    {
+        if (Model != null)
+            Model.InventoryEnabled = value;
+
+        await OnSubmit();
+    }
+
+    async void PurchasesChanged(bool value)
+    {
+        if (Model != null)
+            Model.PurchasesEnabled = value;
+
+        await OnSubmit();
+    }
+
+    async Task OnSubmit()
+    {
+        if (Model == null)
+            throw new NullReferenceException();
+
+        Model = await Http.PutAsync<UserSettings>(ApiRoutes.UserSettings, Model);
+    }
+}
