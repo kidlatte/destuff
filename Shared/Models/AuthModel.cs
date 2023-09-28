@@ -43,8 +43,3 @@ public class AuthModel
     public string? Token { get; set; }
     public DateTime? Expires { get; set; }
 }
-
-public class UserModel
-{
-    public required string UserName { get; set; }
-}

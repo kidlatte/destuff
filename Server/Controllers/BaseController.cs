@@ -6,6 +6,7 @@ using Destuff.Server.Services;
 using Destuff.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace Destuff.Server.Controllers;
 
@@ -13,6 +14,8 @@ public abstract class BaseController : ControllerBase
 {
     public ApplicationDbContext Context { get; }
     public IMapper Mapper { get; }
+
+    protected string? CurrentUserName => User.FindFirstValue(ClaimTypes.Name);
 
     public BaseController(ApplicationDbContext context, IMapper mapper)
     {

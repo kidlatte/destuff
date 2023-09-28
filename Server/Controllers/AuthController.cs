@@ -78,7 +78,7 @@ public class AuthController : ControllerBase
 
         try
         {
-            var user = new ApplicationUser { UserName = model.UserName };
+            var user = new ApplicationUser { UserName = model.UserName, Settings = new() };
             var result = await _userManager.CreateAsync(user, model.Password);
             return Ok(new IdentityResultModel
             {

@@ -7,6 +7,7 @@ public class ApiRoutes
     public const string AuthRegister = "/api/auth/register";
     public const string AuthChangePassword = "/api/auth/change-password";
     public const string Users = "/api/users";
+    public const string UserSettings = "/api/users/me";
 
     public const string Locations = "/api/locations";
     public const string LocationBySlug = "/api/locations/s";

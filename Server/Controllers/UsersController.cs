@@ -25,8 +25,11 @@ public class UsersController : BaseController
         var query = Context.Users.AsQueryable();
 
         request ??= new ListRequest();
-        if (!string.IsNullOrEmpty(request.Search))
-            query = query.Where(x => x.UserName != null && x.UserName.StartsWith(request.Search));
+        if (!string.IsNullOrEmpty(request.Search)) {
+            var searches = request.Search.ToLower().Split(" ").ToList();
+            searches.ForEach(search =>
+                query = query.Where(x => x.UserName!.ToLower().Contains(search)));
+        }
 
         switch (request.SortField)
         {
@@ -43,7 +46,35 @@ public class UsersController : BaseController
             .Select(x => new UserModel { UserName = x.UserName ?? "" })
             .ToListAsync();
 
-        return new PagedList<UserModel>(count, list);
+        return new (count, list);
+    }
+
+    [HttpGet(ApiRoutes.UserSettings)]
+    public async Task<ActionResult<UserSettings>> GetSettings()
+    {
+        var user = await Context.Users.FirstOrDefaultAsync(x => x.UserName == CurrentUserName);
+        if (user == null)
+            return BadRequest();
+
+        if (user.Settings != null)
+            return user.Settings;
+
+        user.Settings = new() { InventoryEnabled = false, PurchasesEnabled = false };
+        await Context.SaveChangesAsync();
+        return user.Settings;
+    }
+
+    [HttpPut(ApiRoutes.UserSettings)]
+    public async Task<ActionResult<UserSettings>> UpdateSettings([FromBody] UserSettings settings)
+    {
+        var user = await Context.Users.FirstOrDefaultAsync(x => x.UserName == CurrentUserName);
+        if (user == null)
+            return BadRequest();
+
+        user.Settings = settings;
+        await Context.SaveChangesAsync();
+
+        return settings;
     }
 
 
@@ -62,5 +93,4 @@ public class UsersController : BaseController
             Succeeded = true
         });
     }
-
 }

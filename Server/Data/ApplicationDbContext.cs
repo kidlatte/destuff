@@ -8,7 +8,6 @@ namespace Destuff.Server.Data;
 
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
-    public DbSet<Setting> Settings => Set<Setting>();
     public DbSet<Stuff> Stuffs => Set<Stuff>();
     public DbSet<Location> Locations => Set<Location>();
     public DbSet<StuffLocation> StuffLocations => Set<StuffLocation>();
@@ -27,6 +26,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        builder.Entity<ApplicationUser>()
+            .Property(x => x.Settings).HasJsonConversion();
 
         builder.Entity<Stuff>()
             .HasMany(s => s.Locations)
