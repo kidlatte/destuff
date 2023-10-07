@@ -22,6 +22,8 @@ builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => 
     provider.GetRequiredService<AuthenticationService>());
 
+builder.Services.AddScoped<IEventsManager, EventsManager>();
+
 builder.Services.AddMudServices();
 
 await builder.Build().RunAsync();

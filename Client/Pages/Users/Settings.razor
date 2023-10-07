@@ -2,6 +2,7 @@
 @attribute [Authorize]
 
 @inject IHttpService Http
+@inject IEventsManager Events
 
 <MudText Typo="Typo.h1" Class="my-5 my-md-3">Settings</MudText>
 
@@ -40,6 +41,7 @@
 
     async void InventoryChanged(bool value)
     {
+        Events.InvokeInventoryEnabledChanged(value);
         if (Model != null)
             Model.InventoryEnabled = value;
 
@@ -48,6 +50,7 @@
 
     async void PurchasesChanged(bool value)
     {
+        Events.InvokePurchasesEnabledChanged(value);
         if (Model != null)
             Model.PurchasesEnabled = value;
 

@@ -1,13 +1,44 @@
-﻿@inject AuthenticationService auth
+﻿@inject IHttpService Http
+@inject IEventsManager Events
 
 <MudNavMenu>
     <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Dashboard">Dashboard</MudNavLink>
     <MudNavLink Href="/stuffs" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Outlined.Category">Stuffs</MudNavLink>
     <MudNavLink Href="/locations" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Outlined.MapsHomeWork">Locations</MudNavLink>
-    <MudNavLink Href="/inventory" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Outlined.Inventory">Inventory</MudNavLink>
-    <MudDivider Class="my-2" />
-    <MudNavLink Href="/purchases" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Outlined.ShoppingCart">Purchases</MudNavLink>
-    <MudNavLink Href="/suppliers" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Outlined.Storefront">Suppliers</MudNavLink>
+    @if (InventoryEnabled) {
+        <MudNavLink Href="/inventory" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Outlined.Inventory">Inventory</MudNavLink>
+    }
+    @if (PurchasesEnabled)
+    {
+        <MudDivider Class="my-2" />
+        <MudNavLink Href="/purchases" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Outlined.ShoppingCart">Purchases</MudNavLink>
+        <MudNavLink Href="/suppliers" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Outlined.Storefront">Suppliers</MudNavLink>
+    }
     <MudDivider Class="my-2" />
     <MudNavLink Href="/users" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Outlined.PeopleAlt">Users</MudNavLink>
 </MudNavMenu>
+
+@code {
+    bool InventoryEnabled { get; set; }
+    bool PurchasesEnabled { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Events.InventoryEnabledChanged += (_, value) => {
+            InventoryEnabled = value;
+            StateHasChanged();
+        };
+
+        Events.PurchasesEnabledChanged += (_, value) =>
+        {
+            PurchasesEnabled = value;
+            StateHasChanged();
+        };
+
+        var settings = await Http.GetAsync<UserSettings>(ApiRoutes.UserSettings);
+        if (settings != null) {
+            InventoryEnabled = settings.InventoryEnabled;
+            PurchasesEnabled = settings.PurchasesEnabled;
+        }
+    }
+}
