@@ -5,46 +5,52 @@
 
 <PageTitle>Dashboard | Destuff</PageTitle>
 
-<MudContainer Class="mt-16 px-8" MaxWidth="MaxWidth.False">
+<MudContainer Class="mt-5 mt-md-16 px-0 px-md-8" MaxWidth="MaxWidth.False">
     <MudGrid>
         <MudItem xs="12" sm="6" md="4">
-            <MudPaper Elevation="2" Class="pa-4">
-                <div class="d-flex">
-                    <div class="flex-0 mx-3">
-                        <MudIcon Icon="@Icons.Material.Outlined.Category" Color="Color.Primary" Style="font-size: 4.6rem" />
+            <a href="/stuffs">
+                <MudPaper Elevation="2" Class="pa-4">
+                    <div class="d-flex">
+                        <div class="flex-0 mx-3">
+                            <MudIcon Icon="@Icons.Material.Outlined.Category" Color="Color.Primary" Style="font-size: 4.6rem" />
+                        </div>
+                        <div class="flex-1">
+                            <MudText Typo="Typo.h6">Stuffs</MudText>
+                            <MudText Typo="Typo.h4">@Model?.StuffCount</MudText>
+                        </div>
                     </div>
-                    <div class="flex-1">
-                        <MudText Typo="Typo.h6">Stuffs</MudText>
-                        <MudText Typo="Typo.h4">@Model?.StuffCount</MudText>
-                    </div>
-                </div>
-            </MudPaper>
+                </MudPaper>
+            </a>
         </MudItem>
         <MudItem xs="12" sm="6" md="4">
-            <MudPaper Elevation="2" Class="pa-4">
-                <div class="d-flex">
-                    <div class="flex-0 mx-3">
-                        <MudIcon Icon="@Icons.Material.Outlined.MapsHomeWork" Color="Color.Secondary" Style="font-size: 4.6rem" />
+            <a href="/locations">
+                <MudPaper Elevation="2" Class="pa-4">
+                    <div class="d-flex">
+                        <div class="flex-0 mx-3">
+                            <MudIcon Icon="@Icons.Material.Outlined.MapsHomeWork" Color="Color.Secondary" Style="font-size: 4.6rem" />
+                        </div>
+                        <div class="flex-1">
+                            <MudText Typo="Typo.h6">Locations</MudText>
+                            <MudText Typo="Typo.h4">@Model?.LocationCount</MudText>
+                        </div>
                     </div>
-                    <div class="flex-1">
-                        <MudText Typo="Typo.h6">Locations</MudText>
-                        <MudText Typo="Typo.h4">@Model?.LocationCount</MudText>
-                    </div>
-                </div>
-            </MudPaper>
+                </MudPaper>
+            </a>
         </MudItem>
         <MudItem xs="12" sm="6" md="4">
-            <MudPaper Elevation="2" Class="pa-4" UserAttributes="@(new() { { "title", "Inventoried in the past month" } })">
-                <div class="d-flex">
-                    <div class="flex-0 mx-3">
-                        <MudIcon Icon="@Icons.Material.Outlined.Inventory" Color="Color.Success" Style="font-size: 4.6rem" />
+            <a href="/inventory">
+                <MudPaper Elevation="2" Class="pa-4" UserAttributes="@(new() { { "title", "Inventoried in the past month" } })">
+                    <div class="d-flex">
+                        <div class="flex-0 mx-3">
+                            <MudIcon Icon="@Icons.Material.Outlined.Inventory" Color="Color.Success" Style="font-size: 4.6rem" />
+                        </div>
+                        <div class="flex-1">
+                            <MudText Typo="Typo.h6">Inventoried</MudText>
+                            <MudText Typo="Typo.h4">@Model?.InventoriedInMonth</MudText>
+                        </div>
                     </div>
-                    <div class="flex-1">
-                        <MudText Typo="Typo.h6">Inventoried</MudText>
-                        <MudText Typo="Typo.h4">@Model?.InventoriedInMonth</MudText>
-                    </div>
-                </div>
-            </MudPaper>
+                </MudPaper>
+            </a>
         </MudItem>
         <MudItem xs="12" sm="6">
             <MudPaper Elevation="2" Style="height: 100%">
