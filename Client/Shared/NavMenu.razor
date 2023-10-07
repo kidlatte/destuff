@@ -1,4 +1,5 @@
-﻿@inject IHttpService Http
+﻿@inject AuthenticationService Auth
+@inject IHttpService Http
 @inject IEventsManager Events
 
 <MudNavMenu>
@@ -35,10 +36,13 @@
             StateHasChanged();
         };
 
-        var settings = await Http.GetAsync<UserSettings>(ApiRoutes.UserSettings);
-        if (settings != null) {
-            InventoryEnabled = settings.InventoryEnabled;
-            PurchasesEnabled = settings.PurchasesEnabled;
+        var state = await Auth.GetAuthenticationStateAsync();
+        if (state.User.Identity?.IsAuthenticated ?? false) {
+            var settings = await Http.GetAsync<UserSettings>(ApiRoutes.UserSettings);
+            if (settings != null) {
+                InventoryEnabled = settings.InventoryEnabled;
+                PurchasesEnabled = settings.PurchasesEnabled;
+            }
         }
     }
 }

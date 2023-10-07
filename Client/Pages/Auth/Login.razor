@@ -1,8 +1,8 @@
 @page "/login"
 @layout BaseLayout
 
-@inject Destuff.Client.Services.AuthenticationService authState
-@inject NavigationManager navigationManager
+@inject AuthenticationService Auth
+@inject NavigationManager Nav
 
 <div class="d-flex text-center h-100">
     <EditForm class="bg-white rounded-3 m-auto pa-4" OnValidSubmit="OnSubmit" Model="login">
@@ -33,8 +33,8 @@
 
         try
         {
-            await authState.LoginAsync(login);
-            navigationManager.NavigateTo("");
+            await Auth.LoginAsync(login);
+            Nav.NavigateTo("/");
         }
         catch (Exception ex)
         {
