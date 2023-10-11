@@ -185,8 +185,10 @@
                 await LoadData();
                 StateHasChanged();
             }
-            else
+            else {
+                await LoadData();
                 Nav.NavigateTo($"stuffs/{data.Slug}");
+            }
         }
     }
 

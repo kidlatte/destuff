@@ -73,6 +73,7 @@ public class LocationsController : BaseController<Location, LocationModel, Locat
         var query = Query.Where(x => x.ParentId == parentId);
 
         var children = await query
+            .OrderBy(x => x.Order).ThenBy(x => x.Id)
             .ProjectTo<LocationTreeItem>(Mapper.ConfigurationProvider)
             .ToListAsync();
 

@@ -69,7 +69,7 @@
     [Parameter] public required StuffModel Model { get; set; }
     ICollection<UploadModel>? uploads;
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
         uploads = Model.Uploads;
     }
