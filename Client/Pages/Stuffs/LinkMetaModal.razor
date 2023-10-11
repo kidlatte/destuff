@@ -1,4 +1,5 @@
 ﻿@inject IHttpService Http
+@inject IJSRuntime JSRuntime;
 
 <MudDialog ClassContent="px-0">
     <TitleContent>
@@ -43,5 +44,10 @@
         loading = true;
         Model = await Http.SendAsync<StuffOpenGraph>(HttpMethod.Put, $"{ApiRoutes.StuffScrapeUrl}/{Stuff.Id}");
         loading = false;
+
+        if (Model == null) {
+            await JSRuntime.InvokeVoidAsync("open", Stuff.Url, "_blank");
+            dialog?.Cancel();
+        }
     }
 }

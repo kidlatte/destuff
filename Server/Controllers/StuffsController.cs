@@ -145,20 +145,29 @@ public class StuffsController : BaseController<Stuff, StuffModel, StuffRequest>
         if (entity == null)
             return NotFound();
 
-        if ((entity.Data?.OpenGraph == null || command == "refresh") && !string.IsNullOrEmpty(entity.Url)) {
-            var graph = await OpenGraph.ParseUrlAsync(entity.Url);
-            if (string.IsNullOrEmpty(graph.Title))
-                return NoContent();
+        if (command != "refresh" && entity.Data?.OpenGraph != null || string.IsNullOrEmpty(entity.Url))
+            return Ok(entity.Data?.OpenGraph);
 
-            entity.Data ??= new();
-            entity.Data.OpenGraph ??= new() { 
-                Title = graph.Title,
-                Description = graph.Metadata["description"].FirstOrDefault()?.Value,
-                ImageUrl = graph.Image?.OriginalString
-            };
+        OpenGraph graph;
 
-            await Context.SaveChangesAsync();
+        try {
+            graph = await OpenGraph.ParseUrlAsync(entity.Url);
         }
+        catch (Exception) {
+            return NoContent();
+        }
+
+        if (string.IsNullOrEmpty(graph.Title))
+            return NoContent();
+
+        entity.Data ??= new();
+        entity.Data.OpenGraph ??= new() {
+            Title = graph.Title,
+            Description = graph.Metadata["description"].FirstOrDefault()?.Value,
+            ImageUrl = graph.Image?.OriginalString
+        };
+
+        await Context.SaveChangesAsync();
 
         return Ok(entity.Data?.OpenGraph);
     }
