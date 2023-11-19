@@ -29,6 +29,10 @@ public class Stuff: Entity, ISluggable
     public DateTime? Inventoried { get; set; }
     public StuffData? Data { get; set; }
 
+    public int? ParentId { get; set; }
+    public Stuff? Parent { get; set; }
+    public ICollection<Stuff>? Parts { get; set; }
+
     public ICollection<Location>? Locations { get; set; }
     public ICollection<StuffLocation>? StuffLocations { get; set; }
     public ICollection<PurchaseItem>? PurchaseItems { get; set; }
