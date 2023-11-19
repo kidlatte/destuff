@@ -89,7 +89,14 @@
     public required StuffModel Model { get; set; }
     public EventRequest? request { get; set; }
 
-    List<EventType> eventTypes = new() { EventType.Inventory, EventType.Lent, EventType.Donated, EventType.Consumed, EventType.Disposed };
+    List<EventType> eventTypes = new() { 
+        EventType.Inventory, 
+        EventType.Lent, 
+        EventType.Donated, 
+        EventType.Consumed, 
+        EventType.Disposed, 
+        EventType.Missing 
+    };
 
     string error { get; set; } = "";
     bool loading { get; set; } = false;

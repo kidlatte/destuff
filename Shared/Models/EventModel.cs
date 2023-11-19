@@ -58,5 +58,6 @@ public enum EventType
     Lent,
     Donated,
     Consumed,
-    Disposed
+    Disposed,
+    Missing
 }
