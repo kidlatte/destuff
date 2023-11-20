@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Destuff.Server.Data.Migrations.Sqlite
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231119235519_AddParts")]
-    partial class AddParts
+    [Migration("20231120215203_AddStuffParts")]
+    partial class AddStuffParts
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -95,7 +95,7 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEERPH9btZ6P0nMBVmme6sGkJYLSCWmpScnPLHgsETGj7NmYgDnQNyNwNE0N0C+5MGw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEBFEsjY9ZWJqntzSrVgdlIQWyVpAixSdxE6GwogwoVSKruQIxBhmFZ15LXBVw5XUqw==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "70effd01-76d5-4d56-85ac-6ddb5ffd3819",
                             TwoFactorEnabled = false,
@@ -343,9 +343,6 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                     b.Property<int>("Order")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("ParentId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(1023)
@@ -358,8 +355,6 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ParentId");
 
                     b.HasIndex("Slug")
                         .IsUnique();
@@ -383,6 +378,24 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                     b.HasIndex("LocationId");
 
                     b.ToTable("StuffLocations");
+                });
+
+            modelBuilder.Entity("Destuff.Server.Data.Entities.StuffPart", b =>
+                {
+                    b.Property<int>("ParentId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PartId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Count")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("ParentId", "PartId");
+
+                    b.HasIndex("PartId");
+
+                    b.ToTable("StuffParts");
                 });
 
             modelBuilder.Entity("Destuff.Server.Data.Entities.Supplier", b =>
@@ -739,15 +752,6 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                     b.Navigation("Stuff");
                 });
 
-            modelBuilder.Entity("Destuff.Server.Data.Entities.Stuff", b =>
-                {
-                    b.HasOne("Destuff.Server.Data.Entities.Stuff", "Parent")
-                        .WithMany("Parts")
-                        .HasForeignKey("ParentId");
-
-                    b.Navigation("Parent");
-                });
-
             modelBuilder.Entity("Destuff.Server.Data.Entities.StuffLocation", b =>
                 {
                     b.HasOne("Destuff.Server.Data.Entities.Location", "Location")
@@ -765,6 +769,25 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                     b.Navigation("Location");
 
                     b.Navigation("Stuff");
+                });
+
+            modelBuilder.Entity("Destuff.Server.Data.Entities.StuffPart", b =>
+                {
+                    b.HasOne("Destuff.Server.Data.Entities.Stuff", "Parent")
+                        .WithMany("StuffParts")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Destuff.Server.Data.Entities.Stuff", "Part")
+                        .WithMany()
+                        .HasForeignKey("PartId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Parent");
+
+                    b.Navigation("Part");
                 });
 
             modelBuilder.Entity("Destuff.Server.Data.Entities.Upload", b =>
@@ -900,11 +923,11 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                 {
                     b.Navigation("Events");
 
-                    b.Navigation("Parts");
-
                     b.Navigation("PurchaseItems");
 
                     b.Navigation("StuffLocations");
+
+                    b.Navigation("StuffParts");
 
                     b.Navigation("Uploads");
                 });

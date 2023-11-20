@@ -9,6 +9,7 @@ namespace Destuff.Server.Data;
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
     public DbSet<Stuff> Stuffs => Set<Stuff>();
+    public DbSet<StuffPart> StuffParts => Set<StuffPart>();
     public DbSet<Location> Locations => Set<Location>();
     public DbSet<StuffLocation> StuffLocations => Set<StuffLocation>();
     public DbSet<Tag> Tags => Set<Tag>();
@@ -42,6 +43,21 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                     .WithMany(s => s.StuffLocations)
                     .HasForeignKey(x => x.StuffId),
                 sl => sl.HasKey(x => new { x.StuffId, x.LocationId })
+            );
+
+        builder.Entity<Stuff>()
+            .HasMany(s => s.Parts)
+            .WithMany()
+            .UsingEntity<StuffPart>
+            (
+                sl => sl.HasOne(x => x.Parent)
+                    .WithMany(s => s.StuffParts)
+                    .HasForeignKey(x => x.ParentId),
+                sl => sl.HasOne(x => x.Part)
+                    .WithMany()
+                    .HasForeignKey(x => x.PartId)
+                    .OnDelete(DeleteBehavior.Restrict),
+                sl => sl.HasKey(x => new { x.ParentId, x.PartId })
             );
 
         builder.Entity<Stuff>()
