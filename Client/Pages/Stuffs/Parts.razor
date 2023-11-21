@@ -1,0 +1,37 @@
+﻿@inject IHttpService Http
+@inject IDialogService Dialog
+
+<MudButton OnClick="OnAddClick" Color="Color.Primary" Variant="Variant.Filled">
+    Add Part
+</MudButton>
+
+@code {
+    [Parameter] public required IStuffModel Model { get; set; }
+
+    [Parameter]
+    public int? Page { get; set; }
+    int gridPage => (Page ?? 1) - 1;
+    int pagerPage = 1;
+
+    public int PageSize => 10;
+    public int PageCount;
+
+    MudDataGrid<StuffPartListItem>? grid;
+    bool loading;
+
+    protected override void OnInitialized() => PageCount = gridPage + 1;
+
+    protected override void OnParametersSet() => pagerPage = Page ?? 1;
+
+    async void OnAddClick()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(PartCreateModal.Model), new StuffPartRequest { ParentId = Model.Id, Count = 1 });
+
+        var dialog = await Dialog.ShowAsync<PartCreateModal>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && result.Data is StuffPartModel data) {
+        }
+    }
+}

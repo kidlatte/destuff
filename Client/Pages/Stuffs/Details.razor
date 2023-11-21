@@ -98,6 +98,9 @@
                 <div>@Model.Notes</div>
             </div>
         </MudTabPanel>
+        <MudTabPanel Text="Parts">
+            <Parts Model="Model" Page="Page" />
+        </MudTabPanel>
         <MudTabPanel Text="Locations">
             <StuffLocations Model="Model" PagerClass="pa-3" />
         </MudTabPanel>
@@ -124,9 +127,10 @@
 
     protected override void OnParametersSet() => activePanelIndex = Tab switch
     {
-        StuffTabs.Locations => 1,
-        StuffTabs.Purchases => 2,
-        StuffTabs.Events => 3,
+        StuffTabs.Parts => 1,
+        StuffTabs.Locations => 2,
+        StuffTabs.Purchases => 3,
+        StuffTabs.Events => 4,
         _ => 0
     };
 
@@ -155,12 +159,15 @@
         activePanelIndex = index;
         switch (index) {
             case 1:
-                Nav.NavigateTo($"stuffs/{Slug}/{StuffTabs.Locations}");
+                Nav.NavigateTo($"stuffs/{Slug}/{StuffTabs.Parts}");
                 break;
             case 2:
-                Nav.NavigateTo($"stuffs/{Slug}/{StuffTabs.Purchases}");
+                Nav.NavigateTo($"stuffs/{Slug}/{StuffTabs.Locations}");
                 break;
             case 3:
+                Nav.NavigateTo($"stuffs/{Slug}/{StuffTabs.Purchases}");
+                break;
+            case 4:
                 Nav.NavigateTo($"stuffs/{Slug}/{StuffTabs.Events}");
                 break;
             default:
