@@ -77,7 +77,10 @@ public class StuffPartsController : BaseController
         Context.Add(entity);
         await Context.SaveChangesAsync();
 
-        return Mapper.Map<StuffPartModel>(entity);
+        return await Context.StuffParts
+            .Where(x => x.ParentId == entity.ParentId && x.PartId == entity.PartId)
+            .ProjectTo<StuffPartModel>(Mapper.ConfigurationProvider)
+            .FirstAsync();
     }
 
     [HttpPut("{parentHash}/{partHash}")]
@@ -93,18 +96,17 @@ public class StuffPartsController : BaseController
         if (entity == null)
             return BadRequest("Location does not exist.");
 
-        if (parentHash == request.ParentId) {
+        if (partHash == request.PartId) {
             Mapper.Map(request, entity);
         }
         else {
-            // location moved
+            // part changed
             var oldEntity = entity;
             Context.Remove(oldEntity);
 
             entity = Mapper.Map<StuffPart>(request);
             Context.Add(entity);
         }
-
         await Context.SaveChangesAsync();
 
         return await Context.StuffParts

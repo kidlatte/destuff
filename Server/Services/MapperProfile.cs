@@ -40,7 +40,7 @@ public class MapperProfile : Profile
         CreateMap<StuffLocation, StuffLocationListItem>();
 
         CreateMap<StuffPartRequest, StuffPart>()
-            .ForMember(e => e.Parent, o => o.MapFrom(m => stuffHasher.Decode(m.ParentId)))
+            .ForMember(e => e.ParentId, o => o.MapFrom(m => stuffHasher.Decode(m.ParentId)))
             .ForMember(e => e.PartId, o => o.MapFrom(m => stuffHasher.Decode(m.PartId)));
         CreateMap<StuffPart, StuffPartModel>();
         CreateMap<StuffPart, StuffPartListItem>();
