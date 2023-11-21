@@ -140,7 +140,7 @@ public class EventsController : BaseController<Event, EventModel, EventRequest>
         stuff.Inventoried = entity.DateTime;
 
         var locations = await Context.StuffLocations.Where(x => x.StuffId == entity.StuffId)
-            .ProjectTo<StuffLocationBasicModel>(Mapper.ConfigurationProvider).ToListAsync();
+            .ProjectTo<StuffLocationListItem>(Mapper.ConfigurationProvider).ToListAsync();
 
         entity.Summary = GenerateInventorySummary(locations);
 
@@ -150,7 +150,7 @@ public class EventsController : BaseController<Event, EventModel, EventRequest>
         };
     }
 
-    string GenerateInventorySummary(ICollection<StuffLocationBasicModel>? locations)
+    string GenerateInventorySummary(ICollection<StuffLocationListItem>? locations)
     {
         if (locations == null)
             return $"No location on record";

@@ -13,13 +13,13 @@ public class StuffLocationRequest
     public int Count { get; set; }
 }
 
-public class StuffLocationBasicModel
+public class StuffLocationListItem
 {
     public required LocationListItem Location { get; set; }
     public int Count { get; set; }
 }
 
-public class StuffLocationModel : StuffLocationBasicModel
+public class StuffLocationModel : StuffLocationListItem
 {
     public required StuffBasicModel Stuff { get; set; }
 }

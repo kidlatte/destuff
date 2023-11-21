@@ -37,7 +37,13 @@ public class MapperProfile : Profile
             .ForMember(e => e.StuffId, o => o.MapFrom(m => stuffHasher.Decode(m.StuffId)))
             .ForMember(e => e.LocationId, o => o.MapFrom(m => locationHasher.Decode(m.LocationId)));
         CreateMap<StuffLocation, StuffLocationModel>();
-        CreateMap<StuffLocation, StuffLocationBasicModel>();
+        CreateMap<StuffLocation, StuffLocationListItem>();
+
+        CreateMap<StuffPartRequest, StuffPart>()
+            .ForMember(e => e.Parent, o => o.MapFrom(m => stuffHasher.Decode(m.ParentId)))
+            .ForMember(e => e.PartId, o => o.MapFrom(m => stuffHasher.Decode(m.PartId)));
+        CreateMap<StuffPart, StuffPartModel>();
+        CreateMap<StuffPart, StuffPartListItem>();
 
         CreateMap<SupplierRequest, Supplier>();
         CreateEntityMap<Supplier, SupplierModel>(supplierHasher).IncludeAllDerived();

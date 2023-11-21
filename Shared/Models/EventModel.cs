@@ -46,7 +46,7 @@ public class EventData
     public StuffBasicModel? Stuff { get; set; }
     public LocationListItem? FromLocation { get; set; }
     public LocationListItem? ToLocation { get; set; }
-    public ICollection<StuffLocationBasicModel>? Locations { get; set; }
+    public ICollection<StuffLocationListItem>? Locations { get; set; }
     public SupplierBasicModel? Supplier { get; set; }
 }
 

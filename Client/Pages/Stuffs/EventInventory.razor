@@ -39,7 +39,7 @@ else {
     [Parameter]
     public required EventListItem Model { get; set; }
 
-    public ICollection<StuffLocationBasicModel>? Locations => Model.Data?.Locations;
+    public ICollection<StuffLocationListItem>? Locations => Model.Data?.Locations;
     public int Count => Locations?.Sum(x => x.Count) ?? 0;
 
 

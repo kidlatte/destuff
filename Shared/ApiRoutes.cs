@@ -22,7 +22,8 @@ public class ApiRoutes
     public const string StuffsBySupplier = "/api/stuffs/supplier";
     public const string StuffForInventory = "/api/stuffs/inventory";
     public const string StuffScrapeUrl = "/api/stuffs/scrape";
-    public const string StuffLocations = "/api/stuff-locations";
+    public const string StuffLocations = "/api/stuffs/locations";
+    public const string StuffParts = "/api/stuffs/parts";
 
     public const string Uploads = "/api/uploads";
     public const string UploadImage = "/api/uploads/i";
