@@ -26,9 +26,9 @@
     async void OnAddClick()
     {
         var parameters = new DialogParameters();
-        parameters.Add(nameof(PartCreateModal.Model), new StuffPartRequest { ParentId = Model.Id, Count = 1 });
+        parameters.Add(nameof(CreateModal.Model), new StuffPartRequest { ParentId = Model.Id, Count = 1 });
 
-        var dialog = await Dialog.ShowAsync<PartCreateModal>("", parameters);
+        var dialog = await Dialog.ShowAsync<CreateModal>("", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled && result.Data is StuffPartModel data) {
