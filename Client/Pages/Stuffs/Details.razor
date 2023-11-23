@@ -127,16 +127,20 @@
     StuffModel? Model { get; set; }
     List<UploadModel> uploads = new List<UploadModel>();
 
-    protected override void OnParametersSet() => activePanelIndex = Tab switch
+    protected override async Task OnParametersSetAsync()
     {
-        StuffTabs.Parts => 1,
-        StuffTabs.Locations => 2,
-        StuffTabs.Purchases => 3,
-        StuffTabs.Events => 4,
-        _ => 0
-    };
+        activePanelIndex = Tab switch {
+            StuffTabs.Parts => 1,
+            StuffTabs.Locations => 2,
+            StuffTabs.Purchases => 3,
+            StuffTabs.Events => 4,
+            _ => 0
+        };
+        
+        await LoadData();
+    }
 
-    protected override Task OnInitializedAsync() => LoadData();
+    // protected override Task OnInitializedAsync() => LoadData();
 
     private async Task LoadData()
     {

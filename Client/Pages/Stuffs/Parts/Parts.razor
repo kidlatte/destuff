@@ -1,12 +1,31 @@
-﻿@inject IHttpService Http
+﻿@inject NavigationManager Nav
+@inject IHttpService Http
 @inject IDialogService Dialog
 
-<MudButton OnClick="OnAddClick" Color="Color.Primary" Variant="Variant.Filled">
-    Add Part
-</MudButton>
+<MudDataGrid @ref="grid" T="StuffPartListItem" ServerData="LoadServerData" CurrentPage="gridPage" RowsPerPage="PageSize" Loading="loading"
+             SortMode="SortMode.Single" Elevation="0">
+    <Columns>
+        <PropertyColumn Property="x => x.Part" Title="Name">
+            <CellTemplate>
+                <MudLink Href="@($"/stuffs/{context.Item.Part.Slug}")">
+                    @context.Item.Part.Name
+                </MudLink>
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Count" />
+    </Columns>
+    <PagerContent>
+        @if (PageCount > 1) {
+            <div class="py-5 d-flex justify-center">
+                <MudPagination Count="PageCount" Selected="pagerPage" SelectedChanged="PageChanged" Color="Color.Primary" />
+            </div>
+        }
+    </PagerContent>
+</MudDataGrid>
 
 @code {
-    [Parameter] public required IStuffModel Model { get; set; }
+    [Parameter] 
+    public required IStuffModel Model { get; set; }
 
     [Parameter]
     public int? Page { get; set; }
@@ -23,6 +42,37 @@
 
     protected override void OnParametersSet() => pagerPage = Page ?? 1;
 
+    async Task<GridData<StuffPartListItem>> LoadServerData(GridState<StuffPartListItem> state)
+    {
+        var sort = state.SortDefinitions.FirstOrDefault();
+        var query = new ListQuery {
+                Page = gridPage, // BUG: state returns wrong page on first load.
+                PageSize = state.PageSize,
+                SortField = sort?.SortBy,
+                SortDir = sort?.Descending == true ? DestuffDirection.Descending : DestuffDirection.Ascending
+            };
+
+        loading = true;
+        var result = await Http.GetAsync<PagedList<StuffPartListItem>>($"{ApiRoutes.StuffParts}/{Model.Id}?{query}");
+        loading = false;
+
+        if (result == null)
+            throw new Exception("Result is null");
+
+        PageCount = (result.Count - 1) / PageSize + 1;
+        return new() {
+            Items = result.List,
+            TotalItems = result.Count
+        };
+    }
+
+    void PageChanged(int i)
+    {
+        if (pagerPage != i)
+            Nav.NavigateTo($"/stuffs/{Model.Slug}/parts?{new ListQuery { Page = i }}");
+        pagerPage = i;
+    }
+
     async void OnAddClick()
     {
         var parameters = new DialogParameters();
@@ -31,7 +81,7 @@
         var dialog = await Dialog.ShowAsync<CreateModal>("", parameters);
         var result = await dialog.Result;
 
-        if (!result.Canceled && result.Data is StuffPartModel data) {
-        }
+        if (!result.Canceled && grid != null)
+            await grid.ReloadServerData();
     }
 }
