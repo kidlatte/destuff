@@ -43,7 +43,7 @@ public class StuffPartsController : BaseController
         switch (sortField) {
             case "":
                 break;
-            case nameof(StuffLocationModel.Stuff):
+            case nameof(StuffPartListItem.Part):
                 query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Part!.Name) : query.OrderBy(x => x.Part!.Name);
                 break;
             default:
@@ -58,6 +58,39 @@ public class StuffPartsController : BaseController
             .ToListAsync();
 
         return new PagedList<StuffPartListItem>(count, list);
+    }
+
+    [HttpGet(ApiRoutes.StuffParents + "/{partHash}")]
+    public Task<List<StuffListItem>> GetParents(string partHash, [FromQuery] ListRequest? request)
+    {
+        var partId = StuffHasher.Decode(partHash);
+
+        var query = Context.StuffParts.Where(x => x.PartId == partId).Select(x => x.Parent!);
+
+        request ??= new ListRequest();
+        if (!string.IsNullOrEmpty(request.Search)) {
+            var search = request.Search.ToLower();
+            query = query.Where(x => x.Name.ToLower().Contains(search) ||
+                x.Url!.ToLower().Contains(search) ||
+                x.Notes!.ToLower().Contains(search));
+        }
+
+        var sortField = request.SortField ?? "";
+        switch (sortField) {
+            case "":
+                break;
+            case nameof(StuffListItem.Name):
+                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
+                break;
+            default:
+                query = request.SortDir == SortDirection.Descending ? query.OrderByDescending(sortField) : query.OrderBy(sortField);
+                break;
+        }
+
+        return query
+            .Skip(request.Skip).Take(request.Take)
+            .ProjectTo<StuffListItem>(Mapper.ConfigurationProvider)
+            .ToListAsync();
     }
 
     [HttpPost]

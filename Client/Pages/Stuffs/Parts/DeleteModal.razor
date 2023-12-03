@@ -1,0 +1,60 @@
+@inject IHttpService Http
+
+<EditForm OnValidSubmit="OnSubmit" Model="Model" autocomplete="off">
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6" Class="text-truncate pe-5">
+                Remove <strong>@Model.Part.Name</strong>
+                from <em>@Parent.Name</em>
+            </MudText>
+        </TitleContent>
+        <DialogContent>
+            <DataAnnotationsValidator />
+            <p>
+                Are you sure you want to remove the part
+                <strong>@Model.Part.Name</strong>
+                from parent
+                <em>@Parent.Name</em>?
+            </p>
+
+            <MudText Color="@Color.Error">@error</MudText>
+        </DialogContent>
+        <DialogActions>
+            <LoadingButton Loading="loading" Label="DELETE" Color="Color.Warning" />
+            <MudButton OnClick="() => dialog?.Cancel()" Disabled="loading" Color="Color.Default">
+                Cancel
+            </MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+
+@code {
+    [CascadingParameter]
+    MudDialogInstance? dialog { get; set; }
+
+    [Parameter]
+    public required StuffPartListItem Model { get; set; }
+
+    [Parameter]
+    public required IStuffModel Parent { get; set; }
+
+    string error { get; set; } = "";
+    bool loading { get; set; } = false;
+
+    async Task OnSubmit()
+    {
+        loading = true;
+
+        try
+        {
+            await Http.DeleteAsync($"{ApiRoutes.StuffParts}/{Parent.Id}/{Model.Part.Id}");
+            dialog?.Close();
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+
+        loading = false;
+    }
+}

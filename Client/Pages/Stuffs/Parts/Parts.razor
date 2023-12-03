@@ -2,10 +2,34 @@
 @inject IHttpService Http
 @inject IDialogService Dialog
 
+<div class="mw-100 mb-5">
+    @if (parents != null && parents.Count == 1) {
+            <dl>
+                <dt>Parent</dt>
+                <dd>
+                    @foreach (var item in parents) {
+                        <MudLink Href="@($"/stuffs/{item.Slug}")">@item.Name</MudLink>
+                    }
+                </dd>
+            </dl>
+    }
+    else
+    if (parents != null && parents.Count > 1) {
+        <MudText Typo="Typo.h5">Parents</MudText>
+        <ul class="list">
+            @foreach (var item in parents) {
+                <li>
+                    <MudLink Href="@($"/stuffs/{item.Slug}")">@item.Name</MudLink>
+                </li>
+            }
+        </ul>
+    }
+</div>
+
 <MudDataGrid @ref="grid" T="StuffPartListItem" ServerData="LoadServerData" CurrentPage="gridPage" RowsPerPage="PageSize" Loading="loading"
              SortMode="SortMode.Single" Elevation="0">
     <Columns>
-        <PropertyColumn Property="x => x.Part" Title="Name">
+        <PropertyColumn Property="x => x.Part" Title="Parts">
             <CellTemplate>
                 <MudLink Href="@($"/stuffs/{context.Item.Part.Slug}")">
                     @context.Item.Part.Name
@@ -13,34 +37,55 @@
             </CellTemplate>
         </PropertyColumn>
         <PropertyColumn Property="x => x.Count" />
+        <TemplateColumn>
+            <CellTemplate>
+                <DeleteIconButton OnClick="_ => OnDeleteClick(context.Item)" />
+            </CellTemplate>
+        </TemplateColumn>
     </Columns>
     <PagerContent>
-        @if (PageCount > 1) {
-            <div class="py-5 d-flex justify-center">
-                <MudPagination Count="PageCount" Selected="pagerPage" SelectedChanged="PageChanged" Color="Color.Primary" />
-            </div>
-        }
+        <div class="d-flex px-5 py-3">
+            @if (PageCount > 1) {
+                    <MudPagination Count="PageCount" Selected="pagerPage" SelectedChanged="PageChanged" Color="Color.Primary" />
+            }
+            <MudSpacer />
+            <MudButton OnClick="OnAddClick" Color="Color.Primary" Variant="Variant.Filled">
+                Add Part
+            </MudButton>
+        </div>
     </PagerContent>
 </MudDataGrid>
 
 @code {
     [Parameter] 
     public required IStuffModel Model { get; set; }
+    string? modelId;
 
     [Parameter]
     public int? Page { get; set; }
     int gridPage => (Page ?? 1) - 1;
     int pagerPage = 1;
 
-    public int PageSize => 10;
-    public int PageCount;
+    int PageSize => 10;
+    int PageCount;
+
+    List<StuffListItem>? parents;
 
     MudDataGrid<StuffPartListItem>? grid;
     bool loading;
 
     protected override void OnInitialized() => PageCount = gridPage + 1;
 
-    protected override void OnParametersSet() => pagerPage = Page ?? 1;
+    protected override async Task OnParametersSetAsync()
+    {
+        pagerPage = Page ?? 1;
+
+        if (modelId != Model.Id) {
+            modelId = Model.Id;
+            parents = await Http.GetAsync<List<StuffListItem>>($"{ApiRoutes.StuffParents}/{modelId}");
+        }
+
+    }
 
     async Task<GridData<StuffPartListItem>> LoadServerData(GridState<StuffPartListItem> state)
     {
@@ -79,6 +124,19 @@
         parameters.Add(nameof(CreateModal.Model), new StuffPartRequest { ParentId = Model.Id, Count = 1 });
 
         var dialog = await Dialog.ShowAsync<CreateModal>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && grid != null)
+            await grid.ReloadServerData();
+    }
+
+    async void OnDeleteClick(StuffPartListItem item)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(DeleteModal.Parent), Model);
+        parameters.Add(nameof(DeleteModal.Model), item);
+
+        var dialog = await Dialog.ShowAsync<DeleteModal>("", parameters);
         var result = await dialog.Result;
 
         if (!result.Canceled && grid != null)

@@ -137,10 +137,9 @@
             _ => 0
         };
         
-        await LoadData();
+        if (Model == null || Model.Slug != Slug)
+            await LoadData();
     }
-
-    // protected override Task OnInitializedAsync() => LoadData();
 
     private async Task LoadData()
     {
