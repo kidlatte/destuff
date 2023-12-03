@@ -16,7 +16,7 @@
                       Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"></MudTextField>
         <MudSpacer />
         <MudButton OnClick="OnAddClick" Variant="Variant.Outlined" Color="Color.Primary" Class="ms-1">Add</MudButton>
-        <MudButton OnClick="OnBulkClick" Variant="Variant.Outlined" Color="Color.Secondary" Class="ms-1">Bulk</MudButton>
+        <MudButton OnClick="OnBulkClick" Variant="Variant.Outlined" Color="Color.Tertiary" Class="ms-1">Bulk</MudButton>
     </ToolBarContent>
     <Columns>
         <PropertyColumn Property="x => x.Name">
@@ -35,7 +35,7 @@
         </PropertyColumn>
         <TemplateColumn>
             <CellTemplate>
-                <DeleteIconButton OnClick="_ => OnDeleteClick(context.Item)" />
+                <IconButtonDelete OnClick="_ => OnDeleteClick(context.Item)" />
             </CellTemplate>
         </TemplateColumn>
     </Columns>

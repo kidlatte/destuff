@@ -12,7 +12,7 @@
 @if (Model != null)
 {
     <div class="d-md-flex">
-        <div class="text-right text-nowrap order-1 ms-5">
+        <div class="text-right text-nowrap order-1 ms-sm-5">
             <MudButton Href="/stuffs" StartIcon="@Icons.Material.Rounded.ChevronLeft" Variant="Variant.Outlined">
                 Stuffs
             </MudButton>
@@ -23,10 +23,8 @@
             {
                 <FileUpload StuffId="@Model.Id" OnUploaded="OnUploaded" ImageOnly="true"
                     Label="Upload" Variant="Variant.Outlined" Color="Color.Tertiary" Class="ms-1" />
-                <MudButton OnClick="OnUpdateClick" Variant="Variant.Outlined" 
-                    Color="Color.Primary">Edit</MudButton>
-                <MudButton OnClick="OnDeleteClick" Variant="Variant.Outlined"
-                    Color="Color.Error">Delete</MudButton>
+                <ButtonEdit OnClick="OnUpdateClick" />
+                <ButtonDelete OnClick="OnDeleteClick" />
             }
         </div>
         <div class="text-truncate me-auto order-0">

@@ -38,7 +38,7 @@
         <TemplateColumn>
             <CellTemplate>
                 @if (context.Item.Type != EventType.Purchased) {
-                    <DeleteIconButton OnClick="_ => OnDeleteClick(context.Item)" />
+                    <IconButtonDelete OnClick="_ => OnDeleteClick(context.Item)" />
                 }
             </CellTemplate>
         </TemplateColumn>

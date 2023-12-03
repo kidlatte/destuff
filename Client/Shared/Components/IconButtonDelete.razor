@@ -1,0 +1,5 @@
+﻿<MudIconButton OnClick="OnClick" Title="Delete" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" aria-label="delete"></MudIconButton>
+
+@code {
+    [Parameter] public EventCallback<MouseEventArgs> OnClick { get; set; }
+}

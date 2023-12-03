@@ -1,0 +1,6 @@
+﻿<MudButton OnClick="OnClick" Variant="Variant.Outlined" Color="Color.Error" Class="d-none d-md-inline-flex vertical-align-initial" title="delete">Delete</MudButton>
+<MudIconButton OnClick="OnClick" Variant="Variant.Outlined" Color="Color.Error" Title="Delete" Icon="@Icons.Material.Filled.Delete" Class="d-md-none" aria-label="delete"></MudIconButton>
+
+@code {
+    [Parameter] public EventCallback<MouseEventArgs> OnClick { get; set; }
+}

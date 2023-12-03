@@ -5,7 +5,7 @@
 <MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged="OnFilesChanged" 
         Class="@($"d-inline-flex mt-0 {Class}")" Accept="@accept">
     <ButtonTemplate>
-        <MudButton HtmlTag="label" Variant="Variant" Color="Color" Style="{ min-width: 40px }" for="@context">
+        <MudButton HtmlTag="label" Variant="Variant" Color="Color" Class="d-none d-md-inline-flex" Style="{ min-width: 40px }" for="@context">
             @if (loading)
             {
                 <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
@@ -15,6 +15,7 @@
                 @Label
             }
         </MudButton>
+        <MudIconButton Variant="Variant.Outlined" Color="Color" Title="Upload Image" Icon="@Icons.Material.Filled.Upload" Class="d-md-none" aria-label="upload image"></MudIconButton>
         
     </ButtonTemplate>
 </MudFileUpload>
