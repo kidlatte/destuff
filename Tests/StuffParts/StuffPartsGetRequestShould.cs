@@ -30,7 +30,7 @@ public class StuffPartsGetRequestShould : IntegrationTestBase
 
     [Theory]
     [InlineData(3, "Stuff 001", null, null, null, null, null)]
-    [InlineData(3, "Stuff 003", null, null, null, "Stuff", SortDirection.Descending)]
+    [InlineData(3, "Stuff 003", null, null, null, "Part", SortDirection.Descending)]
     [InlineData(3, "Stuff 002", null, 1, 1, "Count", null)]
     [InlineData(1, "Stuff 002", "002", null, null, null, null)]
     public async Task Get_StuffParts_WithPaging(int count, string stuffName, string? search, int? page, int? pageSize, string? sortField, SortDirection? sortDir)
