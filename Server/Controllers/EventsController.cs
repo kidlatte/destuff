@@ -19,7 +19,7 @@ namespace Destuff.Server.Controllers;
 [ApiController, Authorize]
 public class EventsController : BaseController<Event, EventModel, EventRequest>
 {
-    public EventsController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Event> hasher) : base(context, mapper, hasher)
+    public EventsController(ControllerParameters<Event> param) : base(param)
     {
     }
 
@@ -150,7 +150,7 @@ public class EventsController : BaseController<Event, EventModel, EventRequest>
         };
     }
 
-    string GenerateInventorySummary(ICollection<StuffLocationListItem>? locations)
+    static string GenerateInventorySummary(ICollection<StuffLocationListItem>? locations)
     {
         if (locations == null)
             return $"No location on record";

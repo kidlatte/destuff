@@ -22,9 +22,9 @@ public class UploadsController : BaseController<Upload>
     public IIdentityHasher<Purchase> PurchaseHasher { get; }
     private IFileService Files { get; }
 
-    public UploadsController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Upload> hasher,
+    public UploadsController(ControllerParameters<Upload> param,
         IIdentityHasher<Stuff> stuffHasher, IIdentityHasher<Location> locationHasher, 
-        IIdentityHasher<Purchase> purchaseHasher, IFileService files) : base(context, mapper, hasher)
+        IIdentityHasher<Purchase> purchaseHasher, IFileService files) : base(param)
     {
         StuffHasher = stuffHasher;
         LocationHasher = locationHasher;

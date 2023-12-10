@@ -17,11 +17,11 @@ namespace Destuff.Server.Controllers;
 [ApiController, Authorize]
 public class StuffsController : BaseController<Stuff, StuffModel, StuffRequest>
 {
-    private IIdentityHasher<Location> LocationId { get; }
+    private IIdentityHasher<Location> LocationHasher { get; }
 
-    public StuffsController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Stuff> hasher, IIdentityHasher<Location> locationId) : base(context, mapper, hasher)
+    public StuffsController(ControllerParameters<Stuff> param, IIdentityHasher<Location> locationHasher) : base(param)
     {
-        LocationId = locationId;
+        LocationHasher = locationHasher;
     }
 
     [HttpGet]
@@ -175,7 +175,7 @@ public class StuffsController : BaseController<Stuff, StuffModel, StuffRequest>
     internal override Task BeforeCreateAsync(Stuff entity, StuffRequest request)
     {
         if (request.LocationId != null) {
-            int locationId = LocationId.Decode(request.LocationId) ?? throw new NullReferenceException("LocationId");
+            int locationId = LocationHasher.Decode(request.LocationId) ?? throw new NullReferenceException("LocationId");
             var stuffLocation = new StuffLocation { LocationId = locationId, Count = 1 };
             entity.StuffLocations = new List<StuffLocation> { stuffLocation };
 
@@ -202,7 +202,7 @@ public class StuffsController : BaseController<Stuff, StuffModel, StuffRequest>
 
         if (isSingleLocation) {
             if (request.LocationId != null) {
-                int locationId = LocationId.Decode(request.LocationId) ?? throw new NullReferenceException("LocationId");
+                int locationId = LocationHasher.Decode(request.LocationId) ?? throw new NullReferenceException("LocationId");
 
                 if (count == 0) {
                     var stuffLocation = new StuffLocation { StuffId = entity.Id, LocationId = locationId, Count = 1 };

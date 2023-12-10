@@ -19,7 +19,7 @@ public class StuffPartsController : BaseController
 {
     private IIdentityHasher<Stuff> StuffHasher { get; }
 
-    public StuffPartsController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Stuff> stuffHasher) : base(context, mapper)
+    public StuffPartsController(ControllerParameters param, IIdentityHasher<Stuff> stuffHasher) : base(param)
     {
         StuffHasher = stuffHasher;
     }

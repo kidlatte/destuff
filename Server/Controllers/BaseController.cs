@@ -2,6 +2,7 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Destuff.Server.Data;
 using Destuff.Server.Data.Entities;
+using Destuff.Server.Models;
 using Destuff.Server.Services;
 using Destuff.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -14,24 +15,26 @@ public abstract class BaseController : ControllerBase
 {
     public ApplicationDbContext Context { get; }
     public IMapper Mapper { get; }
+    internal IDateTimeProvider DateTimeProvider { get; }
 
     protected string? CurrentUserName => User.FindFirstValue(ClaimTypes.Name);
 
-    public BaseController(ApplicationDbContext context, IMapper mapper)
+    public BaseController(ControllerParameters param)
     {
-        Context = context;
-        Mapper = mapper;
+        Context = param.Context;
+        Mapper = param.Mapper;
+        DateTimeProvider = param.DateTimeProvider;
     }
-    
+
     internal void Audit(Entity entity)
     {
         if (string.IsNullOrEmpty(entity.CreatedBy))
         {
             entity.CreatedBy = User.Identity?.Name;
-            entity.Created = DateTime.UtcNow;
+            entity.Created = DateTimeProvider.UtcNow;
         }
 
-        entity.Updated = DateTime.UtcNow;
+        entity.Updated = DateTimeProvider.UtcNow;
     }
 }
 
@@ -40,9 +43,9 @@ public abstract class BaseController<TEntity> : BaseController where TEntity : E
     internal IQueryable<TEntity> Query => Context.Set<TEntity>();
     internal IIdentityHasher<TEntity> Hasher { get; }
 
-    public BaseController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<TEntity> hasher) : base(context, mapper)
+    public BaseController(ControllerParameters<TEntity> param) : base(param)
     {
-        Hasher = hasher;
+        Hasher = param.Hasher;
     }
 
     [HttpDelete("{hash}")]
@@ -70,7 +73,7 @@ public abstract class BaseController<TEntity, TModel> : BaseController<TEntity>
     where TEntity : Entity
     where TModel : class, IModel
 {
-    public BaseController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<TEntity> hasher) : base(context, mapper, hasher)
+    public BaseController(ControllerParameters<TEntity> param) : base(param)
     {
     }
 
@@ -97,7 +100,7 @@ public abstract class BaseController<TEntity, TModel, TRequest> : BaseController
     where TModel : class, IModel
     where TRequest : class, IRequest
 {
-    public BaseController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<TEntity> hasher) : base(context, mapper, hasher)
+    public BaseController(ControllerParameters<TEntity> param) : base(param)
     {
     }
 

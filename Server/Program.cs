@@ -4,6 +4,7 @@ using AutoMapper;
 using Destuff.Server.Data;
 using Destuff.Server.Data.Entities;
 using Destuff.Server.Services;
+using Destuff.Server.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -32,6 +33,9 @@ builder.Services.AddSingleton(provider =>
 
 builder.Services.AddSingleton<FileExtensionContentTypeProvider>(_ => new());
 builder.Services.AddScoped<IFileService>(_ => new FileService(configuration.GetDataPath()));
+builder.Services.AddScoped<IDateTimeProvider, DateTimeProvider>();
+builder.Services.AddScoped<ControllerParameters>();
+builder.Services.AddScoped(typeof(ControllerParameters<>));
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();

@@ -19,7 +19,7 @@ public class StuffLocationsController : BaseController
     private IIdentityHasher<Location> LocationHasher { get; }
     private IIdentityHasher<Stuff> StuffHasher { get; }
 
-    public StuffLocationsController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Stuff> stuffHasher, IIdentityHasher<Location> locationHasher) : base(context, mapper)
+    public StuffLocationsController(ControllerParameters param, IIdentityHasher<Stuff> stuffHasher, IIdentityHasher<Location> locationHasher) : base(param)
     {
         StuffHasher = stuffHasher;
         LocationHasher = locationHasher;

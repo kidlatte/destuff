@@ -31,8 +31,9 @@ public class MaintenanceLog : Entity, IEvent
     public int StuffId { get; set; }
     public Stuff? Stuff { get; set; }
 
-    public int Count { get; set; }
+    // [Required] TODO: remove in next migration
     public DateTime? DateTime { get; set; }
+    public int Count { get; set; }
     public string? Summary { get; set; }
     public EventData? Data { get; set; }
 }

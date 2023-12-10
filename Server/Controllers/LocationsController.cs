@@ -16,7 +16,7 @@ namespace Destuff.Server.Controllers;
 [ApiController, Authorize]
 public class LocationsController : BaseController<Location, LocationModel, LocationRequest>
 {
-    public LocationsController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Location> hasher) : base(context, mapper, hasher)
+    public LocationsController(ControllerParameters<Location> param) : base(param)
     {
     }
 

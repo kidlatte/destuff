@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Destuff.Server.Data;
+using Destuff.Server.Models;
 using Destuff.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +13,7 @@ namespace Destuff.Server.Controllers
     [ApiController, Authorize]
     public class DashboardController : BaseController
     {
-        public DashboardController(ApplicationDbContext context, IMapper mapper) : base(context, mapper)
+        public DashboardController(ControllerParameters param) : base(param)
         {
         }
 

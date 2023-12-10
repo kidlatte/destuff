@@ -16,7 +16,7 @@ namespace Destuff.Server.Controllers;
 [ApiController, Authorize]
 public class MaintenancesController : BaseController<Maintenance, MaintenanceModel, MaintenanceRequest>
 {
-    public MaintenancesController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Maintenance> hasher) : base(context, mapper, hasher)
+    public MaintenancesController(ControllerParameters<Maintenance> param) : base(param)
     {
     }
 
@@ -79,5 +79,11 @@ public class MaintenancesController : BaseController<Maintenance, MaintenanceMod
             .ToListAsync();
 
         return new PagedList<MaintenanceListItem>(count, list);
+    }
+
+    internal override Task BeforeCreateAsync(Maintenance entity, MaintenanceRequest request)
+    {
+        entity.Next = DateTimeProvider.UtcNow.AddDays(entity.EveryXDays);
+        return base.BeforeCreateAsync(entity, request);
     }
 }

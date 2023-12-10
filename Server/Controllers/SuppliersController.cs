@@ -16,7 +16,7 @@ namespace Destuff.Server.Controllers;
 [ApiController, Authorize]
 public class SuppliersController : BaseController<Supplier, SupplierModel, SupplierRequest>
 {
-    public SuppliersController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<Supplier> hasher) : base(context, mapper, hasher)
+    public SuppliersController(ControllerParameters<Supplier> param) : base(param)
     {
     }
 

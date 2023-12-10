@@ -16,7 +16,7 @@ namespace Destuff.Server.Controllers;
 [ApiController, Authorize]
 public class MaintenanceLogsController : BaseController<MaintenanceLog, MaintenanceLogModel, MaintenanceLogRequest>
 {
-    public MaintenanceLogsController(ApplicationDbContext context, IMapper mapper, IIdentityHasher<MaintenanceLog> hasher) : base(context, mapper, hasher)
+    public MaintenanceLogsController(ControllerParameters<MaintenanceLog> param) : base(param)
     {
     }
 

@@ -15,7 +15,7 @@ namespace Destuff.Server.Controllers;
 [Authorize]
 public class UsersController : BaseController
 {
-    public UsersController(ApplicationDbContext context, IMapper mapper) : base(context, mapper)
+    public UsersController(ControllerParameters param) : base(param)
     {
     }
 
