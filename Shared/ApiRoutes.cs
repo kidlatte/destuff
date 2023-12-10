@@ -9,13 +9,7 @@ public class ApiRoutes
     public const string Users = "/api/users";
     public const string UserSettings = "/api/users/me";
 
-    public const string Locations = "/api/locations";
-    public const string LocationBySlug = "/api/locations/s";
-    public const string LocationTree = "/api/locations/t";
-    public const string LocationLookup = "/api/locations/lookup";
-    public const string LocationMap = "/api/locations/map";
-    public const string LocationOrderUp = "/api/locations/up";
-    public const string LocationOrderDown = "/api/locations/down";
+    public const string Dashboard = "/api/dashboard";
 
     public const string Stuffs = "/api/stuffs";
     public const string StuffBySlug = "/api/stuffs/s";
@@ -25,6 +19,14 @@ public class ApiRoutes
     public const string StuffLocations = "/api/stuffs/locations";
     public const string StuffParts = "/api/stuffs/parts";
     public const string StuffParents = "/api/stuffs/parents";
+
+    public const string Locations = "/api/locations";
+    public const string LocationBySlug = "/api/locations/s";
+    public const string LocationTree = "/api/locations/t";
+    public const string LocationLookup = "/api/locations/lookup";
+    public const string LocationMap = "/api/locations/map";
+    public const string LocationOrderUp = "/api/locations/up";
+    public const string LocationOrderDown = "/api/locations/down";
 
     public const string Uploads = "/api/uploads";
     public const string UploadImage = "/api/uploads/i";
@@ -36,11 +38,13 @@ public class ApiRoutes
     public const string Purchases = "/api/purchases";
     public const string PurchasesBySupplier = "/api/purchases/supplier";
 
-    public const string PurchaseItems = "/api/purchase-items";
-    public const string PurchaseItemsByStuff = "/api/purchase-items/stuff";
+    public const string PurchaseItems = "/api/purchases/items";
+    public const string PurchaseItemsByStuff = "/api/purchases/items/stuff";
+
+    public const string Maintenances = "/api/maintenances";
+    public const string MaintenanceLogs = "/api/maintenances/logs";
 
     public const string Events = "/api/events";
     public const string EventsByStuff = "/api/events/stuff";
 
-    public const string Dashboard = "/api/dashboard";
 }

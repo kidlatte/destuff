@@ -33,19 +33,7 @@ public static class HashIdentifierExtensions
 {
     public static IServiceCollection AddHashIdentifiers(this IServiceCollection services)
     {
-        services.AddHashIdentifier<Location>();
-        services.AddHashIdentifier<Stuff>();
-        services.AddHashIdentifier<Upload>();
-        services.AddHashIdentifier<Supplier>();
-        services.AddHashIdentifier<Purchase>();
-        services.AddHashIdentifier<PurchaseItem>();
-        services.AddHashIdentifier<Event>();
-        return services;
-    }
-
-    private static IServiceCollection AddHashIdentifier<T>(this IServiceCollection services) where T : Entity
-    {
-        services.AddSingleton<IIdentityHasher<T>, IdentityHasher<T>>();
+        services.AddSingleton(typeof(IIdentityHasher<>), typeof(IdentityHasher<>));
         return services;
     }
 }

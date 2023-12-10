@@ -13,6 +13,8 @@ public class MapperProfile : Profile
         IIdentityHasher<Supplier> supplierHasher, 
         IIdentityHasher<Purchase> purchaseHasher, 
         IIdentityHasher<PurchaseItem> purchaseItemHasher,
+        IIdentityHasher<Maintenance> maintenanceHasher,
+        IIdentityHasher<MaintenanceLog> maintenanceLogHasher,
         IIdentityHasher<Upload> uploadHasher,
         IIdentityHasher<Event> eventHasher)
     {
@@ -69,7 +71,16 @@ public class MapperProfile : Profile
         CreateMap<PurchaseItem, PurchaseItemBasicModel>()
             .ForMember(m => m.PurchaseId, o => o.MapFrom(e => purchaseHasher.Encode(e.PurchaseId)));
 
-        CreateEntityMap<Upload, UploadModel>(uploadHasher).IncludeAllDerived();
+        CreateMap<MaintenanceRequest, Maintenance>()
+            .ForMember(e => e.StuffId, o => o.MapFrom(m => stuffHasher.Decode(m.StuffId)));
+        CreateEntityMap<Maintenance, MaintenanceListItem>(maintenanceHasher).IncludeAllDerived();
+        CreateMap<Maintenance, MaintenanceModel>();
+
+        CreateMap<MaintenanceLogRequest, MaintenanceLog>()
+            .ForMember(e => e.MaintenanceId, o => o.MapFrom(m => maintenanceHasher.Decode(m.MaintenanceId)))
+            .ForMember(e => e.StuffId, o => o.MapFrom(m => stuffHasher.Decode(m.StuffId)));
+        CreateEntityMap<MaintenanceLog, MaintenanceLogListItem>(maintenanceLogHasher).IncludeAllDerived();
+        CreateMap<MaintenanceLog, MaintenanceLogModel>();
 
         CreateMap<EventRequest, Event>()
             .ForMember(e => e.StuffId, o => o.MapFrom(m => stuffHasher.Decode(m.StuffId)));
@@ -81,6 +92,8 @@ public class MapperProfile : Profile
             .ForMember(m => m.Type, o => o.MapFrom(e => EventType.Purchased));
         CreateMap<EventBuffer, EventListItem>()
             .ForMember(m => m.Id, o => o.MapFrom(e => eventHasher.Encode(e.Id)));
+
+        CreateEntityMap<Upload, UploadModel>(uploadHasher).IncludeAllDerived();
     }
 
     private IMappingExpression<TEntity, TModel> CreateEntityMap<TEntity, TModel>(IIdentityHasher<TEntity> hasher)
