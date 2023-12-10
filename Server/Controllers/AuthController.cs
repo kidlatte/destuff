@@ -52,8 +52,8 @@ public class AuthController : ControllerBase
             (
                 new Claim[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Name, user.UserName),
+                    new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new(ClaimTypes.Name, user.UserName),
                 }
             ),
             Expires = model.Remember ? DateTime.UtcNow.AddMonths(1) : DateTime.UtcNow.AddDays(1),

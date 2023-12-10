@@ -29,6 +29,7 @@ public abstract class IntegrationTestBase: IDisposable
     protected readonly HttpMethod Method;
     protected readonly string Route;
     protected readonly HttpClient Http;
+    protected readonly MockDateTimeProvider MockDateTime;
     readonly WebApplicationFactory<Program> app;
     readonly DbConnection _connection;
 
@@ -36,6 +37,8 @@ public abstract class IntegrationTestBase: IDisposable
     {
         Method = method;
         Route = route;
+
+        MockDateTime = new MockDateTimeProvider();
 
         // Arrange
         _connection = new SqliteConnection("Data Source=:memory:");
@@ -46,12 +49,13 @@ public abstract class IntegrationTestBase: IDisposable
             {
                 builder.ConfigureServices(services => 
                 {
-                    var types = new [] { typeof(DbContextOptions<ApplicationDbContext>), typeof(IFileService) };
-                    var descriptors = services.Where(d => types.Contains(d.ServiceType)).ToList();
-                    descriptors.ForEach(x => services.Remove(x));
+                    var types = new [] { typeof(DbContextOptions<ApplicationDbContext>), typeof(IFileService), typeof(IDateTimeProvider) };
+                    var dataContext = services.Where(d => types.Contains(d.ServiceType)).ToList();
+                    dataContext.ForEach(x => services.Remove(x));
 
                     services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(_connection));
                     services.AddScoped<IFileService>(_ => new FileService(Directory.GetCurrentDirectory()));
+                    services.AddScoped<IDateTimeProvider>(_ => MockDateTime);
                     services.BuildServiceProvider();
                 });
             });
