@@ -21,5 +21,5 @@ public class MaintenanceLogModel : MaintenanceLogListItem
 {
     public string? Notes { get; set; }
     public MaintenanceListItem? Maintenance { get; set; }
-    public StuffBasicModel? Stuff { get; set; }
+    public required StuffBasicModel Stuff { get; set; }
 }

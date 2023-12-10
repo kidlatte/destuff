@@ -24,6 +24,6 @@ public class MaintenanceListItem : IModel
 
 public class MaintenanceModel: MaintenanceListItem
 {
-    public StuffBasicModel? Stuff { get; set; }
+    public required StuffBasicModel Stuff { get; set; }
     public string? Notes { get; set; }
 }

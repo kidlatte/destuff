@@ -45,6 +45,7 @@ public class ApiRoutes
     public const string MaintenancesByStuff = "/api/maintenances/stuff";
 
     public const string MaintenanceLogs = "/api/maintenances/logs";
+    public const string MaintenanceLogsByMaintenance = "/api/maintenances/{hash}/logs";
 
     public const string Events = "/api/events";
     public const string EventsByStuff = "/api/events/stuff";

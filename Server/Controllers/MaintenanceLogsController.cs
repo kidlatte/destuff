@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Destuff.Server.Data;
+﻿using AutoMapper.QueryableExtensions;
 using Destuff.Server.Data.Entities;
 using Destuff.Server.Models;
 using Destuff.Server.Services;
@@ -21,10 +19,11 @@ public class MaintenanceLogsController : BaseController<MaintenanceLog, Maintena
     }
 
 
-    [HttpGet]
-    public async Task<PagedList<MaintenanceLogListItem>> Get([FromQuery] ListRequest? request)
+    [HttpGet(ApiRoutes.MaintenanceLogsByMaintenance)]
+    public async Task<PagedList<MaintenanceLogListItem>> GetByMaintenance(string hash, [FromQuery] ListRequest? request, [FromServices] IIdentityHasher<Maintenance> hasher)
     {
-        var query = Query;
+        var maintenanceId = hasher.Decode(hash);
+        var query = Query.Where(x => x.MaintenanceId == maintenanceId);
 
         request ??= new ListRequest();
         if (!string.IsNullOrEmpty(request.Search)) {
