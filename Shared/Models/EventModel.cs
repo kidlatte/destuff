@@ -42,15 +42,15 @@ public class EventData
 {
     public int? Difference { get; set; }
     public string? Recipient { get; set; }
-    public PurchaseItemBasicModel? PurchaseItem { get; set; }
     public StuffBasicModel? Stuff { get; set; }
+    public SupplierBasicModel? Supplier { get; set; }
+    public PurchaseItemBasicModel? PurchaseItem { get; set; }
+    public ICollection<StuffLocationListItem>? Locations { get; set; }
     public LocationListItem? FromLocation { get; set; }
     public LocationListItem? ToLocation { get; set; }
-    public ICollection<StuffLocationListItem>? Locations { get; set; }
-    public SupplierBasicModel? Supplier { get; set; }
 }
 
-public enum EventType
+public enum EventType: byte
 {
     Inventory,
     Purchased,
@@ -59,5 +59,7 @@ public enum EventType
     Donated,
     Consumed,
     Disposed,
-    Missing
+    Missing,
+    Maintained,
+    Custom = 255
 }

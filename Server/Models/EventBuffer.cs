@@ -11,7 +11,7 @@ internal class EventBuffer : IEvent
     public int Count { get; set; }
     public string? Notes { get; set; }
 
-    public DateTime DateTime { get; set; }
+    public DateTime? DateTime { get; set; }
     public string? Summary { get; set; }
     public EventData? Data { get; set; }
 
