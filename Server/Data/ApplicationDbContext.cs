@@ -18,7 +18,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Purchase> Purchases => Set<Purchase>();
     public DbSet<PurchaseItem> PurchaseItems => Set<PurchaseItem>();
     public DbSet<Event> Events => Set<Event>();
-    
+    public DbSet<Maintenance> Maintenances => Set<Maintenance>();
+    public DbSet<MaintenanceLog> MaintenanceLogs => Set<MaintenanceLog>();
+
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
@@ -74,7 +76,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             e.Property(x => x.Data).HasJsonConversion();
         });
 
+        builder.Entity<Maintenance>()
+            .Property(x => x.Data).HasJsonConversion();
+
         builder.Entity<Event>()
+            .Property(x => x.Data).HasJsonConversion();
+
+        builder.Entity<MaintenanceLog>()
             .Property(x => x.Data).HasJsonConversion();
 
         builder.SeedUsers();

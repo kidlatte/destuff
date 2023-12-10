@@ -3,6 +3,7 @@ using System;
 using Destuff.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Destuff.Server.Data.Migrations.Sqlite
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231210083146_AddMaintenance")]
+    partial class AddMaintenance
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.11");
@@ -141,7 +144,7 @@ namespace Destuff.Server.Data.Migrations.Sqlite
 
                     b.HasIndex("StuffId");
 
-                    b.ToTable("Events", (string)null);
+                    b.ToTable("Events");
                 });
 
             modelBuilder.Entity("Destuff.Server.Data.Entities.Location", b =>
@@ -192,7 +195,7 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("Locations", (string)null);
+                    b.ToTable("Locations");
 
                     b.HasData(
                         new
@@ -247,7 +250,7 @@ namespace Destuff.Server.Data.Migrations.Sqlite
 
                     b.HasIndex("StuffId");
 
-                    b.ToTable("Maintenances", (string)null);
+                    b.ToTable("Maintenances");
                 });
 
             modelBuilder.Entity("Destuff.Server.Data.Entities.MaintenanceLog", b =>
@@ -297,7 +300,7 @@ namespace Destuff.Server.Data.Migrations.Sqlite
 
                     b.HasIndex("StuffId");
 
-                    b.ToTable("MaintenanceLogs", (string)null);
+                    b.ToTable("MaintenanceLogs");
                 });
 
             modelBuilder.Entity("Destuff.Server.Data.Entities.Purchase", b =>
@@ -338,7 +341,7 @@ namespace Destuff.Server.Data.Migrations.Sqlite
 
                     b.HasIndex("SupplierId");
 
-                    b.ToTable("Purchases", (string)null);
+                    b.ToTable("Purchases");
                 });
 
             modelBuilder.Entity("Destuff.Server.Data.Entities.PurchaseItem", b =>
@@ -390,7 +393,7 @@ namespace Destuff.Server.Data.Migrations.Sqlite
 
                     b.HasIndex("StuffId");
 
-                    b.ToTable("PurchaseItems", (string)null);
+                    b.ToTable("PurchaseItems");
                 });
 
             modelBuilder.Entity("Destuff.Server.Data.Entities.Stuff", b =>
@@ -448,7 +451,7 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("Stuffs", (string)null);
+                    b.ToTable("Stuffs");
                 });
 
             modelBuilder.Entity("Destuff.Server.Data.Entities.StuffLocation", b =>
@@ -466,7 +469,7 @@ namespace Destuff.Server.Data.Migrations.Sqlite
 
                     b.HasIndex("LocationId");
 
-                    b.ToTable("StuffLocations", (string)null);
+                    b.ToTable("StuffLocations");
                 });
 
             modelBuilder.Entity("Destuff.Server.Data.Entities.StuffPart", b =>
@@ -484,7 +487,7 @@ namespace Destuff.Server.Data.Migrations.Sqlite
 
                     b.HasIndex("PartId");
 
-                    b.ToTable("StuffParts", (string)null);
+                    b.ToTable("StuffParts");
                 });
 
             modelBuilder.Entity("Destuff.Server.Data.Entities.Supplier", b =>
@@ -541,7 +544,7 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("Suppliers", (string)null);
+                    b.ToTable("Suppliers");
                 });
 
             modelBuilder.Entity("Destuff.Server.Data.Entities.Tag", b =>
@@ -575,7 +578,7 @@ namespace Destuff.Server.Data.Migrations.Sqlite
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("Tags", (string)null);
+                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("Destuff.Server.Data.Entities.Upload", b =>
@@ -632,7 +635,7 @@ namespace Destuff.Server.Data.Migrations.Sqlite
 
                     b.HasIndex("StuffId");
 
-                    b.ToTable("Uploads", (string)null);
+                    b.ToTable("Uploads");
                 });
 
             modelBuilder.Entity("LocationTag", b =>
@@ -647,7 +650,7 @@ namespace Destuff.Server.Data.Migrations.Sqlite
 
                     b.HasIndex("TagsId");
 
-                    b.ToTable("LocationTag", (string)null);
+                    b.ToTable("LocationTag");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -790,7 +793,7 @@ namespace Destuff.Server.Data.Migrations.Sqlite
 
                     b.HasIndex("TagsId");
 
-                    b.ToTable("StuffTag", (string)null);
+                    b.ToTable("StuffTag");
                 });
 
             modelBuilder.Entity("Destuff.Server.Data.Entities.Event", b =>
