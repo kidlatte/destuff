@@ -77,8 +77,7 @@ public class MapperProfile : Profile
         CreateMap<Maintenance, MaintenanceModel>();
 
         CreateMap<MaintenanceLogRequest, MaintenanceLog>()
-            .ForMember(e => e.MaintenanceId, o => o.MapFrom(m => maintenanceHasher.Decode(m.MaintenanceId)))
-            .ForMember(e => e.StuffId, o => o.MapFrom(m => stuffHasher.Decode(m.StuffId)));
+            .ForMember(e => e.MaintenanceId, o => o.MapFrom(m => maintenanceHasher.Decode(m.MaintenanceId)));
         CreateEntityMap<MaintenanceLog, MaintenanceLogListItem>(maintenanceLogHasher).IncludeAllDerived();
         CreateMap<MaintenanceLog, MaintenanceLogModel>();
 

@@ -51,4 +51,11 @@ public class MaintenanceLogsController : BaseController<MaintenanceLog, Maintena
 
         return new PagedList<MaintenanceLogListItem>(count, list);
     }
+
+    internal override async Task BeforeCreateAsync(MaintenanceLog entity, MaintenanceLogRequest _)
+    {
+        var maintenance = await Context.Maintenances.Where(x => x.Id == entity.MaintenanceId).FirstAsync();
+        entity.Name = maintenance.Name;
+        entity.StuffId = maintenance.StuffId;
+    }
 }
