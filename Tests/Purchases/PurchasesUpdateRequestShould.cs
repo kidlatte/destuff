@@ -13,6 +13,7 @@ public class PurchasesUpdateRequestShould : IntegrationTestBase
         var create = new PurchaseRequest { Receipt = new DateTime(2000, 1, 1) };
         var model = await AuthorizedSendAsync<PurchaseModel>(create, HttpMethod.Post);
         Assert.NotNull(model);
+        Assert.Equal(create.Receipt, model.Receipt);
 
         // Act
         var update = new PurchaseRequest { Receipt = new DateTime(2020, 1, 1) };
@@ -20,7 +21,7 @@ public class PurchasesUpdateRequestShould : IntegrationTestBase
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(update.Receipt, result?.Receipt);
+        Assert.Equal(update.Receipt, result.Receipt);
     }
 
     [Fact]
@@ -36,7 +37,7 @@ public class PurchasesUpdateRequestShould : IntegrationTestBase
         var result = await SendAsync(update, HttpMethod.Put, $"{ApiRoutes.Purchases}/{model?.Id}");
 
         // Assert
-        Assert.Equal(HttpStatusCode.Unauthorized, result?.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, result.StatusCode);
     }
 
 }

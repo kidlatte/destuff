@@ -42,6 +42,8 @@ public class ApiRoutes
     public const string PurchaseItemsByStuff = "/api/purchases/items/stuff";
 
     public const string Maintenances = "/api/maintenances";
+    public const string MaintenancesByStuff = "/api/maintenances/stuff";
+
     public const string MaintenanceLogs = "/api/maintenances/logs";
 
     public const string Events = "/api/events";
