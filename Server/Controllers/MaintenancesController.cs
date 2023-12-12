@@ -51,10 +51,10 @@ public class MaintenancesController : BaseController<Maintenance, MaintenanceMod
         return new PagedList<MaintenanceListItem>(count, list);
     }
 
-    [HttpGet(ApiRoutes.MaintenancesByStuff + "/{stuffHash}")]
-    public async Task<PagedList<MaintenanceListItem>> GetByStuff(string stuffHash, [FromQuery] ListRequest? request, [FromServices] IIdentityHasher<Stuff> hasher)
+    [HttpGet(ApiRoutes.MaintenancesByStuff)]
+    public async Task<PagedList<MaintenanceListItem>> GetByStuff(string hash, [FromQuery] ListRequest? request, [FromServices] IIdentityHasher<Stuff> hasher)
     {
-        var stuffId = hasher.Decode(stuffHash);
+        var stuffId = hasher.Decode(hash);
         var query = Query.Where(x => x.StuffId == stuffId);
 
         request ??= new ListRequest();

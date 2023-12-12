@@ -32,7 +32,7 @@ public class StuffsGetBySupplierRequestShould : IntegrationTestBase
         Assert.NotNull(purchaseItem);
 
         // Act
-        var result = await AuthorizedGetAsync<PagedList<StuffListItem>>($"{ApiRoutes.StuffsBySupplier}/{supplier.Id}");
+        var result = await AuthorizedGetAsync<PagedList<StuffListItem>>(ApiRoutes.QueryStuffsBySupplier(supplier.Id, new()));
 
         // Assert
         Assert.NotNull(result);
@@ -84,7 +84,7 @@ public class StuffsGetBySupplierRequestShould : IntegrationTestBase
             SortField = sortField,
             SortDir = sortDir ?? default
         };
-        var result = await AuthorizedGetAsync<PagedList<StuffListItem>>($"{ApiRoutes.StuffsBySupplier}/{supplier.Id}?{query}");
+        var result = await AuthorizedGetAsync<PagedList<StuffListItem>>(ApiRoutes.QueryStuffsBySupplier(supplier.Id, query));
 
         // Assert
         Assert.NotNull(result);

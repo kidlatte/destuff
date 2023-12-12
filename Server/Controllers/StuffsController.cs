@@ -60,10 +60,10 @@ public class StuffsController : BaseController<Stuff, StuffModel, StuffRequest>
         return new PagedList<StuffListItem>(count, list);
     }
 
-    [HttpGet(ApiRoutes.StuffsBySupplier + "/{supplierHash}")]
-    public async Task<PagedList<StuffBasicModel>> GetBySupplier(string supplierHash, [FromQuery] ListRequest? request, [FromServices] IIdentityHasher<Supplier> hasher)
+    [HttpGet(ApiRoutes.StuffsBySupplier)]
+    public async Task<PagedList<StuffBasicModel>> GetBySupplier(string hash, [FromQuery] ListRequest? request, [FromServices] IIdentityHasher<Supplier> hasher)
     {
-        var supplierId = hasher.Decode(supplierHash);
+        var supplierId = hasher.Decode(hash);
 
         var query = Context.Suppliers.Where(x => x.Id == supplierId)
             .SelectMany(x => x.Purchases).SelectMany(x => x.Items!)

@@ -20,7 +20,7 @@ public class MaintenanceLogsGetByMaintenanceRequestShould : IntegrationTestBase
         Assert.NotNull(maintenanceLog);
 
         // Act
-        var results = await AuthorizedGetAsync<PagedList<MaintenanceLogListItem>>(ApiRoutes.MaintenanceLogsByMaintenance.Replace("{hash}", maintenance.Id));
+        var results = await AuthorizedGetAsync<PagedList<MaintenanceLogListItem>>(ApiRoutes.QueryMaintenanceLogsByMaintenance(maintenance.Id));
 
         // Assert
         Assert.NotNull(results);

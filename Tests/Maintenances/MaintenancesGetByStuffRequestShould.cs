@@ -2,7 +2,7 @@ namespace Destuff.Tests.Maintenances;
 
 public class MaintenancesGetByStuffRequestShould : IntegrationTestBase
 {
-    public MaintenancesGetByStuffRequestShould() : base(HttpMethod.Get, ApiRoutes.MaintenancesByStuff)
+    public MaintenancesGetByStuffRequestShould() : base(HttpMethod.Get, ApiRoutes.Maintenances)
     {
     }
 
@@ -16,14 +16,14 @@ public class MaintenancesGetByStuffRequestShould : IntegrationTestBase
         var stuffB = await AuthorizedSendAsync<StuffModel>(new StuffRequest { Name = "Stuff B" }, HttpMethod.Post, ApiRoutes.Stuffs);
         Assert.NotNull(stuffB);
 
-        var maintenance01 = await AuthorizedSendAsync<MaintenanceModel>(new MaintenanceRequest { StuffId = stuffA.Id, Name = "Maintenance 01" }, HttpMethod.Post, ApiRoutes.Maintenances);
+        var maintenance01 = await AuthorizedSendAsync<MaintenanceModel>(new MaintenanceRequest { StuffId = stuffA.Id, Name = "Maintenance 01" }, HttpMethod.Post);
         Assert.NotNull(maintenance01);
 
-        var maintenance02 = await AuthorizedSendAsync<MaintenanceModel>(new MaintenanceRequest { StuffId = stuffB.Id, Name = "Maintenance 02" }, HttpMethod.Post, ApiRoutes.Maintenances);
+        var maintenance02 = await AuthorizedSendAsync<MaintenanceModel>(new MaintenanceRequest { StuffId = stuffB.Id, Name = "Maintenance 02" }, HttpMethod.Post);
         Assert.NotNull(maintenance02);
 
         // Act
-        var results = await AuthorizedGetAsync<PagedList<MaintenanceListItem>>($"{ApiRoutes.MaintenancesByStuff}/{stuffB.Id}");
+        var results = await AuthorizedGetAsync<PagedList<MaintenanceListItem>>(ApiRoutes.QueryMaintenancesByStuff(stuffB.Id, new()));
 
         // Assert
         Assert.NotNull(results);

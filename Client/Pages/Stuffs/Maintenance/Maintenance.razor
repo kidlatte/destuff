@@ -2,42 +2,15 @@
 @inject IHttpService Http
 @inject IDialogService Dialog
 
-<div class="mw-100 mb-5">
-    @if (parents != null && parents.Count == 1) {
-            <dl>
-                <dt>Parent</dt>
-                <dd>
-                    @foreach (var item in parents) {
-                        <MudLink Href="@($"/stuffs/{item.Slug}")">@item.Name</MudLink>
-                    }
-                </dd>
-            </dl>
-    }
-    else if (parents != null && parents.Count > 1) {
-        <MudText Typo="Typo.h5">Parents</MudText>
-        <ul class="list">
-            @foreach (var item in parents) {
-                <li>
-                    <MudLink Href="@($"/stuffs/{item.Slug}")">@item.Name</MudLink>
-                </li>
-            }
-        </ul>
-    }
-</div>
-
-<MudDataGrid @ref="grid" T="StuffPartListItem" ServerData="LoadServerData" CurrentPage="gridPage" RowsPerPage="PageSize" Loading="loading"
+<MudDataGrid @ref="grid" T="MaintenanceListItem" ServerData="LoadServerData" CurrentPage="gridPage" RowsPerPage="PageSize" Loading="loading"
              SortMode="SortMode.Single" Elevation="0">
     <Columns>
-        <PropertyColumn Property="x => x.Part" Title="Parts">
-            <CellTemplate>
-                <MudLink Href="@($"/stuffs/{context.Item.Part.Slug}")">
-                    @context.Item.Part.Name
-                </MudLink>
-            </CellTemplate>
-        </PropertyColumn>
-        <PropertyColumn Property="x => x.Count" />
+        <PropertyColumn Property="x => x.Name" />
+        <PropertyColumn Property="x => x.EveryXDays" Title="Every x days" />
+        <PropertyColumn Property="x => x.Next" Format="d" />
         <TemplateColumn>
             <CellTemplate>
+                <MudIconButton OnClick="_ => OnEditClick(context.Item)" Icon="@Icons.Material.Filled.Edit" aria-label="edit"></MudIconButton>
                 <IconButtonDelete OnClick="_ => OnDeleteClick(context.Item)" />
             </CellTemplate>
         </TemplateColumn>
@@ -45,7 +18,7 @@
     <PagerContent>
         <div class="d-flex px-5 py-3">
             @if (PageCount > 1) {
-                    <MudPagination Count="PageCount" Selected="pagerPage" SelectedChanged="PageChanged" Color="Color.Primary" />
+                <MudPagination Count="PageCount" Selected="pagerPage" SelectedChanged="PageChanged" Color="Color.Primary" />
             }
             <MudSpacer />
             <MudButton OnClick="OnAddClick" Color="Color.Primary" Variant="Variant.Filled">
@@ -56,9 +29,8 @@
 </MudDataGrid>
 
 @code {
-    [Parameter] 
+    [Parameter]
     public required IStuffModel Model { get; set; }
-    string? modelId;
 
     [Parameter]
     public int? Page { get; set; }
@@ -68,24 +40,14 @@
     int PageSize => 10;
     int PageCount;
 
-    List<StuffListItem>? parents;
-
-    MudDataGrid<StuffPartListItem>? grid;
+    MudDataGrid<MaintenanceListItem>? grid;
     bool loading;
 
     protected override void OnInitialized() => PageCount = gridPage + 1;
 
-    protected override async Task OnParametersSetAsync()
-    {
-        pagerPage = Page ?? 1;
+    protected override void OnParametersSet() => pagerPage = Page ?? 1;
 
-        if (modelId != Model.Id) {
-            modelId = Model.Id;
-            parents = await Http.GetAsync<List<StuffListItem>>($"{ApiRoutes.StuffParents}/{modelId}");
-        }
-    }
-
-    async Task<GridData<StuffPartListItem>> LoadServerData(GridState<StuffPartListItem> state)
+    async Task<GridData<MaintenanceListItem>> LoadServerData(GridState<MaintenanceListItem> state)
     {
         var sort = state.SortDefinitions.FirstOrDefault();
         var query = new ListQuery {
@@ -96,7 +58,7 @@
             };
 
         loading = true;
-        var result = await Http.GetAsync<PagedList<StuffPartListItem>>($"{ApiRoutes.StuffParts}/{Model.Id}?{query}");
+        var result = await Http.GetAsync<PagedList<MaintenanceListItem>>(ApiRoutes.QueryMaintenancesByStuff(Model.Id, query));
         loading = false;
 
         if (result == null)
@@ -104,9 +66,9 @@
 
         PageCount = (result.Count - 1) / PageSize + 1;
         return new() {
-            Items = result.List,
-            TotalItems = result.Count
-        };
+                Items = result.List,
+                TotalItems = result.Count
+            };
     }
 
     void PageChanged(int i)
@@ -119,7 +81,7 @@
     async void OnAddClick()
     {
         var parameters = new DialogParameters();
-        parameters.Add(nameof(CreateModal.Model), new StuffPartRequest { ParentId = Model.Id, Count = 1 });
+        parameters.Add(nameof(CreateModal.Model), new MaintenanceRequest { StuffId = Model.Id });
 
         var dialog = await Dialog.ShowAsync<CreateModal>("", parameters);
         var result = await dialog.Result;
@@ -128,10 +90,24 @@
             await grid.ReloadServerData();
     }
 
-    async void OnDeleteClick(StuffPartListItem item)
+    async void OnEditClick(MaintenanceListItem item)
+    {
+        var model = await Http.GetAsync<MaintenanceModel>($"{ApiRoutes.Maintenances}/{item.Id}");
+
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(UpdateModal.Model), model);
+
+        var dialog = await Dialog.ShowAsync<UpdateModal>("", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled && grid != null)
+            await grid.ReloadServerData();
+    }
+
+    async void OnDeleteClick(MaintenanceListItem item)
     {
         var parameters = new DialogParameters();
-        parameters.Add(nameof(DeleteModal.Parent), Model);
+        parameters.Add(nameof(DeleteModal.Stuff), Model);
         parameters.Add(nameof(DeleteModal.Model), item);
 
         var dialog = await Dialog.ShowAsync<DeleteModal>("", parameters);

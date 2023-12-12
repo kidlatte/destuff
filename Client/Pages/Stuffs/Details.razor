@@ -1,5 +1,6 @@
 @page "/stuffs/{Slug}/{Tab?}"
 @using Destuff.Client.Pages.Stuffs.Events
+@using Destuff.Client.Pages.Stuffs.Maintenance
 @using Destuff.Client.Pages.Stuffs.Parts
 @attribute [Authorize]
 
@@ -103,6 +104,9 @@
         </MudTabPanel>
         <MudTabPanel Text="Locations">
             <StuffLocations Model="Model" PagerClass="pa-3" />
+        </MudTabPanel>
+        <MudTabPanel Text="Maintenance">
+            <Maintenance Model="Model" Page="Page" />
         </MudTabPanel>
         <MudTabPanel Text="Purchases">
             <Purchases Model="Model" Page="Page" />

@@ -1,0 +1,60 @@
+@inject IHttpService Http
+
+<EditForm OnValidSubmit="OnSubmit" Model="Model" autocomplete="off">
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6" Class="text-truncate pe-5">
+                Remove <strong>@Model.Name</strong>
+                from <em>@Stuff.Name</em>
+            </MudText>
+        </TitleContent>
+        <DialogContent>
+            <DataAnnotationsValidator />
+            <p>
+                Are you sure you want to remove
+                <strong>@Model.Name</strong> maintenance
+                from stuff
+                <em>@Stuff.Name</em>?
+            </p>
+
+            <MudText Color="@Color.Error">@error</MudText>
+        </DialogContent>
+        <DialogActions>
+            <LoadingButton Loading="loading" Label="DELETE" Color="Color.Warning" />
+            <MudButton OnClick="() => dialog?.Cancel()" Disabled="loading" Color="Color.Default">
+                Cancel
+            </MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+
+@code {
+    [CascadingParameter]
+    MudDialogInstance? dialog { get; set; }
+
+    [Parameter]
+    public required MaintenanceListItem Model { get; set; }
+
+    [Parameter]
+    public required IStuffModel Stuff { get; set; }
+
+    string error { get; set; } = "";
+    bool loading { get; set; } = false;
+
+    async Task OnSubmit()
+    {
+        loading = true;
+
+        try
+        {
+            await Http.DeleteAsync($"{ApiRoutes.Maintenances}/{Model.Id}");
+            dialog?.Close();
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+
+        loading = false;
+    }
+}
