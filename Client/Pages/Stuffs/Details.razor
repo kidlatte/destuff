@@ -138,7 +138,7 @@
             StuffTabs.Events => 4,
             _ => 0
         };
-        
+
         if (Model == null || Model.Slug != Slug)
             await LoadData();
     }
@@ -200,7 +200,6 @@
                 StateHasChanged();
             }
             else {
-                await LoadData();
                 Nav.NavigateTo($"stuffs/{data.Slug}");
             }
         }

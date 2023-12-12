@@ -40,5 +40,5 @@ public class MaintenanceModel: MaintenanceListItem
 
 public static class MaintenanceDefaults
 {
-    public static readonly string[] Names = new[] { "Cleanup", "Charging", "Checkup" };
+    public static readonly string[] Names = new[] { "Recharge", "Cleanup", "Checkup" };
 }

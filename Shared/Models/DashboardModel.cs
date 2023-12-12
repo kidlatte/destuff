@@ -7,4 +7,5 @@ public class DashboardModel
     public int InventoriedInMonth { get; set; }
 
     public required ICollection<StuffBasicModel> LatestStuffs { get; set; }
+    public required ICollection<MaintenanceModel> UpcomingMaintenances { get; set; }
 }

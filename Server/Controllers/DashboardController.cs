@@ -30,11 +30,16 @@ namespace Destuff.Server.Controllers
                 .ProjectTo<StuffBasicModel>(Mapper.ConfigurationProvider)
                 .ToListAsync();
 
-            return new DashboardModel { 
-                LatestStuffs = latestStuffs, 
+            var upcomingMaintenances = await Context.Maintenances.OrderBy(x => x.Next).Take(10)
+                .ProjectTo<MaintenanceModel>(Mapper.ConfigurationProvider)
+                .ToListAsync();
+
+            return new DashboardModel {
                 StuffCount = stuffCount,
                 InventoriedInMonth = inventoriedInMonth,
-                LocationCount = locationCount 
+                LocationCount = locationCount,
+                LatestStuffs = latestStuffs,
+                UpcomingMaintenances = upcomingMaintenances
             };
         }
     }

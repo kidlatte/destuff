@@ -15,7 +15,7 @@
                             <MudIcon Icon="@Icons.Material.Outlined.Category" Color="Color.Primary" Style="font-size: 4.6rem" />
                         </div>
                         <div class="flex-1">
-                            <MudText Typo="Typo.h6">Stuffs</MudText>
+                            <MudText Typo="Typo.h6">Stuff</MudText>
                             <MudText Typo="Typo.h4">@Model?.StuffCount</MudText>
                         </div>
                     </div>
@@ -53,7 +53,7 @@
             </a>
         </MudItem>
         <MudItem xs="12" sm="6">
-            <MudPaper Elevation="2" Style="height: 100%">
+            <MudPaper Elevation="2" Class="h-100">
                 <div class="px-3 pt-3">
                     <MudText Typo="Typo.h5">Latest Added Stuff</MudText>
                 </div>
@@ -65,6 +65,35 @@
                         }
                     }
                 </MudList>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudPaper Elevation="2" Class="h-100">
+                <div class="px-3 pt-3">
+                    <MudText Typo="Typo.h5">Latest Added Stuff</MudText>
+                </div>
+                <MudSimpleTable Class="table-layout-fixed">
+                    <tbody>
+                        @if (Model != null) {
+                            @foreach (var item in Model.UpcomingMaintenances) {
+                                <tr>
+                                    <td>
+                                        <MudText Typo="Typo.body1" Class="text-truncate">
+                                            <MudLink Href="@($"/stuffs/{item.Stuff.Slug}")">
+                                                @item.Stuff.Name
+                                            </MudLink>
+                                        </MudText>
+                                        <MudText Typo="Typo.subtitle2">
+                                            <em>@item.Name</em>
+                                            on
+                                            <strong>@item.Next.ToString("D")</strong>
+                                        </MudText>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </MudSimpleTable>
             </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="6">

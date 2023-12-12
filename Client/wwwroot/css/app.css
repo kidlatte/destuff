@@ -61,6 +61,10 @@ ul.list {
   white-space: nowrap;
 }
 
+.table-layout-fixed, .table-layout-fixed table {
+  table-layout: fixed;
+}
+
 .vertical-align-initial {
   vertical-align: initial;
 }
