@@ -13,7 +13,7 @@ public class MaintenancesCreateRequestShould : IntegrationTestBase
         var stuff = await AuthorizedSendAsync<StuffModel>(new StuffRequest { Name = "Stuff" }, HttpMethod.Post, ApiRoutes.Stuffs);
         Assert.NotNull(stuff);
 
-        var model = new MaintenanceRequest { StuffId = stuff.Id, Name = "Maintenance" };
+        var model = new MaintenanceRequest { StuffId = stuff.Id, Name = "Maintenance", EveryXDays = 1 };
 
         // Act
         var result = await AuthorizedSendAsync(model);

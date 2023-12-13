@@ -16,7 +16,8 @@ public class Maintenance : Entity
 }
 
 public class MaintenanceData
-{ 
+{
+    public DateTime? LastCompleted { get; set; }
 }
 
 public class MaintenanceLog : Entity, IEvent

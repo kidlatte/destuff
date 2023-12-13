@@ -13,7 +13,7 @@ public class MaintenancesGetRequestShould : IntegrationTestBase
         var stuff = await AuthorizedSendAsync<StuffModel>(new StuffRequest { Name = "Stuff" }, HttpMethod.Post, ApiRoutes.Stuffs);
         Assert.NotNull(stuff);
 
-        var create = new MaintenanceRequest { StuffId = stuff.Id, Name = "Maintenance" };
+        var create = new MaintenanceRequest { StuffId = stuff.Id, Name = "Maintenance", EveryXDays = 1 };
         await AuthorizedSendAsync<MaintenanceModel>(create, HttpMethod.Post);
 
         // Act
@@ -39,9 +39,9 @@ public class MaintenancesGetRequestShould : IntegrationTestBase
         var stuffB = await AuthorizedSendAsync<StuffModel>(new StuffRequest { Name = "Stuff B" }, HttpMethod.Post, ApiRoutes.Stuffs);
         Assert.NotNull(stuffB);
 
-        await AuthorizedSendAsync<MaintenanceModel>(new MaintenanceRequest { Name = "Maintenance 001", StuffId = stuffA.Id }, HttpMethod.Post);
-        await AuthorizedSendAsync<MaintenanceModel>(new MaintenanceRequest { Name = "Maintenance 002", StuffId = stuffA.Id }, HttpMethod.Post);
-        await AuthorizedSendAsync<MaintenanceModel>(new MaintenanceRequest { Name = "Maintenance 003", StuffId = stuffB.Id }, HttpMethod.Post);
+        await AuthorizedSendAsync<MaintenanceModel>(new MaintenanceRequest { Name = "Maintenance 001", StuffId = stuffA.Id, EveryXDays = 1 }, HttpMethod.Post);
+        await AuthorizedSendAsync<MaintenanceModel>(new MaintenanceRequest { Name = "Maintenance 002", StuffId = stuffA.Id, EveryXDays = 1 }, HttpMethod.Post);
+        await AuthorizedSendAsync<MaintenanceModel>(new MaintenanceRequest { Name = "Maintenance 003", StuffId = stuffB.Id, EveryXDays = 1 }, HttpMethod.Post);
 
         // Act
         var query = new ListQuery 

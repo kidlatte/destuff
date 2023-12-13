@@ -12,7 +12,7 @@ public class MaintenancesDeleteRequestShould : IntegrationTestBase
         var stuff = await AuthorizedSendAsync<StuffModel>(new StuffRequest { Name = "Stuff" }, HttpMethod.Post, ApiRoutes.Stuffs);
         Assert.NotNull(stuff);
 
-        var create = new MaintenanceRequest { StuffId = stuff.Id, Name = "Maintenance" };
+        var create = new MaintenanceRequest { StuffId = stuff.Id, Name = "Maintenance", EveryXDays = 1 };
         var created = await AuthorizedSendAsync<MaintenanceModel>(create, HttpMethod.Post);
         Assert.NotNull(created);
 
@@ -33,7 +33,7 @@ public class MaintenancesDeleteRequestShould : IntegrationTestBase
         var stuff = await AuthorizedSendAsync<StuffModel>(new StuffRequest { Name = "Stuff" }, HttpMethod.Post, ApiRoutes.Stuffs);
         Assert.NotNull(stuff);
 
-        var create = new MaintenanceRequest { StuffId = stuff.Id, Name = "Maintenance" };
+        var create = new MaintenanceRequest { StuffId = stuff.Id, Name = "Maintenance", EveryXDays = 1 };
         var model = await AuthorizedSendAsync<MaintenanceModel>(create, HttpMethod.Post);
         Assert.NotNull(model);
 

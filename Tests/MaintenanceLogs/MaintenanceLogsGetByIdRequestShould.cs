@@ -13,7 +13,7 @@ public class MaintenanceLogsGetByIdRequestShould : IntegrationTestBase
         var stuff = await AuthorizedSendAsync<StuffModel>(new StuffRequest { Name = "Stuff" }, HttpMethod.Post, ApiRoutes.Stuffs);
         Assert.NotNull(stuff);
 
-        var maintenance = await AuthorizedSendAsync<MaintenanceModel>(new MaintenanceRequest { StuffId = stuff.Id, Name = "Maintenance" }, HttpMethod.Post, ApiRoutes.Maintenances);
+        var maintenance = await AuthorizedSendAsync<MaintenanceModel>(new MaintenanceRequest { StuffId = stuff.Id, Name = "Maintenance", EveryXDays = 1 }, HttpMethod.Post, ApiRoutes.Maintenances);
         Assert.NotNull(maintenance);
 
         var create = new MaintenanceLogRequest { MaintenanceId = maintenance.Id };
@@ -34,7 +34,7 @@ public class MaintenanceLogsGetByIdRequestShould : IntegrationTestBase
         var stuff = await AuthorizedSendAsync<StuffModel>(new StuffRequest { Name = "Stuff 001" }, HttpMethod.Post, ApiRoutes.Stuffs);
         Assert.NotNull(stuff);
 
-        var maintenance = await AuthorizedSendAsync<MaintenanceModel>(new MaintenanceRequest { StuffId = stuff.Id, Name = "Maintenance" }, HttpMethod.Post, ApiRoutes.Maintenances);
+        var maintenance = await AuthorizedSendAsync<MaintenanceModel>(new MaintenanceRequest { StuffId = stuff.Id, Name = "Maintenance", EveryXDays = 1 }, HttpMethod.Post, ApiRoutes.Maintenances);
         Assert.NotNull(maintenance);
 
         var create = new MaintenanceLogRequest { MaintenanceId = maintenance.Id };

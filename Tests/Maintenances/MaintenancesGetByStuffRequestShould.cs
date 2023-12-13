@@ -16,10 +16,10 @@ public class MaintenancesGetByStuffRequestShould : IntegrationTestBase
         var stuffB = await AuthorizedSendAsync<StuffModel>(new StuffRequest { Name = "Stuff B" }, HttpMethod.Post, ApiRoutes.Stuffs);
         Assert.NotNull(stuffB);
 
-        var maintenance01 = await AuthorizedSendAsync<MaintenanceModel>(new MaintenanceRequest { StuffId = stuffA.Id, Name = "Maintenance 01" }, HttpMethod.Post);
+        var maintenance01 = await AuthorizedSendAsync<MaintenanceModel>(new MaintenanceRequest { StuffId = stuffA.Id, Name = "Maintenance 01", EveryXDays = 1 }, HttpMethod.Post);
         Assert.NotNull(maintenance01);
 
-        var maintenance02 = await AuthorizedSendAsync<MaintenanceModel>(new MaintenanceRequest { StuffId = stuffB.Id, Name = "Maintenance 02" }, HttpMethod.Post);
+        var maintenance02 = await AuthorizedSendAsync<MaintenanceModel>(new MaintenanceRequest { StuffId = stuffB.Id, Name = "Maintenance 02", EveryXDays = 1 }, HttpMethod.Post);
         Assert.NotNull(maintenance02);
 
         // Act

@@ -53,7 +53,14 @@ public class MaintenanceLogsController : BaseController<MaintenanceLog, Maintena
 
     internal override async Task BeforeCreateAsync(MaintenanceLog entity, MaintenanceLogRequest _)
     {
+        var utcNow = DateTimeProvider.UtcNow;
+        
         var maintenance = await Context.Maintenances.Where(x => x.Id == entity.MaintenanceId).FirstAsync();
+        maintenance.Next = utcNow.AddDays(maintenance.EveryXDays);
+
+        maintenance.Data ??= new MaintenanceData();
+        maintenance.Data.LastCompleted = utcNow;
+
         entity.Name = maintenance.Name;
         entity.StuffId = maintenance.StuffId;
     }
